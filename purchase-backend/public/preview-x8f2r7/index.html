@@ -1361,6 +1361,36 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .onboard-demo-line a{color:var(--core);cursor:pointer;font-weight:600;text-decoration:none}
 .onboard-demo-line a:hover{text-decoration:underline}
 
+/* Three-phase source discovery — auto-scan / network / phones */
+.onboard-phase{margin-top:24px;padding:22px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005));
+  border:1px solid rgba(255,255,255,.07);max-width:720px}
+.onboard-phase-h{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.onboard-phase-num{width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(31,111,242,.22),rgba(31,111,242,.06));
+  border:1px solid rgba(31,111,242,.32);color:var(--core);
+  display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;flex-shrink:0}
+.onboard-phase-t{flex:1;min-width:0}
+.onboard-phase-t .n{font-size:15px;color:var(--ink);font-weight:600;letter-spacing:-.005em}
+.onboard-phase-t .s{font-size:12.5px;color:var(--dim);margin-top:2px;line-height:1.5;max-width:520px}
+.onboard-phase-status{flex-shrink:0;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;padding:4px 10px;border-radius:99px}
+.onboard-phase-status.ok{color:var(--ok);background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.24)}
+.onboard-scan-btn{padding:8px 16px;font-size:12px;font-weight:600;color:var(--core);
+  background:rgba(31,111,242,.1);border:1px solid rgba(31,111,242,.32);border-radius:99px;
+  cursor:pointer;transition:all .18s;letter-spacing:.02em;flex-shrink:0}
+.onboard-scan-btn:hover{background:rgba(31,111,242,.18);border-color:rgba(31,111,242,.5)}
+.onboard-scan-status{padding:20px;text-align:center;color:var(--dim);font-size:13px;
+  border:1px dashed rgba(255,255,255,.09);border-radius:12px;font-style:italic;
+  background:rgba(255,255,255,.015)}
+.onboard-scan-status::before{content:"⏱ ";color:var(--core);font-style:normal}
+.onboard-phone-help{margin-bottom:12px;padding:14px 18px;border-radius:12px;
+  background:rgba(31,111,242,.05);border:1px solid rgba(31,111,242,.14)}
+.onboard-help-row{font-size:12.5px;color:var(--dim);line-height:1.7;padding:2px 0}
+.onboard-help-row b{color:var(--ink);font-weight:600;margin-right:4px}
+.onboard-empty{padding:24px;text-align:center;color:var(--dim);font-size:13px;
+  border:1px dashed rgba(255,255,255,.09);border-radius:12px;background:rgba(255,255,255,.015);line-height:1.5}
+.onboard-empty b{color:var(--ink);font-weight:600}
+
 /* Sources checklist — larger, more editorial */
 .onboard-sources{margin-top:6px;display:flex;flex-direction:column;gap:10px;max-width:720px}
 .onboard-src{display:flex;align-items:center;gap:16px;padding:18px 22px;
@@ -4666,25 +4696,56 @@ function _onbRender(kind) {
       <div class="onboard-demo-line">No licence yet? <a onclick="_onbState.demo=true;onboardStep(1)">Try the demo library →</a></div>`;
 
     if (kind === 'sources') {
-        const detected = _onbDetectedSources();
-        const rows = detected.map(s => {
-            const on = _onbState.sources[s.key] !== false;
-            return `
-            <div class="onboard-src ${on ? 'on' : ''}" onclick="_onbToggleSrc('${s.key}')">
-              <div class="onboard-src-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12l6 6 10-12"/></svg></div>
-              <div class="onboard-src-ico">${s.ico}</div>
-              <div class="onboard-src-t">
-                <div class="n">${s.name}</div>
-                <div class="s">${s.desc}</div>
-              </div>
-              <div class="onboard-src-count">${s.count} files · ${s.size}</div>
-            </div>`;
-        }).join('');
         return `
           <div class="onboard-eyebrow"><span class="onboard-eyebrow-num">2</span>Photo sources</div>
           <h1 class="onboard-title">Where are your <em>photos?</em></h1>
-          <p class="onboard-lead">We spotted these on your machine. Uncheck any you'd rather leave alone — <b>nothing is scanned until you hit Continue</b>. Add or remove sources any time.</p>
-          <div class="onboard-sources">${rows}</div>`;
+          <p class="onboard-lead">Three phases. <b>Automatic on this machine</b>, then optional network scan for NAS + other computers, then hand-off from phones. Uncheck anything you'd rather leave alone — <b>nothing scans until you hit Continue</b>.</p>
+
+          <!-- PHASE A — This device -->
+          <div class="onboard-phase">
+            <div class="onboard-phase-h">
+              <span class="onboard-phase-num">A</span>
+              <div class="onboard-phase-t">
+                <div class="n">This ${_onbDeviceName()}</div>
+                <div class="s">Auto-scanned — found in your Pictures folder, iCloud/OneDrive sync folders, and any external drives currently plugged in.</div>
+              </div>
+              <div class="onboard-phase-status ok">✓ Scanned</div>
+            </div>
+            <div class="onboard-sources">${_onbLocalRows()}</div>
+          </div>
+
+          <!-- PHASE B — Network devices -->
+          <div class="onboard-phase" id="onbPhaseNet">
+            <div class="onboard-phase-h">
+              <span class="onboard-phase-num">B</span>
+              <div class="onboard-phase-t">
+                <div class="n">Devices on your network</div>
+                <div class="s">NAS boxes, other computers, network shares. Scan is on-demand — nothing pings anything until you press the button.</div>
+              </div>
+              ${_onbState.networkScanned
+                  ? `<div class="onboard-phase-status ok">✓ Scanned</div>`
+                  : `<button class="onboard-scan-btn" onclick="_onbScanNetwork()">Scan network</button>`}
+            </div>
+            <div class="onboard-sources" id="onbNetSources">${_onbState.networkScanned ? _onbNetworkRows() : ''}</div>
+          </div>
+
+          <!-- PHASE C — Phones + tablets -->
+          <div class="onboard-phase">
+            <div class="onboard-phase-h">
+              <span class="onboard-phase-num">C</span>
+              <div class="onboard-phase-t">
+                <div class="n">Connect your phones &amp; tablets</div>
+                <div class="s">Plug your phone into this ${_onbDeviceName()} to unlock its camera roll — no cloud in the middle. Repeat for as many devices as you like.</div>
+              </div>
+            </div>
+            <div class="onboard-phone-help">
+              <div class="onboard-help-row"><b>iPhone:</b> plug in via Lightning/USB-C, unlock, tap <b>Trust this computer</b>. SnapIT reads /DCIM directly.</div>
+              <div class="onboard-help-row"><b>Android:</b> plug in via USB-C, drop the notification into <b>File transfer (MTP)</b>. SnapIT picks up /DCIM + /Pictures.</div>
+              <div class="onboard-help-row"><b>Wi-Fi option:</b> install the SnapIT companion (free, in the app store) and both devices pair over your local network — no cable needed.</div>
+            </div>
+            <div class="onboard-sources" id="onbPhoneSources">${_onbPhoneRows()}</div>
+            <button class="onboard-scan-btn" style="margin-top:10px" onclick="_onbSimAddPhone()">＋ Simulate a phone connect</button>
+          </div>`;
     }
 
     if (kind === 'prefs') {
@@ -4742,16 +4803,117 @@ function _onbRender(kind) {
     return '';
 }
 
-function _onbDetectedSources() {
-    // Fake source detection — in the real app this is Rust os-scan
-    return [
-        { key:'iphone',     name:'iPhone 15 Pro',          desc:'iCloud Photos over local Wi-Fi', ico:'📱', count:'12 481', size:'87 GB' },
-        { key:'macphotos',  name:'Photos.app (macOS)',     desc:'/Users/vincent/Pictures/Photos Library',  ico:'🖼', count:'18 220', size:'142 GB' },
-        { key:'nikon',      name:'Nikon Z8 · Card',        desc:'/Volumes/NIKON-Z8-A/DCIM', ico:'📷', count:'612', size:'22 GB' },
-        { key:'externalssd',name:'External SSD · TRAVEL',  desc:'/Volumes/TRAVEL — legacy backups', ico:'💾', count:'6 480', size:'54 GB' },
-        { key:'nas',        name:'NAS · Family',           desc:'smb://nas.local/family/photos',    ico:'🖥', count:'22 145', size:'318 GB' },
-        { key:'whatsapp',   name:'WhatsApp Media',         desc:'~/Library/Application Support/WhatsApp/Media', ico:'💬', count:'987', size:'2 GB' },
+// Detect current-device platform label from userAgent
+function _onbDeviceName() {
+    const ua = navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(ua)) return 'iOS device';
+    if (/Android/.test(ua))          return 'Android device';
+    if (/Mac/.test(ua))              return 'Mac';
+    if (/Win/.test(ua))              return 'PC';
+    if (/Linux/.test(ua))            return 'computer';
+    return 'device';
+}
+
+// PHASE A — locally on this laptop/PC (auto)
+function _onbLocalSources() {
+    const mac = /Mac/.test(navigator.userAgent);
+    const win = /Win/.test(navigator.userAgent);
+    // Real OS-specific paths — Rust indexer will populate these from a
+    // filesystem probe. Mock hard-codes the archetypes.
+    if (mac) return [
+        { key:'macpictures', name:'Pictures folder',    desc:'~/Pictures — top-level photos + subfolders', ico:'🖼', count:'8 412', size:'74 GB' },
+        { key:'macphotos',   name:'Photos.app library', desc:'~/Pictures/Photos Library.photoslibrary',   ico:'📚', count:'18 220', size:'142 GB' },
+        { key:'iclouddrive', name:'iCloud Drive · Photos', desc:'iCloud sync folder — pulls when files land', ico:'☁️', count:'2 480', size:'11 GB' },
+        { key:'externalssd', name:'External SSD · TRAVEL', desc:'/Volumes/TRAVEL — plugged in now', ico:'💾', count:'6 480', size:'54 GB' },
     ];
+    if (win) return [
+        { key:'winpictures', name:'Pictures folder',     desc:'C:\\Users\\you\\Pictures — top-level photos', ico:'🖼', count:'6 240', size:'52 GB' },
+        { key:'onedrive',    name:'OneDrive · Pictures', desc:'OneDrive sync folder — pulls when files land', ico:'☁️', count:'2 100', size:'9 GB' },
+        { key:'externalssd', name:'External SSD · E:',  desc:'E:\\ — plugged in now', ico:'💾', count:'4 610', size:'38 GB' },
+    ];
+    // Linux + fallback
+    return [
+        { key:'linuxpictures', name:'~/Pictures',    desc:'Home Pictures folder + subfolders', ico:'🖼', count:'5 180', size:'44 GB' },
+        { key:'externalssd',   name:'External SSD',  desc:'/media/you/TRAVEL — plugged in now', ico:'💾', count:'3 200', size:'27 GB' },
+    ];
+}
+function _onbLocalRows() {
+    return _onbLocalSources().map(s => {
+        const on = _onbState.sources[s.key] !== false;
+        return `
+        <div class="onboard-src ${on ? 'on' : ''}" onclick="_onbToggleSrc('${s.key}')">
+          <div class="onboard-src-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12l6 6 10-12"/></svg></div>
+          <div class="onboard-src-ico">${s.ico}</div>
+          <div class="onboard-src-t"><div class="n">${s.name}</div><div class="s">${s.desc}</div></div>
+          <div class="onboard-src-count">${s.count} files · ${s.size}</div>
+        </div>`;
+    }).join('');
+}
+
+// PHASE B — network scan (on-demand)
+function _onbScanNetwork() {
+    _onbState.networkScanned = true;
+    _onbState.networkPending = true;
+    renderOnboard();
+    // Simulate a 1.5s scan then reveal results
+    setTimeout(() => {
+        _onbState.networkPending = false;
+        renderOnboard();
+    }, 1500);
+}
+function _onbNetworkSources() {
+    return [
+        { key:'nasfamily', name:'NAS · Family',       desc:'smb://192.168.1.14/family — Synology DS923+', ico:'🖥', count:'22 145', size:'318 GB' },
+        { key:'macbook',   name:"Elena's MacBook",    desc:'afp://elena-mbp.local/Photos — auto-detected', ico:'💻', count:'12 040', size:'96 GB' },
+        { key:'timecap',   name:'Time Capsule backup',desc:'afp://timecapsule.local/Backups.backupdb',    ico:'💿', count:'8 320', size:'62 GB' },
+    ];
+}
+function _onbNetworkRows() {
+    if (_onbState.networkPending) {
+        return `<div class="onboard-scan-status">Pinging local subnet · looking for SMB, AFP, NFS shares…</div>`;
+    }
+    return _onbNetworkSources().map(s => {
+        const on = _onbState.sources[s.key] !== false;
+        return `
+        <div class="onboard-src ${on ? 'on' : ''}" onclick="_onbToggleSrc('${s.key}')">
+          <div class="onboard-src-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12l6 6 10-12"/></svg></div>
+          <div class="onboard-src-ico">${s.ico}</div>
+          <div class="onboard-src-t"><div class="n">${s.name}</div><div class="s">${s.desc}</div></div>
+          <div class="onboard-src-count">${s.count} files · ${s.size}</div>
+        </div>`;
+    }).join('');
+}
+
+// PHASE C — phones + tablets (connect-required)
+function _onbPhoneRows() {
+    const phones = _onbState.phones || [];
+    if (!phones.length) {
+        return `<div class="onboard-empty">No phones connected yet. Plug one in, or tap <b>Simulate a phone connect</b> below to see how this looks.</div>`;
+    }
+    return phones.map(p => {
+        const on = _onbState.sources[p.key] !== false;
+        return `
+        <div class="onboard-src ${on ? 'on' : ''}" onclick="_onbToggleSrc('${p.key}')">
+          <div class="onboard-src-check"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 12l6 6 10-12"/></svg></div>
+          <div class="onboard-src-ico">${p.ico}</div>
+          <div class="onboard-src-t"><div class="n">${p.name} <span style="color:var(--ok);font-size:10px;letter-spacing:.14em;font-weight:700;margin-left:6px">CONNECTED</span></div><div class="s">${p.desc}</div></div>
+          <div class="onboard-src-count">${p.count} files · ${p.size}</div>
+        </div>`;
+    }).join('');
+}
+// Fake-connect a phone so the walkthrough can demo the mechanic
+function _onbSimAddPhone() {
+    _onbState.phones = _onbState.phones || [];
+    const phoneArchetypes = [
+        { name:'iPhone 15 Pro',     desc:'USB · Trust prompt accepted · reading /DCIM',       ico:'📱', count:'12 481', size:'87 GB' },
+        { name:'Samsung Galaxy S24',desc:'USB · MTP mode · /DCIM + /Pictures',                 ico:'📱', count:'8 940',  size:'54 GB' },
+        { name:'iPad Pro',          desc:'Wi-Fi · SnapIT companion paired',                    ico:'📱', count:'2 145',  size:'18 GB' },
+    ];
+    const idx = _onbState.phones.length;
+    if (idx >= phoneArchetypes.length) return;
+    const p = { ...phoneArchetypes[idx], key: `phone-${idx}` };
+    _onbState.phones.push(p);
+    renderOnboard();
 }
 function _onbToggleSrc(key) {
     _onbState.sources[key] = _onbState.sources[key] === false;
