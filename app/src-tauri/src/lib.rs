@@ -10,12 +10,13 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use serde::Serialize;
-use tauri::{Emitter, State};
+use tauri::{Emitter, Manager, State};
 
 mod ai;
 mod catalog;
 mod edit;
 mod licence;
+mod prefs;
 mod storage;
 
 pub struct AppState {
@@ -55,6 +56,7 @@ async fn catalog_open(path: String, state: State<'_, AppState>) -> Result<Catalo
     let root = PathBuf::from(&path);
     catalog::open_or_init(&root).map_err(|e| e.to_string())?;
     *state.library.lock().unwrap() = Some(root.clone());
+    prefs::note_library(&root);
 
     // (Re)start the folder watcher on the newly-opened library.
     match storage::watch::LibraryWatch::start(root.clone()) {
@@ -63,6 +65,11 @@ async fn catalog_open(path: String, state: State<'_, AppState>) -> Result<Catalo
     }
 
     Ok(build_state(&state))
+}
+
+#[tauri::command]
+async fn prefs_get() -> Result<prefs::Prefs, String> {
+    Ok(prefs::load())
 }
 
 #[tauri::command]
@@ -260,11 +267,28 @@ pub fn run() {
             last_scan_at: Mutex::new(None),
             watch: Mutex::new(None),
         })
-        .setup(|_app| {
-            // Placeholder for future startup work (rehydrate last library, etc.).
+        .setup(|app| {
+            // Auto-reopen the last library if it's still on disk.
+            let p = prefs::load();
+            if let Some(last) = p.last_library {
+                let root = PathBuf::from(&last);
+                if root.is_dir() {
+                    if catalog::open_or_init(&root).is_ok() {
+                        let state = app.state::<AppState>();
+                        *state.library.lock().unwrap() = Some(root.clone());
+                        match storage::watch::LibraryWatch::start(root) {
+                            Ok(w) => *state.watch.lock().unwrap() = Some(w),
+                            Err(e) => tracing::warn!("watch start after rehydrate: {}", e),
+                        }
+                    }
+                } else {
+                    tracing::info!("last library {} no longer exists on disk", last);
+                }
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            prefs_get,
             catalog_state,
             catalog_open,
             library_scan,
