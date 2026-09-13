@@ -12,12 +12,12 @@ use std::sync::Mutex;
 use serde::Serialize;
 use tauri::{Emitter, Manager, State};
 
-mod ai;
-mod catalog;
-mod edit;
-mod licence;
-mod prefs;
-mod storage;
+pub mod ai;
+pub mod catalog;
+pub mod edit;
+pub mod licence;
+pub mod prefs;
+pub mod storage;
 
 pub struct AppState {
     pub library: Mutex<Option<PathBuf>>,

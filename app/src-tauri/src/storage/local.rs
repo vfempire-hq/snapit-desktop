@@ -47,8 +47,14 @@ pub fn scan_with_progress(library_root: &Path, on_progress: Option<ScanProgress>
         .follow_links(false)
         .into_iter()
         .filter_entry(|e| {
+            // The root itself always passes — otherwise a library at
+            // C:\Users\name\.pictures or a tempdir named .tmpXXXX would
+            // yield zero photos silently. Only DESCEND-time filtering.
+            if e.depth() == 0 {
+                return true;
+            }
             let name = e.file_name().to_string_lossy();
-            // skip our own catalog dir + dot-dirs
+            // skip our own catalog dir + dot-dirs + OS junk
             !(name == crate::catalog::CATALOG_DIR
                 || name.starts_with('.')
                 || name == "@eaDir"
