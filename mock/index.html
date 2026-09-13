@@ -675,99 +675,138 @@ main{position:relative;padding-top:0;padding-bottom:80px}
    participation stats + top shots + related events at bottom.
    ================================================================ */
 .event-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);
-  width:min(940px,94vw);max-height:92vh;background:#181a20;border-radius:14px;overflow:hidden;
-  opacity:0;pointer-events:none;transition:opacity .32s,transform .32s;z-index:101;
-  box-shadow:0 40px 90px -30px rgba(0,0,0,.9);display:flex;flex-direction:column}
+  width:min(1080px,96vw);max-height:94vh;
+  background:linear-gradient(180deg,#161821 0%,#0f1017 100%);
+  border:1px solid rgba(255,255,255,.06);border-radius:20px;overflow:hidden;
+  opacity:0;pointer-events:none;transition:opacity .35s,transform .35s;z-index:101;
+  box-shadow:0 60px 120px -30px rgba(0,0,0,.9),0 0 0 1px rgba(74,148,255,.05);
+  display:flex;flex-direction:column;isolation:isolate}
 .event-modal.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
-.em-scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
-.em-scroll::-webkit-scrollbar{width:8px}
+.em-scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;position:relative}
+.em-scroll::-webkit-scrollbar{width:10px}
 .em-scroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:99px}
 
+/* Subtle grain overlay on the whole modal — the polish move */
+.event-modal::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.25;z-index:1;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+
+/* ============ HERO ============ */
 .em-hero{position:relative;aspect-ratio:16/7;background:#050506;overflow:hidden}
-.em-hero .comp{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(3,1fr);gap:0;transform:scale(1.06)}
+.em-hero .comp{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(3,1fr);gap:0;transform:scale(1.08);filter:saturate(1.12)}
 .em-hero .comp img{width:100%;height:100%;object-fit:cover}
 .em-hero .veil{position:absolute;inset:0;background:
-  linear-gradient(180deg,transparent 40%,rgba(24,26,32,.6) 70%,#181a20 100%),
-  linear-gradient(90deg,rgba(24,26,32,.9) 0%,transparent 55%)}
-.em-hero .inner{position:absolute;left:32px;right:32px;bottom:24px;z-index:2}
-.em-hero .k{color:var(--core);font-size:11px;letter-spacing:.28em;text-transform:uppercase;
-  font-weight:700;margin-bottom:10px}
-.em-hero h2{font-size:38px;font-weight:600;letter-spacing:-.025em;line-height:1.02;margin-bottom:8px}
+  linear-gradient(180deg,transparent 30%,rgba(15,16,23,.6) 65%,#161821 100%),
+  linear-gradient(90deg,rgba(15,16,23,.94) 0%,rgba(15,16,23,.55) 45%,transparent 75%),
+  radial-gradient(circle at 25% 45%,rgba(74,148,255,.14),transparent 55%)}
+.em-hero .inner{position:absolute;left:36px;right:36px;bottom:32px;z-index:2;max-width:640px}
+.em-hero .k{color:var(--core);font-size:11px;letter-spacing:.32em;text-transform:uppercase;
+  font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.em-hero .k .dot{width:6px;height:6px;background:var(--core);border-radius:50%;box-shadow:0 0 8px var(--core);animation:em-pulse 2s ease-in-out infinite}
+@keyframes em-pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.em-hero h2{font-size:clamp(38px,4.2vw,54px);font-weight:600;letter-spacing:-.028em;line-height:1;margin-bottom:14px}
 .em-hero h2 em{font-family:'Instrument',serif;font-style:italic;color:var(--core);font-weight:400}
-.em-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;
-  background:rgba(0,0,0,.7);color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:20px;z-index:3;backdrop-filter:blur(8px);transition:background .18s}
-.em-close:hover{background:rgba(0,0,0,.9)}
+.em-hero .hero-sub{color:rgba(255,255,255,.72);font-size:14.5px;line-height:1.5;text-shadow:0 1px 3px rgba(0,0,0,.4);max-width:520px}
+.em-hero .hero-sub b{color:#fff;font-weight:600}
+.em-hero .hero-sub .conf{color:#3ecf8e;font-weight:700}
+.em-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;
+  background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:22px;z-index:3;backdrop-filter:blur(12px);transition:all .18s;
+  border:1px solid rgba(255,255,255,.08)}
+.em-close:hover{background:rgba(0,0,0,.9);transform:scale(1.05)}
 
-.em-body{padding:24px 32px 30px}
-.em-row{display:flex;gap:32px;flex-wrap:wrap;margin-bottom:24px}
-.em-col{flex:1;min-width:0}
+/* ============ BODY ============ */
+.em-body{padding:28px 36px 40px}
 
-.em-meta-pills{display:flex;flex-wrap:wrap;gap:8px 14px;color:var(--dim);font-size:13.5px;margin-bottom:16px}
-.em-meta-pills .match{color:#3ecf8e;font-weight:700}
-.em-meta-pills b{color:var(--ink);font-weight:600}
-.em-desc{font-size:14.5px;color:#c9ccd3;line-height:1.65;max-width:600px}
+/* Meta line — refined */
+.em-meta-pills{display:flex;flex-wrap:wrap;gap:0;color:rgba(255,255,255,.72);font-size:13.5px;margin-bottom:22px;align-items:center}
+.em-meta-pills > span{padding:0 12px;border-left:1px solid var(--line);letter-spacing:.01em}
+.em-meta-pills > span:first-child{padding-left:0;border-left:none}
+.em-meta-pills .match{color:#3ecf8e;font-weight:700;letter-spacing:.04em}
+.em-meta-pills b{color:#fff;font-weight:600}
+.em-desc{font-size:15px;color:#c9ccd3;line-height:1.7;max-width:640px;margin-bottom:24px}
+.em-desc b{color:#fff;font-weight:600}
 
-.em-actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 24px}
-.em-actions .b{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;
-  display:inline-flex;align-items:center;gap:8px;transition:opacity .18s}
-.em-actions .b.pri{background:var(--ink);color:#0b0b0e}
-.em-actions .b.pri:hover{opacity:.8}
-.em-actions .b.sec{background:rgba(255,255,255,.14);color:#fff}
-.em-actions .b.sec:hover{background:rgba(255,255,255,.22)}
+/* ============ ACTIONS ============ */
+.em-actions{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 32px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.em-actions .b{padding:11px 20px;border-radius:99px;font-size:13.5px;font-weight:600;letter-spacing:.005em;
+  display:inline-flex;align-items:center;gap:8px;transition:all .18s;border:1px solid transparent}
+.em-actions .b.pri{background:#fff;color:#0b0b0e}
+.em-actions .b.pri:hover{transform:translateY(-1px);box-shadow:0 8px 24px -8px rgba(255,255,255,.4)}
+.em-actions .b.sec{background:rgba(255,255,255,.06);color:#fff;border-color:rgba(255,255,255,.1)}
+.em-actions .b.sec:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
 
-/* Facts grid — the auto-detected metadata block */
-.em-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:22px 24px;
-  background:var(--bg-3);border-radius:12px;margin-bottom:24px}
-.em-fact{}
-.em-fact .l{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
-  font-weight:600;margin-bottom:4px}
-.em-fact .v{font-size:15px;color:var(--ink);font-weight:500}
+/* ============ FACTS GRID — the polished tile version ============ */
+.em-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:36px}
+.em-fact{background:linear-gradient(180deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.015) 100%);
+  border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px 22px;position:relative;transition:all .22s;overflow:hidden}
+.em-fact:hover{border-color:rgba(74,148,255,.24);background:linear-gradient(180deg,rgba(74,148,255,.05) 0%,rgba(255,255,255,.02) 100%);transform:translateY(-2px)}
+.em-fact .ic{width:32px;height:32px;border-radius:9px;background:var(--core-soft);color:var(--core);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.em-fact .ic svg{width:16px;height:16px}
+.em-fact .l{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.42);
+  font-weight:600;margin-bottom:6px}
+.em-fact .v{font-size:17px;color:#fff;font-weight:600;letter-spacing:-.008em;line-height:1.2}
+.em-fact .v em{font-family:'Instrument',serif;font-style:italic;color:var(--core);font-weight:400;font-size:.92em}
 .em-fact .v b{color:var(--core);font-weight:600}
-.em-fact .v small{color:var(--dim);font-weight:400;display:block;font-size:11.5px;margin-top:2px}
+.em-fact .v small{color:rgba(255,255,255,.5);font-weight:400;display:block;font-size:12px;margin-top:5px;letter-spacing:.005em;line-height:1.45}
 
-/* Participation strip — drives + cameras + people that contributed */
-.em-strip-title{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
-  font-weight:600;margin-bottom:12px}
-.em-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
-.em-chip{padding:6px 12px;border:1px solid var(--line);border-radius:99px;background:var(--bg-2);
-  font-size:12px;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
-.em-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--core)}
-.em-chip .dot.ig{background:#dd2a7b}
-.em-chip .dot.tt{background:#00f2ea}
-.em-chip .dot.dr{background:var(--core)}
-.em-chip small{color:var(--dim);font-size:10.5px;margin-left:2px}
+/* ============ SECTIONS ============ */
+.em-section{margin-bottom:34px}
+.em-section-title{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.42);
+  font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.em-section-title::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.06)}
+.em-section-title span{color:var(--core);font-weight:600;letter-spacing:.05em}
 
-/* People contribution row inside the modal */
-.em-people{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:26px}
-.em-person{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;
-  background:var(--bg-3);border:1px solid var(--line);border-radius:99px}
-.em-person .av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:700;font-size:11px}
-.em-person .info{font-size:12.5px;color:var(--ink);font-weight:500}
-.em-person .info small{color:var(--dim);font-weight:400;font-size:10.5px;display:block;letter-spacing:.02em}
+/* ============ SOURCE CHIPS ============ */
+.em-chips{display:flex;flex-wrap:wrap;gap:8px}
+.em-chip{padding:9px 14px 9px 10px;border:1px solid rgba(255,255,255,.08);border-radius:99px;
+  background:rgba(255,255,255,.03);font-size:12.5px;color:#fff;display:inline-flex;align-items:center;
+  gap:9px;transition:all .18s;font-weight:500}
+.em-chip:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);transform:translateY(-1px)}
+.em-chip .chip-ic{width:22px;height:22px;border-radius:6px;background:var(--core);color:#fff;display:flex;
+  align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.em-chip .chip-ic.ig{background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)}
+.em-chip .chip-ic.tt{background:#000;color:#00f2ea}
+.em-chip .chip-ic.dr{background:#3a3d47;color:#fff}
+.em-chip .chip-ic.cam{background:#5b6478;color:#fff}
+.em-chip small{color:rgba(255,255,255,.55);font-size:11.5px;font-weight:500;letter-spacing:.01em}
 
-/* Top-shots preview grid */
-.em-shots{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:26px}
-.em-shots .s{aspect-ratio:1;border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .18s}
-.em-shots .s:hover{transform:scale(1.04)}
+/* ============ PEOPLE ROW ============ */
+.em-people{display:flex;gap:10px;flex-wrap:wrap}
+.em-person{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:99px;
+  transition:all .18s;cursor:pointer}
+.em-person:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.16);transform:translateY(-1px)}
+.em-person .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:12px;flex-shrink:0;border:2px solid rgba(255,255,255,.08)}
+.em-person .info{font-size:13px;color:#fff;font-weight:600;letter-spacing:-.005em;line-height:1.2}
+.em-person .info small{color:rgba(255,255,255,.5);font-weight:500;font-size:11px;display:block;margin-top:2px;letter-spacing:.01em}
+
+/* ============ TOP SHOTS ============ */
+.em-shots{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.em-shots .s{aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:zoom-in;transition:all .24s;position:relative;
+  border:1px solid rgba(255,255,255,.04)}
+.em-shots .s:hover{transform:scale(1.06);border-color:rgba(74,148,255,.4);z-index:2;
+  box-shadow:0 12px 24px -8px rgba(0,0,0,.6)}
 .em-shots .s img{width:100%;height:100%;object-fit:cover;display:block}
+.em-shots .s.hero-shot{grid-column:span 2;grid-row:span 2}
+.em-shots .s .star-ind{position:absolute;top:6px;right:6px;color:var(--gold);font-size:12px;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
 
-/* Related-events row at the bottom */
-.em-rel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.em-relcard{background:var(--bg-3);border-radius:8px;overflow:hidden;cursor:pointer;
-  transition:transform .18s,background .18s;position:relative}
-.em-relcard:hover{transform:translateY(-2px);background:var(--surface)}
-.em-relcard-img{aspect-ratio:16/9;overflow:hidden}
-.em-relcard-img img{width:100%;height:100%;object-fit:cover}
-.em-relcard .cap{padding:10px 12px}
-.em-relcard .cap .t{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
-.em-relcard .cap .m{font-size:11px;color:var(--dim)}
-
-/* Section titles inside the modal */
-.em-section-title{font-size:16px;font-weight:600;letter-spacing:-.005em;color:var(--ink);
-  margin-bottom:12px;display:flex;align-items:baseline;gap:8px}
-.em-section-title span{color:var(--dim);font-size:12px;font-weight:400;letter-spacing:0}
+/* ============ RELATED EVENTS ============ */
+.em-rel{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.em-relcard{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;overflow:hidden;cursor:pointer;transition:all .24s;position:relative}
+.em-relcard:hover{transform:translateY(-3px);border-color:rgba(74,148,255,.24);
+  box-shadow:0 16px 32px -12px rgba(0,0,0,.6)}
+.em-relcard-img{aspect-ratio:16/9;overflow:hidden;position:relative}
+.em-relcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.em-relcard:hover .em-relcard-img img{transform:scale(1.05)}
+.em-relcard-img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.4) 100%)}
+.em-relcard .cap{padding:12px 16px 14px}
+.em-relcard .cap .t{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px;letter-spacing:-.005em}
+.em-relcard .cap .m{font-size:11.5px;color:rgba(255,255,255,.55);letter-spacing:.01em}
 
 /* Profile pills inside the save popup */
 .save-profile{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
@@ -1399,103 +1438,114 @@ main{position:relative;padding-top:0;padding-bottom:80px}
       <div class="veil"></div>
       <button class="em-close" onclick="closeEvent()">×</button>
       <div class="inner">
-        <div class="k">Auto-clustered event · 98% match</div>
+        <div class="k"><span class="dot"></span>Auto-clustered event <span style="opacity:.4">·</span> <span style="color:#3ecf8e">98% match</span></div>
         <h2>Malta trip <em>· June.</em></h2>
+        <p class="hero-sub">Six days across <b>Valletta, Sliema and Comino</b>. Clustered from four drives and two socials with <span class="conf">98% confidence</span>.</p>
       </div>
     </div>
 
     <div class="em-body">
 
       <div class="em-meta-pills">
-        <span class="match">98% cluster match</span>
-        <span>·</span>
         <span><b>Jun 2 – Jun 8, 2026</b></span>
-        <span>·</span>
         <span>6 days</span>
-        <span>·</span>
-        <span><b>121</b> shots · <b>7</b> videos</span>
-        <span>·</span>
+        <span><b>121</b> shots</span>
+        <span><b>7</b> videos</span>
         <span>2.4 GB</span>
       </div>
 
-      <p class="em-desc">Six days across Valletta, Sliema and Comino. SnapIT clustered the photos and videos from your iPhone, Elena's phone, the Nikon Z8 and the DJI Mavic 3 into one event using timestamp continuity, GPS overlap and burst structure — <b>98% cluster confidence</b>. Two duplicates auto-folded, one 12-shot burst kept as a single moment. Filed to Vincent's library. Everything below is auto-detected, nothing is guessed.</p>
+      <p class="em-desc">SnapIT clustered these using timestamp continuity, GPS overlap and burst structure. Two duplicates auto-folded, one 12-shot burst kept as a single moment. Filed to <b>Vincent's library</b>. Everything below is auto-detected — nothing guessed.</p>
 
       <div class="em-actions">
         <button class="b pri"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Open all 128</button>
         <button class="b sec" onclick="openCast()">📺 Cast to TV</button>
-        <button class="b sec" onclick="openPrint()">📖 Print as album</button>
-        <button class="b sec">▶ Play as slideshow</button>
-        <button class="b sec">🔗 Share as private link</button>
-        <button class="b sec">＋ Add to timeline</button>
-        <button class="b sec">✎ Rename event</button>
+        <button class="b sec" onclick="openPrint()">📖 Print album</button>
+        <button class="b sec">▶ Slideshow</button>
+        <button class="b sec">🔗 Share link</button>
+        <button class="b sec">＋ Timeline</button>
+        <button class="b sec">✎ Rename</button>
       </div>
 
       <div class="em-facts">
         <div class="em-fact">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 20s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12z"/><circle cx="12" cy="8" r="2.5"/></svg></div>
           <div class="l">Places visited</div>
-          <div class="v"><b>3</b> — Valletta, Sliema, Comino <small>GPS clustered · 12 unique stops</small></div>
+          <div class="v">Valletta, Sliema, Comino<small>3 towns · GPS-clustered from 12 unique stops</small></div>
         </div>
         <div class="em-fact">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg></div>
           <div class="l">Duration</div>
-          <div class="v"><b>6 days</b> <small>First shot Jun 2 · 10:14 · Last shot Jun 8 · 22:47</small></div>
+          <div class="v">6 <em>days</em><small>Jun 2 · 10:14 — Jun 8 · 22:47</small></div>
         </div>
         <div class="em-fact">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="18" height="12" rx="2"/><path d="M8 21h8M12 19v2"/></svg></div>
           <div class="l">Sources</div>
-          <div class="v"><b>4 drives</b> · <b>2 socials</b> <small>iPhone · MacBook · Nikon card · DJI card · IG · TikTok</small></div>
+          <div class="v">4 drives · 2 socials<small>iPhone · MacBook · Nikon Z8 · DJI Mavic 3 + IG · TikTok</small></div>
         </div>
         <div class="em-fact">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M5 21a7 7 0 0 1 14 0"/></svg></div>
           <div class="l">Weather</div>
-          <div class="v">Mostly sunny <small>26–31°C · one rainy afternoon Jun 5</small></div>
+          <div class="v">Mostly sunny<small>26 — 31°C · one rainy afternoon on Jun 5</small></div>
         </div>
         <div class="em-fact">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></div>
           <div class="l">Video runtime</div>
-          <div class="v"><b>18:24</b> total <small>Longest clip 4:12 · shortest 0:08</small></div>
+          <div class="v">18:24 total<small>Longest clip 4:12 · shortest 0:08</small></div>
         </div>
         <div class="em-fact">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg></div>
           <div class="l">Duplicates folded</div>
-          <div class="v"><b>2</b> pairs <small>Saved 340 MB · originals preserved</small></div>
+          <div class="v">2 <em>pairs</em><small>Saved 340 MB · originals preserved</small></div>
         </div>
       </div>
 
-      <div class="em-section-title">Sources that contributed <span>Every drive and social that had shots that day</span></div>
-      <div class="em-chips">
-        <span class="em-chip"><span class="dot dr"></span>iPhone 15 Pro <small>· 68 shots</small></span>
-        <span class="em-chip"><span class="dot dr"></span>Elena's iPhone <small>· 34 shots</small></span>
-        <span class="em-chip"><span class="dot dr"></span>Nikon Z8 <small>· 17 photos + 12 RAW</small></span>
-        <span class="em-chip"><span class="dot dr"></span>DJI Mavic 3 <small>· 7 videos</small></span>
-        <span class="em-chip"><span class="dot ig"></span>Instagram <small>· 3 Reels captured</small></span>
-        <span class="em-chip"><span class="dot tt"></span>TikTok <small>· 1 saved video</small></span>
-      </div>
-
-      <div class="em-section-title">People in this event <span>On-device face grouping · Elena opted in, others didn't</span></div>
-      <div class="em-people">
-        <div class="em-person">
-          <div class="av" style="background:linear-gradient(135deg,#1f6ff2,#4a94ff)">V</div>
-          <div class="info">Vincent <small>appears in 42 shots</small></div>
-        </div>
-        <div class="em-person">
-          <div class="av" style="background:linear-gradient(135deg,#8134af,#dd2a7b)">E</div>
-          <div class="info">Elena <small>appears in 63 shots</small></div>
-        </div>
-        <div class="em-person">
-          <div class="av" style="background:linear-gradient(135deg,#3ecf8e,#1f6ff2)">L</div>
-          <div class="info">Liam <small>appears in 28 shots</small></div>
-        </div>
-        <div class="em-person">
-          <div class="av" style="background:linear-gradient(135deg,#6b6b6b,#3a3a3a)">?</div>
-          <div class="info">Person A <small>18 shots · tag to name</small></div>
-        </div>
-        <div class="em-person">
-          <div class="av" style="background:linear-gradient(135deg,#6b6b6b,#3a3a3a)">?</div>
-          <div class="info">Person B <small>9 shots · tag to name</small></div>
+      <div class="em-section">
+        <div class="em-section-title">Sources that contributed <span>6 · every drive and social</span></div>
+        <div class="em-chips">
+          <span class="em-chip"><span class="chip-ic dr"></span>iPhone 15 Pro <small>68 shots</small></span>
+          <span class="em-chip"><span class="chip-ic dr">E</span>Elena's iPhone <small>34 shots</small></span>
+          <span class="em-chip"><span class="chip-ic cam">Z8</span>Nikon Z8 <small>17 · 12 RAW</small></span>
+          <span class="em-chip"><span class="chip-ic dr">DJI</span>Mavic 3 <small>7 videos</small></span>
+          <span class="em-chip"><span class="chip-ic ig">IG</span>Instagram <small>3 Reels captured</small></span>
+          <span class="em-chip"><span class="chip-ic tt">tt</span>TikTok <small>1 saved video</small></span>
         </div>
       </div>
 
-      <div class="em-section-title">Top shots <span>By star rating and burst pick</span></div>
-      <div class="em-shots" id="emShots"></div>
+      <div class="em-section">
+        <div class="em-section-title">People in this event <span>Face grouping · per-profile consent</span></div>
+        <div class="em-people">
+          <div class="em-person">
+            <div class="av" style="background:linear-gradient(135deg,#1f6ff2,#4a94ff)">V</div>
+            <div class="info">Vincent<small>in 42 shots</small></div>
+          </div>
+          <div class="em-person">
+            <div class="av" style="background:linear-gradient(135deg,#8134af,#dd2a7b)">E</div>
+            <div class="info">Elena<small>in 63 shots</small></div>
+          </div>
+          <div class="em-person">
+            <div class="av" style="background:linear-gradient(135deg,#3ecf8e,#1f6ff2)">L</div>
+            <div class="info">Liam<small>in 28 shots</small></div>
+          </div>
+          <div class="em-person" onclick="openFaceMatch()">
+            <div class="av" style="background:linear-gradient(135deg,#6b6b6b,#3a3a3a)">?</div>
+            <div class="info">Person A<small>18 shots · tap to name</small></div>
+          </div>
+          <div class="em-person" onclick="openFaceMatch()">
+            <div class="av" style="background:linear-gradient(135deg,#6b6b6b,#3a3a3a)">?</div>
+            <div class="info">Person B<small>9 shots · tap to name</small></div>
+          </div>
+        </div>
+      </div>
 
-      <div class="em-section-title">More like this <span>Related events SnapIT found</span></div>
-      <div class="em-rel" id="emRel"></div>
+      <div class="em-section">
+        <div class="em-section-title">Top shots <span>By star rating &amp; burst pick</span></div>
+        <div class="em-shots" id="emShots"></div>
+      </div>
+
+      <div class="em-section">
+        <div class="em-section-title">More like this <span>Related events SnapIT found</span></div>
+        <div class="em-rel" id="emRel"></div>
+      </div>
 
     </div>
   </div>
@@ -2154,13 +2204,17 @@ function openEvent() {
     while (list.length < 24) list.push(source[list.length % source.length]);
     document.getElementById('emComp').innerHTML =
         list.map(it => `<img src="${it.thumb}" alt="">`).join('');
-    // Top shots grid — 12 tiles
+    // Top shots grid — 1 hero + 10 supporting tiles (total 11, hero spans 2x2)
     const stars = MOCK_LIBRARY.rows.starred.items.slice(0, 12);
     let pad = 0;
     const shots = [];
-    for (let i = 0; i < 12; i++) shots.push(stars[i] || source[pad++ % source.length]);
+    for (let i = 0; i < 11; i++) shots.push(stars[i] || source[pad++ % source.length]);
     document.getElementById('emShots').innerHTML =
-        shots.map(it => `<div class="s"><img src="${it.thumb}" alt=""></div>`).join('');
+        shots.map((it, i) =>
+            `<div class="s ${i === 0 ? 'hero-shot' : ''}">
+              ${i === 0 ? '<span class="star-ind">★</span>' : ''}
+              <img src="${it.thumb}" alt="">
+            </div>`).join('');
     // Related events (skip the first, which is this event)
     const rel = MOCK_LIBRARY.rows.event.slice(1, 4);
     document.getElementById('emRel').innerHTML = rel.map(e => `
