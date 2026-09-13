@@ -443,8 +443,21 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 /* ============ ROW ============ */
 .row{margin:0 0 44px;padding:0}
 .row-head{display:flex;align-items:baseline;gap:10px;padding:0 4vw 12px}
-.row-head h3{font-size:22px;font-weight:600;letter-spacing:-.015em}
+.row-head h3{font-size:22px;font-weight:600;letter-spacing:-.015em;display:flex;align-items:center;gap:10px}
 .row-head h3 span{color:var(--dim);font-weight:500;font-size:14px;letter-spacing:0;margin-left:8px}
+/* Platform brand dot next to social row titles */
+.row-brand-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 12px currentColor,0 0 0 2px rgba(255,255,255,.06)}
+.row-social .row-head .explore{color:var(--core)}
+/* Row-header platform-overlay toggle — sits inline right after the title */
+.row-overlay-toggle{display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 9px;
+  border-radius:99px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  color:var(--dim);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:all .18s;user-select:none;margin-left:8px}
+.row-overlay-toggle:hover{background:rgba(255,255,255,.1);color:var(--ink)}
+.row-overlay-toggle.on{background:linear-gradient(135deg,rgba(31,111,242,.18),rgba(31,111,242,.06));
+  border-color:rgba(31,111,242,.36);color:var(--core)}
+.row-overlay-toggle svg{opacity:.9}
 .row-head .explore{opacity:0;color:var(--core);font-size:12px;letter-spacing:.16em;font-weight:600;
   text-transform:uppercase;transition:opacity .18s,transform .18s;transform:translateX(-6px)}
 .row:hover .row-head .explore{opacity:1;transform:translateX(0)}
@@ -1141,6 +1154,20 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .action-choice .info .s{font-size:11.5px;color:var(--dim);margin-top:2px}
 .action-choice .info .s b{color:var(--gold);font-weight:600}
 .action-choice .chev{color:var(--dim);font-size:14px}
+
+/* Detail-modal chrome wrapper — fills the hero image, chrome overlay
+   lives inside. Small toggle pill in the corner lets user hide/show. */
+.cm-chrome-wrap{position:absolute;inset:0;pointer-events:none;transition:opacity .25s ease;z-index:2}
+.cm-chrome-wrap.off{opacity:0}
+.cm-chrome-toggle{position:absolute;top:16px;left:calc(50% - 60px);z-index:3;
+  display:flex;align-items:center;gap:6px;padding:7px 12px 7px 10px;border-radius:99px;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(12px) saturate(160%);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);
+  border:1px solid rgba(255,255,255,.14);color:#fff;
+  font-size:11.5px;font-weight:600;letter-spacing:.02em;cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.35);transition:all .18s cubic-bezier(.4,.2,.2,1)}
+.cm-chrome-toggle:hover{background:rgba(0,0,0,.82);border-color:rgba(255,255,255,.28)}
+.cm-chrome-toggle.off{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.09);color:rgba(255,255,255,.7)}
 
 /* ================================================================
    PLATFORM CHROME — ported 1:1 from the showcase (regen_showcase.py).
@@ -1946,10 +1973,6 @@ main{position:relative;padding-top:0;padding-bottom:80px}
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       Add source
     </button>
-    <div class="chromepill" id="chromePill" onclick="toggleSocialChrome()" data-tip="Socials chrome overlay" data-tip-sub="Show/hide TikTok / Instagram / YouTube UI painted over imported clips">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 20h6M12 18v2"/></svg>
-      <span id="chromePillLabel">Chrome</span>
-    </div>
     <button class="iconbtn new" onclick="openImportQueue()" data-tip="Import queue" data-tip-sub="Watch imports as they happen — 4 218 files remaining">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
     </button>
@@ -2407,9 +2430,16 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 <!-- ============================== CARD MODAL ============================== -->
 <div class="backdrop" id="cardBackdrop" onclick="closeCard()"></div>
 <div class="modal" id="cardModal">
-  <div class="modal-hero">
+  <div class="modal-hero" id="cm-hero">
     <img id="cm-img" src="" alt="">
     <div class="modal-veil"></div>
+    <!-- Chrome overlay (renders when the item has social metadata) -->
+    <div id="cm-chrome" class="cm-chrome-wrap"></div>
+    <!-- Chrome toggle — visible only when the modal has a social item -->
+    <button class="cm-chrome-toggle" id="cm-chrome-toggle" onclick="toggleCardChrome()" hidden data-tip="Show / hide platform chrome" data-tip-sub="See the original UI painted back over the shot">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 20h6M12 18v2"/></svg>
+      <span id="cm-chrome-toggle-label">Platform overlay on</span>
+    </button>
     <button class="quick-enhance" onclick="openUpscale(document.getElementById('cm-img').src)" data-tip="One-click enhance" data-tip-sub="Real-ESRGAN 2× runs on your GPU · non-destructive">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/>
@@ -2910,13 +2940,14 @@ function renderLandscape(it) {
     }
     const dur = it.kind === 'video' ? `<span class="card-dur">${fmtDur(it.duration_s)}</span>` : '';
     const star = it.starred ? iconStar() : '';
+    // Tiles stay as plain images across the whole suite — chrome overlay
+    // renders only when the user enlarges the item in the detail modal.
     return `
       <div class="card landscape" onclick="openCard('${it.id}')">
         <img src="${it.thumb}" alt="" loading="lazy">
         ${star}
         <div class="card-badges">${badges.join('')}</div>
         ${dur}
-        ${socialChromeCompact(it)}
         <span class="card-source">${it.drive}</span>
         <div class="card-preview">
           <div class="cp-title">${fmtDate(it.taken_at)}</div>
@@ -3046,6 +3077,17 @@ function socialChromeCompact(it) {
 function _esc(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
+// Per-modal chrome toggle. Local to the currently open card — doesn't
+// change the profile flag (that's the top-nav "Chrome" pill's job).
+function toggleCardChrome() {
+    const chromeWrap = document.getElementById('cm-chrome');
+    const toggleBtn  = document.getElementById('cm-chrome-toggle');
+    if (!chromeWrap || !toggleBtn) return;
+    const willBeOff = !chromeWrap.classList.contains('off');
+    chromeWrap.classList.toggle('off', willBeOff);
+    toggleBtn.classList.toggle('off', willBeOff);
+    document.getElementById('cm-chrome-toggle-label').textContent = willBeOff ? 'Platform overlay off' : 'Platform overlay on';
+}
 function renderPortrait(it) {
     const dur = it.kind === 'video' ? `<span class="card-dur">${fmtDur(it.duration_s)}</span>` : '';
     return `
@@ -3099,6 +3141,66 @@ function socialBrand(it) {
     return typeof it.social === 'string' ? it.social : it.social.brand;
 }
 
+// Netflix-style socials rows — one row per platform, plain landscape tiles
+// like the rest of the suite. Each row headers with the platform's brand
+// colour + logo dot; tiles carry .social metadata so the detail modal can
+// paint the chrome overlay when the user enlarges them.
+function _perPlatformSocialRows(L) {
+    const gallery = window.SNAPIT_GALLERY || [];
+    const PLATFORMS = [
+        { brand:'instagram', label:'From your Instagram',   section:'social-instagram' },
+        { brand:'tiktok',    label:'From your TikTok',      section:'social-tiktok'    },
+        { brand:'youtube',   label:'From your YouTube',     section:'social-youtube'   },
+        { brand:'pinterest', label:'From your Pinterest',   section:'social-pinterest' },
+        { brand:'x',         label:'From X (Twitter)',      section:'social-x'         },
+        { brand:'snapchat',  label:'From your Snapchat',    section:'social-snapchat'  },
+        { brand:'threads',   label:'From your Threads',     section:'social-threads'   },
+        { brand:'facebook',  label:'From your Facebook',    section:'social-facebook'  },
+        { brand:'linkedin',  label:'From your LinkedIn',    section:'social-linkedin'  },
+    ];
+    const rows = [];
+    // Fallback pool used when a platform section is empty on disk — pulls
+    // recent library items and adds a synthesised social meta record so the
+    // detail modal can still show chrome + a "from X" attribution.
+    const pool = L.recent.items;
+
+    for (const p of PLATFORMS) {
+        const real = gallery.filter(x => x.section === p.section);
+        let items;
+        if (real.length >= 3) {
+            items = real;
+        } else {
+            // Only show a synthetic row for brands with 0 real images if we
+            // want them in the launch story. Cap to 3 platforms without
+            // real images so we don't spam the home page.
+            items = pool.slice(0, 8).map((x, i) => ({
+                ...x,
+                social: {
+                    brand: p.brand,
+                    handle: p.brand === 'youtube' ? 'vincent falzon' : 'vincent.f',
+                    caption: 'moment from the library',
+                    hashtag: '',
+                    likes: p.brand === 'tiktok' ? '128K' : p.brand === 'youtube' ? '42K' : '1.2K',
+                    comments: '1.2K', saves: '3.4K',
+                    music: 'original sound',
+                    title: 'A moment from your library',
+                    time: '4:12 / 12:38',
+                },
+            }));
+        }
+        // Skip platforms with no items at all (shouldn't happen with pool)
+        if (!items.length) continue;
+        rows.push([{
+            id: `socials-${p.brand}`,
+            title: p.label,
+            subtitle: `${items.length} · original captions + likes preserved`,
+            brand: p.brand,
+            items,
+        }, 'landscape']);
+    }
+    return rows;
+}
+
 function renderRow(row, variant) {
     const items = row.items;
     const cards = items.map((it, i) => {
@@ -3108,18 +3210,24 @@ function renderRow(row, variant) {
         if (row.albumCover && i === 0) {
             return renderAlbumCover(row, items.slice(0, 5));
         }
-        // Native-aspect social tiles when the item has social metadata AND
-        // the row explicitly wants native shapes (or is the socials-back row)
-        if (it.social && (row.nativeSocials || row.id === 'socials-back' || variant === 'social')) {
-            return renderSocialTile(it);
-        }
         return renderLandscape(it);
     }).join('');
+    // Netflix touch — platform rows show a tinted brand dot before the title,
+    // plus a Platform-overlay toggle right in the row header so users can
+    // flip it without leaving the row.
+    const brandDot = row.brand ? `<span class="row-brand-dot" style="background:${socialColor(row.brand)}"></span>` : '';
+    const overlayOn = CURRENT_PROFILE?.show_platform_chrome !== false;
+    const overlayToggle = row.brand ? `
+        <button class="row-overlay-toggle ${overlayOn ? 'on' : ''}" onclick="toggleSocialChrome()" data-tip="${overlayOn ? 'Hide' : 'Show'} platform overlay" data-tip-sub="Instagram/TikTok/YouTube UI painted over imported clips when you open them">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 20h6M12 18v2"/></svg>
+          <span>Platform overlay · ${overlayOn ? 'ON' : 'OFF'}</span>
+        </button>` : '';
     return `
-      <section class="row">
+      <section class="row ${row.brand ? 'row-social' : ''}" data-brand="${row.brand || ''}">
         <div class="row-head">
-          <h3>${row.title}${row.subtitle ? `<span>${row.subtitle}</span>` : ''}</h3>
-          <a class="explore" href="#">Explore all</a>
+          <h3>${brandDot}${row.title}${row.subtitle ? `<span>${row.subtitle}</span>` : ''}</h3>
+          ${overlayToggle}
+          <a class="explore" href="#" onclick="event.preventDefault();${row.brand ? `switchView('socials')` : ''}">${row.brand ? 'Open all →' : 'Explore all'}</a>
         </div>
         <div class="rail-wrap">
           <button class="rail-nav left" onclick="scrollRail(this,-1)">‹</button>
@@ -3220,29 +3328,7 @@ function renderHome() {
         [{ id:'top10', title:'Top 10 shots this year', subtitle:'By stars, plays and re-visits', items: shuffle(L.starred.items.concat(L.recent.items)).slice(0,10) }, 'top10'],
         [albumEvent1, 'landscape'],
         [hiddenGems, 'landscape'],
-        [{ id:'socials-back', title:'From your socials', subtitle:'Every platform · native shape · original chrome + likes',
-           nativeSocials: true,
-           // Prefer real social items from the gallery manifest — they carry
-           // the full SOCIAL_META (caption, hashtag, likes, comments, saves,
-           // music, title, time) so tiles render the same chrome as the
-           // showcase page. Falls back to fake platform assignments only if
-           // the manifest hasn't produced any social images yet.
-           items: (() => {
-               const realSocials = (window.SNAPIT_GALLERY || [])
-                   .filter(x => x.social && x.section?.startsWith('social-'));
-               if (realSocials.length >= 4) return realSocials.slice(0, 14);
-               const brands = ['instagram','tiktok','youtube','pinterest','x','snapchat','threads','facebook','instagram','tiktok'];
-               return L.recent.items.slice(0, 10).map((x, i) => ({
-                   ...x,
-                   social: { brand: brands[i], handle: 'vincent.f',
-                             caption: 'moment from the library', hashtag: '#snapit',
-                             likes: brands[i]==='tiktok'?'128K':brands[i]==='youtube'?'42K':'1.2K',
-                             comments: '1.2K', saves: '3.4K',
-                             music: 'original sound — @vincent',
-                             title: 'A moment from the library',
-                             time: '4:12 / 12:38' }
-               }));
-           })() }, 'landscape'],
+        ..._perPlatformSocialRows(L),
         [albumEvent2, 'landscape'],
         [{ id:'videos', title:'Videos across everything', subtitle:'Playable in-app · no external player', items: getAllVideos().slice(0,12) }, 'landscape'],
         [L.place[0], 'landscape'],
@@ -3512,8 +3598,26 @@ function openCard(id) {
 }
 
 /* The intro's onDone callback opens the real detail modal. */
+let _cmCurrentItem = null;
 function actuallyOpenCard(it) {
+    _cmCurrentItem = it;
     document.getElementById('cm-img').src = it.thumb;
+    // Chrome overlay: only for items with social metadata AND on IG/TikTok/YouTube
+    const chromeWrap = document.getElementById('cm-chrome');
+    const toggleBtn  = document.getElementById('cm-chrome-toggle');
+    const brand = it.social ? (typeof it.social === 'string' ? it.social : it.social.brand) : null;
+    if (brand && ['instagram','tiktok','youtube'].includes(brand)) {
+        chromeWrap.innerHTML = socialChromeCompact(it);
+        toggleBtn.hidden = false;
+        // Respect profile flag as default; user can flip per-open
+        const chromeOn = CURRENT_PROFILE?.show_platform_chrome !== false;
+        chromeWrap.classList.toggle('off', !chromeOn);
+        toggleBtn.classList.toggle('off', !chromeOn);
+        document.getElementById('cm-chrome-toggle-label').textContent = chromeOn ? 'Platform overlay on' : 'Platform overlay off';
+    } else {
+        chromeWrap.innerHTML = '';
+        toggleBtn.hidden = true;
+    }
     document.getElementById('cm-title').textContent = fmtDate(it.taken_at, { day:'numeric', month:'long', year:'numeric' });
     document.getElementById('cm-meta').innerHTML = `
       <span class="match">Sharpness 94%</span>
@@ -4046,12 +4150,8 @@ async function toggleSocialChrome() {
     else { renderHome && renderHome(); }
 }
 function updateChromePill() {
-    const on = CURRENT_PROFILE?.show_platform_chrome !== false;
-    const pill = document.getElementById('chromePill');
-    const lbl  = document.getElementById('chromePillLabel');
-    if (!pill) return;
-    pill.classList.toggle('on', on);
-    if (lbl) lbl.textContent = on ? 'Chrome on' : 'Chrome off';
+    // No top-nav pill anymore — the toggle lives inline in each social
+    // row header. Kept as a stub so existing call sites don't need edits.
 }
 
 /* ================================================================
