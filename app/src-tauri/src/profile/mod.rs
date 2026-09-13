@@ -135,6 +135,7 @@ pub fn bootstrap_if_empty() -> Result<()> {
             default_save: "this-profile".to_string(),
             content_restrictions: "none".to_string(),
             language: default_language(),
+            show_platform_chrome: true,
             delete_forbidden: true,
             created_at: chrono::Utc::now().to_rfc3339(),
         };
@@ -380,6 +381,7 @@ mod tests {
             default_save: "this-profile".into(),
             content_restrictions: "none".into(),
             language: "en-GB".into(),
+            show_platform_chrome: true,
             delete_forbidden: false,
             created_at: chrono::Utc::now().to_rfc3339(),
         };

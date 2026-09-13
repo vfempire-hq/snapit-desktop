@@ -11,8 +11,7 @@
     }
   ],
   "kv_namespaces": [
-    // Bind KV for licence key ↔ Stripe session id lookup; created via wrangler after first deploy.
-    // { "binding": "LICENCES", "id": "TO_BE_CREATED" }
+    { "binding": "LICENCES", "id": "bc68dd5d5af049aa90425492a8709886" }
   ],
   "vars": {
     "PRODUCT_NAME": "SnapIT",
@@ -23,6 +22,7 @@
     "directory": "./public",
     "binding": "ASSETS",
     "run_worker_first": [
+      "/waitlist",
       "/checkout",
       "/reissue",
       "/webhook/*",
