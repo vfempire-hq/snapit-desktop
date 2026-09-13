@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "routes": [
     {
-      "pattern": "snapit.vfempire.com/*",
+      "pattern": "snapit.vfempire.com",
       "custom_domain": true
     }
   ],
