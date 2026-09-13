@@ -60,6 +60,10 @@ chrono = { version = "0.4", features = ["serde"] }
 ed25519-dalek = { version = "2", features = ["rand_core"] }
 base64 = "0.22"
 
+# --- profile PIN hashing (Argon2id — safe modern default) ---
+argon2 = "0.5"
+rand = "0.8"
+
 # --- shared VF privacy primitives (later refactor to @vf/privacy-kit dep) ---
 # vf-privacy-kit = { path = "../../vf-privacy-kit/crates/vf-privacy-kit" }
 

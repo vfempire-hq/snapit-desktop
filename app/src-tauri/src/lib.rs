@@ -19,6 +19,7 @@ pub mod edit;
 pub mod events;
 pub mod licence;
 pub mod prefs;
+pub mod profile;
 pub mod storage;
 
 pub struct AppState {
