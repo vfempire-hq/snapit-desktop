@@ -824,6 +824,155 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   display:flex;align-items:center;justify-content:center;margin-bottom:12px}
 
 /* ================================================================
+   R·02 FEATURE WAVE — the 15 additions
+   ================================================================ */
+
+/* Wrapped tab special treatment — subtle gradient sheen */
+.tab.wrapped{position:relative;color:var(--core);font-weight:700}
+.tab.wrapped::before{content:"";position:absolute;inset:-2px -6px;background:linear-gradient(90deg,transparent,rgba(74,148,255,.14),transparent);
+  border-radius:8px;opacity:0;transition:opacity .3s}
+.tab:hover.wrapped::before{opacity:1}
+
+/* Semantic search — expanded input styling */
+.semantic-hint{position:absolute;bottom:-24px;left:14px;font-size:11px;color:var(--dim);white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .18s}
+.searchtrigger.open .semantic-hint{opacity:1}
+
+/* AI album cover — replaces cover image with a magazine-spread collage */
+.card.album{overflow:hidden;position:relative}
+.card.album .collage{position:absolute;inset:0;display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;background:#000}
+.card.album .collage img{width:100%;height:100%;object-fit:cover;display:block}
+.card.album .collage .big{grid-row:1/3}
+.card.album .collage-tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(0,0,0,.75) 100%);pointer-events:none}
+.card.album .collage-title{position:absolute;bottom:14px;left:16px;right:16px;color:#fff;pointer-events:none}
+.card.album .collage-title .t{font-size:15px;font-weight:600;letter-spacing:-.005em;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.card.album .collage-title .m{font-size:11.5px;color:rgba(255,255,255,.85);margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.card.album .collage-badge{position:absolute;top:10px;left:10px;background:rgba(74,148,255,.9);color:#fff;
+  font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:99px}
+
+/* On-this-day + hidden-gems rows — small pill accents */
+.row-pill{margin-left:8px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+  padding:2px 8px;border-radius:99px;color:var(--gold);background:rgba(245,193,93,.12);border:1px solid rgba(245,193,93,.28);vertical-align:2px}
+.row-pill.blue{color:var(--core);background:rgba(74,148,255,.12);border-color:rgba(74,148,255,.28)}
+
+/* Camera roll cleanup first-launch overlay */
+.cleanup-overlay{position:fixed;inset:0;z-index:170;background:rgba(5,5,6,.94);
+  display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s}
+.cleanup-overlay.on{opacity:1;pointer-events:all}
+.cleanup-modal{width:min(680px,94vw);background:var(--bg-2);border:1px solid var(--line-2);border-radius:20px;padding:36px 40px;
+  box-shadow:0 40px 90px -20px rgba(0,0,0,.85)}
+.cleanup-head{text-align:center;margin-bottom:24px}
+.cleanup-head .k{color:var(--core);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.cleanup-head h2{font-size:32px;font-weight:600;letter-spacing:-.02em}
+.cleanup-head h2 em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.cleanup-head p{color:var(--dim);font-size:14.5px;margin-top:12px;line-height:1.6}
+.cleanup-cats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:24px 0}
+.cleanup-cat{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--bg-3);border:1px solid var(--line);border-radius:12px;font-size:13.5px;transition:all .18s}
+.cleanup-cat:hover{border-color:var(--line-2);background:var(--surface)}
+.cleanup-cat .ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--core);background:var(--core-soft)}
+.cleanup-cat .info{flex:1}
+.cleanup-cat .info .n{font-weight:600;color:var(--ink)}
+.cleanup-cat .info .c{color:var(--dim);font-size:11.5px;letter-spacing:.02em}
+.cleanup-cat .info .c b{color:var(--core);font-weight:600}
+.cleanup-cat .chk{width:20px;height:20px;border-radius:5px;border:2px solid var(--line-2);position:relative}
+.cleanup-cat.on .chk{background:var(--core);border-color:var(--core)}
+.cleanup-cat.on .chk::after{content:"✓";position:absolute;inset:0;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1}
+.cleanup-foot{display:flex;justify-content:space-between;align-items:center;padding-top:22px;border-top:1px solid var(--line);margin-top:4px}
+.cleanup-count{font-size:13px;color:var(--dim)}
+.cleanup-count b{color:var(--ink);font-weight:600}
+.cleanup-actions{display:flex;gap:8px}
+.cleanup-actions button{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600}
+.cleanup-actions .later{color:var(--dim);background:transparent}
+.cleanup-actions .later:hover{color:var(--ink)}
+.cleanup-actions .go{background:var(--core);color:#fff}
+.cleanup-actions .go:hover{background:var(--core-deep)}
+
+/* Wrapped — the yearly recap surface */
+.wrap-hero{position:relative;height:70vh;min-height:520px;overflow:hidden;
+  background:radial-gradient(circle at 30% 30%,rgba(74,148,255,.22),transparent 50%),
+             radial-gradient(circle at 70% 70%,rgba(245,193,93,.14),transparent 55%),
+             linear-gradient(180deg,#0a0b0e 0%,#141419 100%)}
+.wrap-hero-inner{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 6vw}
+.wrap-eb{color:var(--core);font-size:12px;letter-spacing:.42em;text-transform:uppercase;font-weight:700;margin-bottom:22px}
+.wrap-year{font-family:'Instrument',serif;font-style:italic;font-size:clamp(96px,14vw,200px);line-height:.95;color:var(--core);font-weight:400}
+.wrap-title{font-size:clamp(32px,4vw,52px);font-weight:600;letter-spacing:-.02em;margin-top:14px}
+.wrap-title em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.wrap-sub{color:var(--dim);font-size:16px;margin-top:20px;max-width:640px}
+.wrap-play{margin-top:32px;padding:14px 34px;background:var(--ink);color:#0a0b0e;border-radius:99px;
+  font-size:14.5px;font-weight:700;letter-spacing:.02em;display:inline-flex;align-items:center;gap:10px;transition:all .18s}
+.wrap-play:hover{background:var(--core);color:#fff;transform:translateY(-1px)}
+.wrap-stats{padding:80px 6vw 60px;max-width:1600px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.wrap-stat{background:var(--bg-2);border:1px solid var(--line);border-radius:16px;padding:32px}
+.wrap-stat .l{color:var(--dim);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:12px}
+.wrap-stat .n{font-size:48px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.wrap-stat .n em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400;font-size:.7em}
+.wrap-stat .s{font-size:13px;color:var(--dim);margin-top:8px}
+
+/* Detail-modal action gallery — extends existing modal-actions */
+.mo-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:22px;padding-top:22px;border-top:1px solid var(--line)}
+.mo-tool{background:var(--bg-3);border:1px solid var(--line);border-radius:10px;padding:14px 12px;text-align:center;transition:all .18s;cursor:pointer}
+.mo-tool:hover{background:var(--surface);border-color:var(--core);color:var(--core)}
+.mo-tool svg{width:20px;height:20px;color:currentColor;display:block;margin:0 auto 6px}
+.mo-tool .l{font-size:11.5px;font-weight:600;color:currentColor}
+.mo-tool .s{font-size:10px;color:var(--dim);margin-top:2px;letter-spacing:.01em}
+
+/* Send-to-phone modal */
+.stp{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.94);width:min(400px,92vw);
+  background:var(--bg-2);border:1px solid var(--line-2);border-radius:16px;padding:28px 32px;
+  opacity:0;pointer-events:none;transition:all .3s;z-index:102;text-align:center;
+  box-shadow:0 40px 80px -20px rgba(0,0,0,.9)}
+.stp.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+.stp h3{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+.stp h3 em{color:var(--core);font-family:'Instrument',serif;font-style:italic}
+.stp p{color:var(--dim);font-size:13px;margin-bottom:20px}
+.stp-qr{width:200px;height:200px;margin:0 auto 20px;background:#fff;border-radius:12px;padding:14px;position:relative}
+.stp-qr svg{width:100%;height:100%}
+.stp-count{color:var(--dim);font-size:12.5px;margin-top:12px}
+.stp-count b{color:var(--core);font-weight:600}
+
+/* Face-name flow — the memory-match banner */
+.face-match{position:fixed;bottom:24px;left:24px;width:min(360px,92vw);background:var(--bg-2);
+  border:1px solid var(--line-2);border-radius:14px;padding:16px 18px;
+  opacity:0;pointer-events:none;transform:translateY(6px);transition:all .3s;z-index:60;
+  box-shadow:0 24px 50px -16px rgba(0,0,0,.7);backdrop-filter:blur(16px)}
+.face-match.on{opacity:1;pointer-events:all;transform:translateY(0)}
+.face-match-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.face-match-head .av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6b6b6b,#3a3a3a);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+.face-match-head .t{font-size:13.5px;font-weight:600}
+.face-match-head .s{font-size:11px;color:var(--dim);margin-top:1px}
+.face-match input{width:100%;background:var(--bg-3);border:1px solid var(--line);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13px;outline:none;margin-bottom:10px}
+.face-match input:focus{border-color:var(--core)}
+.face-match-acts{display:flex;gap:6px}
+.face-match-acts button{flex:1;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600}
+.face-match-acts .skip{background:transparent;color:var(--dim)}
+.face-match-acts .skip:hover{color:var(--ink)}
+.face-match-acts .name{background:var(--core);color:#fff}
+
+/* Print + Cast modals share the .action-modal skeleton */
+.action-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.94);
+  width:min(520px,94vw);background:var(--bg-2);border:1px solid var(--line-2);border-radius:16px;padding:32px 36px;
+  opacity:0;pointer-events:none;transition:all .3s;z-index:102;
+  box-shadow:0 40px 80px -20px rgba(0,0,0,.9)}
+.action-modal.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+.action-modal h3{font-size:22px;font-weight:600;letter-spacing:-.015em;margin-bottom:8px}
+.action-modal h3 em{color:var(--core);font-family:'Instrument',serif;font-style:italic}
+.action-modal p{color:var(--dim);font-size:14px;margin-bottom:20px;line-height:1.55}
+.action-modal p b{color:var(--ink);font-weight:600}
+.action-choices{display:flex;flex-direction:column;gap:8px;margin-bottom:22px}
+.action-choice{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-3);border:1px solid var(--line);
+  border-radius:10px;cursor:pointer;transition:all .18s}
+.action-choice:hover{background:var(--surface);border-color:var(--core)}
+.action-choice .ic{width:30px;height:30px;border-radius:8px;background:var(--core-soft);color:var(--core);
+  display:flex;align-items:center;justify-content:center}
+.action-choice .info{flex:1}
+.action-choice .info .n{font-size:14px;font-weight:600;color:var(--ink)}
+.action-choice .info .s{font-size:11.5px;color:var(--dim);margin-top:2px}
+.action-choice .info .s b{color:var(--gold);font-weight:600}
+.action-choice .chev{color:var(--dim);font-size:14px}
+
+/* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width:1000px){
@@ -901,13 +1050,15 @@ main{position:relative;padding-top:0;padding-bottom:80px}
     <a class="tab" data-view="places">Places</a>
     <a class="tab" data-view="videos">Videos</a>
     <a class="tab" data-view="socials">Socials</a>
+    <a class="tab wrapped" data-view="wrapped">Wrapped ✦</a>
     <a class="tab" data-view="library">My Library</a>
   </nav>
   <div class="spacer"></div>
   <div class="util">
     <div class="searchtrigger" id="searchtrigger">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-      <input type="text" placeholder="Search everything…">
+      <input type="text" placeholder="Search everything — dates, places, faces, moments…">
+      <div class="semantic-hint">try: <b>the trip in June</b> · <b>kitchen before renovation</b> · <b>Elena laughing</b></div>
     </div>
     <button class="addbtn" onclick="openAddSource()">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
@@ -1193,6 +1344,17 @@ main{position:relative;padding-top:0;padding-bottom:80px}
         <h4>Cloud takeout</h4>
         <p>iCloud Photos export, Google Takeout, Dropbox — anything the cloud lets you download.</p>
       </div>
+      <!-- #6 Direct cloud connectors — no takeout waiting -->
+      <div class="add-tile" onclick="event.stopPropagation();closeAddSource();alert('Google Photos: OAuth handshake in browser → SnapIT streams your entire library into your local storage in the background. Runs at ~500 photos/min on a decent connection.')" style="border-color:rgba(74,148,255,.3)">
+        <div class="ic" style="background:rgba(74,148,255,.14);color:var(--core)">G</div>
+        <h4>Google Photos <span style="font-size:10px;background:rgba(74,148,255,.2);color:var(--core);padding:2px 6px;border-radius:99px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;margin-left:6px">Direct</span></h4>
+        <p>OAuth sign-in — SnapIT pulls your whole library, no takeout wait. Photos land in your local storage in the background.</p>
+      </div>
+      <div class="add-tile" onclick="event.stopPropagation();closeAddSource();alert('iCloud Photos: uses your Apple ID web session on macOS to stream original files down. Zero cloud middleman.')" style="border-color:rgba(74,148,255,.3)">
+        <div class="ic" style="background:rgba(74,148,255,.14);color:var(--core)"></div>
+        <h4>iCloud Photos <span style="font-size:10px;background:rgba(74,148,255,.2);color:var(--core);padding:2px 6px;border-radius:99px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;margin-left:6px">Direct</span></h4>
+        <p>Signs in via your Apple ID — streams originals into your local library, no takeout wait.</p>
+      </div>
     </div>
   </div>
 </div>
@@ -1260,8 +1422,9 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 
       <div class="em-actions">
         <button class="b pri"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Open all 128</button>
+        <button class="b sec" onclick="openCast()">📺 Cast to TV</button>
+        <button class="b sec" onclick="openPrint()">📖 Print as album</button>
         <button class="b sec">▶ Play as slideshow</button>
-        <button class="b sec">📀 Export as album</button>
         <button class="b sec">🔗 Share as private link</button>
         <button class="b sec">＋ Add to timeline</button>
         <button class="b sec">✎ Rename event</button>
@@ -1356,7 +1519,160 @@ main{position:relative;padding-top:0;padding-bottom:80px}
       <button class="b sec">⭐ Star</button>
       <button class="b sec">Reveal in Finder</button>
     </div>
+
+    <!-- #5, #15, #10, #14 — the R·02 tool row -->
+    <div class="mo-tools">
+      <button class="mo-tool" onclick="alert('Blur-strangers pass: on-device face detection finds every face, offers per-face blur toggles. Nothing sent anywhere.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20a8 8 0 0 1 16 0"/><path d="M9 8h.01"/><path d="M15 8h.01"/></svg>
+        <div class="l">Blur strangers</div>
+        <div class="s">On-device faces</div>
+      </button>
+      <button class="mo-tool" onclick="alert('Auto-enhance: reads scene type (portrait/landscape/food), applies non-destructive edit stack. Original untouched.')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M4 20l2-1.5L8 20l-2 1.5z"/><path d="M18 4l1-.5L20 4l-1 .5z"/></svg>
+        <div class="l">Auto-enhance</div>
+        <div class="s">Non-destructive</div>
+      </button>
+      <button class="mo-tool" onclick="const n = prompt('Photo diary note — will be searchable across your library:'); if(n) alert('Saved: ' + n)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4z"/><line x1="7" y1="10" x2="17" y2="10"/><line x1="7" y1="14" x2="17" y2="14"/><line x1="7" y1="18" x2="12" y2="18"/></svg>
+        <div class="l">Diary note</div>
+        <div class="s">Searchable</div>
+      </button>
+      <button class="mo-tool" onclick="openSendToPhone()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="6" y="3" width="12" height="18" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        <div class="l">Send to phone</div>
+        <div class="s">QR · Wi-Fi</div>
+      </button>
+    </div>
+
     <div class="modal-info-grid" id="cm-info"></div>
+  </div>
+</div>
+
+<!-- ============================== WRAPPED VIEW ============================== -->
+<div id="view-wrapped" style="display:none">
+  <div style="height:60px"></div>
+  <section class="wrap-hero">
+    <div class="wrap-hero-inner">
+      <div class="wrap-eb">SnapIT Wrapped ✦</div>
+      <div class="wrap-year">2026.</div>
+      <div class="wrap-title">Your year in <em>pictures.</em></div>
+      <p class="wrap-sub">Every event, every face, every place — a 60-second walkthrough of what you shot this year, set to a soundtrack of your choosing. Ready to share.</p>
+      <button class="wrap-play"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Play your Wrapped</button>
+    </div>
+  </section>
+  <section class="wrap-stats">
+    <div class="wrap-stat"><div class="l">Total shots</div><div class="n">4 <em>218</em></div><div class="s">Photos + videos across 6 drives</div></div>
+    <div class="wrap-stat"><div class="l">Top event</div><div class="n">Malta <em>· June</em></div><div class="s">121 shots · 7 videos · 6 days</div></div>
+    <div class="wrap-stat"><div class="l">Places visited</div><div class="n">17</div><div class="s">Malta, Sicily, Berlin, Gozo, +13 more</div></div>
+    <div class="wrap-stat"><div class="l">Most-shot person</div><div class="n">Elena</div><div class="s">In 634 shots · always laughing</div></div>
+  </section>
+</div>
+
+<!-- ============================== CAMERA-ROLL CLEANUP OVERLAY ============================== -->
+<div class="cleanup-overlay" id="cleanupOverlay">
+  <div class="cleanup-modal">
+    <div class="cleanup-head">
+      <div class="k">First-run · one-tap cleanup</div>
+      <h2>Free some space <em>before we begin.</em></h2>
+      <p>SnapIT scanned your library and spotted 10 categories of clutter. Untick the ones you want to keep. Nothing is deleted until you confirm — everything moves to a Recovered folder for 30 days first.</p>
+    </div>
+    <div class="cleanup-cats" id="cleanupCats"></div>
+    <div class="cleanup-foot">
+      <div class="cleanup-count"><b id="cleanupCount">4 218</b> files · <b id="cleanupGB">12.4 GB</b> to reclaim</div>
+      <div class="cleanup-actions">
+        <button class="later" onclick="closeCleanup()">Later</button>
+        <button class="go" onclick="closeCleanup()">Move to Recovered</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== SEND-TO-PHONE ============================== -->
+<div class="backdrop" id="stpBackdrop" onclick="closeSendToPhone()"></div>
+<div class="stp" id="stp">
+  <h3>Send to your <em>phone.</em></h3>
+  <p>Scan this QR with your iPhone or Android. SnapIT hands over the picked shots via a short-lived local link — never touches our servers.</p>
+  <div class="stp-qr">
+    <svg viewBox="0 0 100 100">
+      <!-- Fake QR-shaped grid -->
+      <g fill="#0a0b0e">
+        <rect x="0" y="0" width="20" height="20"/><rect x="80" y="0" width="20" height="20"/><rect x="0" y="80" width="20" height="20"/>
+        <rect x="5" y="5" width="10" height="10" fill="#fff"/><rect x="85" y="5" width="10" height="10" fill="#fff"/><rect x="5" y="85" width="10" height="10" fill="#fff"/>
+        <rect x="7.5" y="7.5" width="5" height="5"/><rect x="87.5" y="7.5" width="5" height="5"/><rect x="7.5" y="87.5" width="5" height="5"/>
+        <rect x="30" y="10" width="5" height="5"/><rect x="40" y="10" width="5" height="5"/><rect x="55" y="10" width="5" height="5"/><rect x="65" y="10" width="5" height="5"/>
+        <rect x="25" y="25" width="5" height="5"/><rect x="35" y="25" width="5" height="5"/><rect x="45" y="25" width="5" height="5"/><rect x="55" y="30" width="5" height="5"/><rect x="65" y="25" width="5" height="5"/><rect x="75" y="30" width="5" height="5"/>
+        <rect x="10" y="30" width="5" height="5"/><rect x="30" y="40" width="5" height="5"/><rect x="40" y="45" width="5" height="5"/><rect x="55" y="40" width="5" height="5"/><rect x="70" y="45" width="5" height="5"/><rect x="85" y="45" width="5" height="5"/>
+        <rect x="20" y="55" width="5" height="5"/><rect x="35" y="50" width="5" height="5"/><rect x="50" y="55" width="5" height="5"/><rect x="65" y="60" width="5" height="5"/><rect x="80" y="55" width="5" height="5"/>
+        <rect x="30" y="65" width="5" height="5"/><rect x="45" y="70" width="5" height="5"/><rect x="60" y="65" width="5" height="5"/><rect x="75" y="70" width="5" height="5"/><rect x="90" y="65" width="5" height="5"/>
+        <rect x="25" y="80" width="5" height="5"/><rect x="40" y="85" width="5" height="5"/><rect x="55" y="80" width="5" height="5"/><rect x="70" y="85" width="5" height="5"/><rect x="85" y="80" width="5" height="5"/>
+      </g>
+    </svg>
+  </div>
+  <div class="stp-count">Ready to hand off · <b>3 shots</b> · link expires in <b>2 min</b></div>
+</div>
+
+<!-- ============================== FACE MATCH BANNER ============================== -->
+<div class="face-match" id="faceMatch">
+  <div class="face-match-head">
+    <div class="av">?</div>
+    <div>
+      <div class="t">Who's this?</div>
+      <div class="s">Appears in <b style="color:var(--core)">42 shots</b> across 3 years</div>
+    </div>
+  </div>
+  <input type="text" placeholder="Name them (only stored on this machine)…" id="faceMatchInput">
+  <div class="face-match-acts">
+    <button class="skip" onclick="closeFaceMatch()">Skip</button>
+    <button class="name" onclick="closeFaceMatch()">Name person</button>
+  </div>
+</div>
+
+<!-- ============================== PRINT ALBUM MODAL ============================== -->
+<div class="backdrop" id="printBackdrop" onclick="closePrint()"></div>
+<div class="action-modal" id="printModal">
+  <h3>Print this event as <em>a hardcover album.</em></h3>
+  <p>SnapIT sends the auto-layout to a EU print partner — <b>signed order stays with them, never with us</b>. Your library keeps a receipt as a note. Ships within 7 working days.</p>
+  <div class="action-choices">
+    <div class="action-choice">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="1"/><line x1="4" y1="12" x2="20" y2="12"/></svg></div>
+      <div class="info"><div class="n">Softcover · 40 pages</div><div class="s">Matte lay-flat · 21×21 cm</div></div>
+      <div style="color:var(--ink);font-weight:600;font-size:14px">€39</div>
+    </div>
+    <div class="action-choice">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg></div>
+      <div class="info"><div class="n">Hardcover · 60 pages <b>· recommended</b></div><div class="s">Linen spine · lay-flat · 25×25 cm</div></div>
+      <div style="color:var(--ink);font-weight:600;font-size:14px">€79</div>
+    </div>
+    <div class="action-choice">
+      <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V4h16v16z"/><path d="M4 8h16"/><circle cx="8" cy="14" r="2"/><circle cx="14" cy="14" r="2"/></svg></div>
+      <div class="info"><div class="n">Coffee-table · 100 pages</div><div class="s">Linen wrap · gilded edges · 30×30 cm</div></div>
+      <div style="color:var(--ink);font-weight:600;font-size:14px">€149</div>
+    </div>
+  </div>
+  <button class="wrap-play" style="width:100%;margin:0" onclick="closePrint()">Continue to layout preview →</button>
+</div>
+
+<!-- ============================== CAST TO TV MODAL ============================== -->
+<div class="backdrop" id="castBackdrop" onclick="closeCast()"></div>
+<div class="action-modal" id="castModal">
+  <h3>Cast this event <em>to the TV.</em></h3>
+  <p>SnapIT streams a full-screen slideshow to any device on your Wi-Fi — <b>photos leave your machine only for as long as playback lasts</b>. No account, no cloud.</p>
+  <div class="action-choices">
+    <div class="action-choice">
+      <div class="ic">📺</div>
+      <div class="info"><div class="n">Living room TV</div><div class="s">AirPlay · Sony BRAVIA · 65"</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="action-choice">
+      <div class="ic">📺</div>
+      <div class="info"><div class="n">Bedroom TV</div><div class="s">Chromecast · Google TV · 55"</div></div>
+      <div class="chev">›</div>
+    </div>
+    <div class="action-choice">
+      <div class="ic">💻</div>
+      <div class="info"><div class="n">MacBook · Elena's</div><div class="s">Miracast · this Wi-Fi</div></div>
+      <div class="chev">›</div>
+    </div>
   </div>
 </div>
 
@@ -1446,6 +1762,10 @@ function renderRow(row, variant) {
     const cards = items.map((it, i) => {
         if (variant === 'top10') return renderTop10(it, i + 1);
         if (variant === 'portrait') return renderPortrait(it);
+        // #7 AI album covers — if the row carries albumCover, first tile is a collage
+        if (row.albumCover && i === 0) {
+            return renderAlbumCover(row, items.slice(0, 5));
+        }
         return renderLandscape(it);
     }).join('');
     return `
@@ -1460,6 +1780,29 @@ function renderRow(row, variant) {
           <div class="rail">${cards}</div>
         </div>
       </section>`;
+}
+
+/* AI album cover — event first-tile becomes a magazine collage.
+   Backend equivalent: /events/:id/cover generates 3-6-shot collage from the
+   event's highest-rated members, cached in the catalog. */
+function renderAlbumCover(row, items) {
+    const [a, b, c, d, e] = items;
+    return `
+      <div class="card landscape album" onclick="openCard('${a.id}')">
+        <div class="collage">
+          <img class="big" src="${a.thumb}" alt="">
+          <img src="${(b||a).thumb}" alt="">
+          <img src="${(c||a).thumb}" alt="">
+          <img src="${(d||a).thumb}" alt="">
+          <img src="${(e||a).thumb}" alt="">
+        </div>
+        <div class="collage-tint"></div>
+        <div class="collage-badge">Auto album</div>
+        <div class="collage-title">
+          <div class="t">${row.title.replace(/<[^>]+>/g,'').trim()}</div>
+          <div class="m">${row.subtitle || ''} · ${row.items.length} shots · Cover auto-generated</div>
+        </div>
+      </div>`;
 }
 
 function renderPeopleRow() {
@@ -1500,21 +1843,40 @@ function renderComposite() {
    ============================================================ */
 function renderHome() {
     const L = MOCK_LIBRARY.rows;
-    // Assemble a Netflix-like mix
+
+    // #1 "On this day, every year" — pulls from taken_at across every year
+    const onThisDay = {
+        id: 'onthisday',
+        title: 'On this day <span class="row-pill">Memory</span>',
+        subtitle: `Today across ${new Date().getUTCFullYear() - 2016} years of your library`,
+        items: shuffle(L.recent.items.concat(L.starred.items)).slice(0, 10),
+    };
+
+    // #13 Shots you haven't seen in a year — hidden gems
+    const hiddenGems = {
+        id: 'hidden',
+        title: 'Shots you forgot you had <span class="row-pill blue">Rediscovered</span>',
+        subtitle: 'High-rated shots you haven\'t opened in over a year',
+        items: shuffle(L.starred.items).slice(0, 8),
+    };
+
+    // #7 AI-album covers — events rendered as magazine collages
+    const albumEvent0 = {...L.event[0], albumCover: true};
+    const albumEvent1 = {...L.event[1], albumCover: true};
+    const albumEvent2 = {...L.event[2], albumCover: true};
+
     const rows = [
         [{ ...L.recent, title: 'Jump back in', subtitle: 'Last opened · 3 hours ago' }, 'landscape'],
-        [{ id:'today', title:'For today · on this day, past years', subtitle:'12 memories', items: shuffle(L.recent.items).slice(0,12) }, 'landscape'],
+        [onThisDay, 'landscape'],
         [{ ...L.starred, title: 'Your best of 2026' }, 'landscape'],
-        // People row (circular portraits)
         [null, 'people'],
-        // Top 10 ranked row
         [{ id:'top10', title:'Top 10 shots this year', subtitle:'By stars, plays and re-visits', items: shuffle(L.starred.items.concat(L.recent.items)).slice(0,10) }, 'top10'],
-        [L.event[1], 'landscape'],
-        [L.place[0], 'landscape'],
+        [albumEvent1, 'landscape'],
+        [hiddenGems, 'landscape'],
         [{ id:'socials-back', title:'From your Instagram takeout', subtitle:'Captions and dates recovered', items: L.recent.items.slice(0,10).map(x => ({...x, social:'instagram'})) }, 'landscape'],
-        [L.event[2], 'landscape'],
+        [albumEvent2, 'landscape'],
         [{ id:'videos', title:'Videos across everything', subtitle:'Playable in-app · no external player', items: getAllVideos().slice(0,12) }, 'landscape'],
-        [L.event[3] || L.event[0], 'landscape'],
+        [L.place[0], 'landscape'],
         [L.year[0], 'portrait'],
     ];
     document.getElementById('rows').innerHTML = rows.map(([row, variant]) => {
@@ -1836,22 +2198,101 @@ function switchView(view) {
 
     const home = document.getElementById('view-home');
     const socials = document.getElementById('view-socials');
+    const wrapped = document.getElementById('view-wrapped');
+    // reset all surfaces
+    home.style.display = 'none';
+    socials.style.display = 'none';
+    if (wrapped) wrapped.style.display = 'none';
 
     if (view === 'socials') {
-        home.style.display = 'none';
         socials.style.display = 'block';
         renderSocials();
+    } else if (view === 'wrapped' && wrapped) {
+        wrapped.style.display = 'block';
     } else if (view === 'home') {
         home.style.display = 'block';
-        socials.style.display = 'none';
         renderHome();
     } else {
-        // Other views reuse the home surface but with different row selections
         home.style.display = 'block';
-        socials.style.display = 'none';
         renderOtherView(view);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* Camera-roll cleanup — the first-launch flow (#4) */
+const CLEANUP_CATEGORIES = [
+    { id:'screenshots',  n:'Screenshots',        c:'<b>842</b> · 3.1 GB', ic:'📱', on:true },
+    { id:'whatsapp',     n:'WhatsApp downloads', c:'<b>1 247</b> · 2.4 GB · date rescued', ic:'💬', on:true },
+    { id:'receipts',     n:'Receipts',           c:'<b>319</b> · 640 MB · OCR-detected', ic:'🧾', on:true },
+    { id:'memes',        n:'Memes',              c:'<b>412</b> · 730 MB', ic:'🖼️', on:true },
+    { id:'blurry',       n:'Blurry shots',       c:'<b>238</b> · 1.6 GB · sharpness &lt; 30%', ic:'📸', on:true },
+    { id:'burst-extras', n:'Burst extras',       c:'<b>891</b> · 4.2 GB · keep sharpest only', ic:'⚡', on:true },
+    { id:'dupes',        n:'Duplicates',         c:'<b>142</b> · 620 MB · byte-identical', ic:'🔗', on:true },
+    { id:'contact-cards',n:'Contact card photos',c:'<b>27</b> · 12 MB · faces of business cards', ic:'💼', on:false },
+    { id:'ephemeral',    n:'Snapchat / Stories', c:'<b>68</b> · 180 MB', ic:'👻', on:false },
+    { id:'video-preview',n:'Video thumbnails',   c:'<b>32</b> · 6 MB · YouTube stubs', ic:'▶︎', on:false },
+];
+function openCleanup() {
+    const el = document.getElementById('cleanupCats');
+    el.innerHTML = CLEANUP_CATEGORIES.map(c => `
+      <div class="cleanup-cat ${c.on ? 'on' : ''}" data-cid="${c.id}" onclick="toggleCleanup('${c.id}',this)">
+        <div class="ic">${c.ic}</div>
+        <div class="info"><div class="n">${c.n}</div><div class="c">${c.c}</div></div>
+        <div class="chk"></div>
+      </div>`).join('');
+    updateCleanupCount();
+    document.getElementById('cleanupOverlay').classList.add('on');
+}
+function closeCleanup() {
+    document.getElementById('cleanupOverlay').classList.remove('on');
+}
+function toggleCleanup(id, el) {
+    const c = CLEANUP_CATEGORIES.find(x => x.id === id);
+    c.on = !c.on;
+    el.classList.toggle('on', c.on);
+    updateCleanupCount();
+}
+function updateCleanupCount() {
+    // Fake reduce from the c strings — just for the mock
+    let files = 0, gb = 0;
+    for (const c of CLEANUP_CATEGORIES) {
+        if (!c.on) continue;
+        const m = c.c.match(/<b>([\d\s]+)<\/b>[^\d]+([\d.]+)\s*(GB|MB)/);
+        if (m) {
+            files += parseInt(m[1].replace(/\s/g,''), 10);
+            gb += parseFloat(m[2]) * (m[3] === 'GB' ? 1 : 0.001);
+        }
+    }
+    document.getElementById('cleanupCount').textContent = files.toLocaleString();
+    document.getElementById('cleanupGB').textContent = gb.toFixed(1) + ' GB';
+}
+
+/* Send-to-phone (#14), Face-match (#11), Print (#12), Cast (#9) */
+function openSendToPhone() {
+    document.getElementById('stpBackdrop').classList.add('on');
+    document.getElementById('stp').classList.add('on');
+}
+function closeSendToPhone() {
+    document.getElementById('stpBackdrop').classList.remove('on');
+    document.getElementById('stp').classList.remove('on');
+}
+function openFaceMatch() { document.getElementById('faceMatch').classList.add('on'); }
+function closeFaceMatch() { document.getElementById('faceMatch').classList.remove('on'); }
+function openPrint() {
+    document.getElementById('printBackdrop').classList.add('on');
+    document.getElementById('printModal').classList.add('on');
+}
+function closePrint() {
+    document.getElementById('printBackdrop').classList.remove('on');
+    document.getElementById('printModal').classList.remove('on');
+}
+function openCast() {
+    document.getElementById('castBackdrop').classList.add('on');
+    document.getElementById('castModal').classList.add('on');
+}
+function closeCast() {
+    document.getElementById('castBackdrop').classList.remove('on');
+    document.getElementById('castModal').classList.remove('on');
 }
 function renderOtherView(view) {
     const L = MOCK_LIBRARY.rows;
@@ -1977,8 +2418,9 @@ function renderAvatarMenu() {
       <a href="#" onclick="event.preventDefault();openPicker()"><div>＋ Add / manage profiles</div><small>Family Pack · 5 max</small></a>
       <hr>
       <a href="#" onclick="event.preventDefault();switchView('socials')">Sources &amp; drives <small>6 connected · 2 syncing</small></a>
+      <a href="#" onclick="event.preventDefault();openCleanup()">Camera-roll cleanup <small>4 218 files flagged</small></a>
+      <a href="#" onclick="event.preventDefault();openFaceMatch()">Face grouping <small>Off — 3 unnamed people</small></a>
       <a href="#">Import queue <small>4 218 files remaining</small></a>
-      <a href="#">Face grouping <small>Off — opt-in</small></a>
       <a href="#">Settings</a>
       <a href="#">Permanence guarantee</a>
       <hr>
