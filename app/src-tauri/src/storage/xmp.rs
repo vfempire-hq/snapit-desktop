@@ -131,3 +131,78 @@ fn between<'a>(s: &'a str, open: &str, close: &str) -> Option<&'a str> {
     let (inside, _) = after.split_once(close)?;
     Some(inside)
 }
+
+/// Write-back path. If a sidecar exists, update xmp:Rating in place.
+/// If none exists, create an Adobe-convention `<photo>.xmp` with the
+/// minimum tree that Lightroom, Bridge and Darktable all recognise.
+///
+/// Only the rating is touched — we don't invent metadata we didn't
+/// derive from the user.
+pub fn write_rating(photo_path: &Path, rating: i32) -> anyhow::Result<PathBuf> {
+    let rating = rating.clamp(0, 5);
+    let sidecar = find_sidecar(photo_path).unwrap_or_else(|| adobe_sidecar_path(photo_path));
+
+    let existing = fs::read_to_string(&sidecar).ok();
+    let new_text = match existing {
+        Some(text) => rewrite_rating(&text, rating),
+        None => fresh_sidecar_with_rating(rating),
+    };
+    write_atomic(&sidecar, &new_text)?;
+    Ok(sidecar)
+}
+
+fn adobe_sidecar_path(photo_path: &Path) -> PathBuf {
+    let mut p = photo_path.as_os_str().to_owned();
+    p.push(".xmp");
+    PathBuf::from(p)
+}
+
+fn rewrite_rating(text: &str, rating: i32) -> String {
+    // Try to replace an existing xmp:Rating attribute value.
+    if let Some(idx) = text.find("xmp:Rating=\"") {
+        let before = &text[..idx];
+        let rest = &text[idx + "xmp:Rating=\"".len()..];
+        if let Some(quote_end) = rest.find('"') {
+            let after = &rest[quote_end..];
+            return format!("{}xmp:Rating=\"{}{}", before, rating, after);
+        }
+    }
+    // Try to replace an element form.
+    if let (Some(open), Some(close)) = (text.find("<xmp:Rating>"), text.find("</xmp:Rating>")) {
+        let (h, _) = text.split_at(open);
+        let after = &text[close + "</xmp:Rating>".len()..];
+        return format!("{}<xmp:Rating>{}</xmp:Rating>{}", h, rating, after);
+    }
+    // Otherwise inject the attribute onto the first rdf:Description tag.
+    if let Some(idx) = text.find("<rdf:Description") {
+        let insert_at = idx + "<rdf:Description".len();
+        let (h, t) = text.split_at(insert_at);
+        return format!("{} xmp:Rating=\"{}\"{}", h, rating, t);
+    }
+    // Give up — return input unchanged (very unusual case).
+    text.to_string()
+}
+
+fn fresh_sidecar_with_rating(rating: i32) -> String {
+    format!(
+        r#"<?xml version="1.0" encoding="UTF-8"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="SnapIT">
+ <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:Description rdf:about=""
+    xmlns:xmp="http://ns.adobe.com/xap/1.0/"
+    xmp:Rating="{rating}"/>
+ </rdf:RDF>
+</x:xmpmeta>
+"#
+    )
+}
+
+fn write_atomic(target: &Path, contents: &str) -> anyhow::Result<()> {
+    let tmp = target.with_extension(match target.extension().and_then(|s| s.to_str()) {
+        Some(ext) => format!("{}.snapit-tmp", ext),
+        None => "snapit-tmp".to_string(),
+    });
+    fs::write(&tmp, contents)?;
+    fs::rename(&tmp, target)?;
+    Ok(())
+}

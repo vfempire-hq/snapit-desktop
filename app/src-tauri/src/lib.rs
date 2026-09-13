@@ -118,6 +118,36 @@ async fn thumb_ensure(photo_id: String, state: State<'_, AppState>) -> Result<St
     Ok(path.to_string_lossy().to_string())
 }
 
+// ---------- rating ----------
+
+#[tauri::command]
+async fn rating_set(
+    photo_id: String,
+    rating: i32,
+    write_xmp: bool,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    let clamped = rating.clamp(0, 5);
+
+    // Update SQLite first — always cheap, always safe.
+    let conn = catalog::open(&library).map_err(|e| e.to_string())?;
+    conn.execute(
+        "UPDATE photos SET xmp_rating = ?1 WHERE id = ?2",
+        rusqlite::params![clamped, &photo_id],
+    )
+    .map_err(|e| e.to_string())?;
+
+    // Optionally write back to the XMP sidecar so Lightroom / Bridge see it.
+    if write_xmp {
+        let (rel, _) = catalog::path_and_hash_by_id(&library, &photo_id)
+            .map_err(|e| e.to_string())?;
+        let abs = library.join(&rel);
+        storage::xmp::write_rating(&abs, clamped).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 // ---------- edits ----------
 
 #[tauri::command]
@@ -211,6 +241,7 @@ pub fn run() {
             catalog_recent,
             catalog_duplicates,
             thumb_ensure,
+            rating_set,
             edit_get,
             edit_set,
             edit_clear,

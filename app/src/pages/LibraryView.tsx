@@ -399,6 +399,75 @@ function ExportPanel({ photoId, filename }: { photoId: string; filename: string 
   );
 }
 
+function StarRow({
+  photoId,
+  initial,
+}: {
+  photoId: string;
+  initial: number | null;
+}) {
+  const [rating, setRating] = useState<number>(initial ?? 0);
+  const [hover, setHover] = useState<number | null>(null);
+  const [writeXmp, setWriteXmp] = useState(true);
+  const [pending, setPending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRating(initial ?? 0);
+  }, [photoId, initial]);
+
+  const setStar = async (n: number) => {
+    const next = rating === n ? 0 : n; // click same star clears
+    setPending(true);
+    setErr(null);
+    try {
+      await invoke("rating_set", {
+        photoId,
+        rating: next,
+        writeXmp,
+      });
+      setRating(next);
+    } catch (e: any) {
+      setErr(String(e?.message ?? e));
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const shown = hover ?? rating;
+  return (
+    <div className="star-row-wrap">
+      <div
+        className="star-row"
+        onMouseLeave={() => setHover(null)}
+        aria-label={`${rating} stars`}
+      >
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            className={`star ${shown >= n ? "on" : ""} ${pending ? "pending" : ""}`}
+            onMouseEnter={() => setHover(n)}
+            onClick={() => setStar(n)}
+            disabled={pending}
+            aria-label={`Rate ${n} stars`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+      <label className="star-xmp-toggle" title="Also update the .xmp sidecar so Lightroom / Bridge see the rating">
+        <input
+          type="checkbox"
+          checked={writeXmp}
+          onChange={(e) => setWriteXmp(e.target.checked)}
+        />
+        <span>Sync to XMP</span>
+      </label>
+      {err && <div className="export-err">{err}</div>}
+    </div>
+  );
+}
+
 function PhotoDetail({
   thumb,
   onClose,
@@ -466,6 +535,7 @@ function PhotoDetail({
               </>
             )}
           </dl>
+          <StarRow photoId={thumb.id} initial={thumb.xmp_rating} />
           <ExportPanel photoId={thumb.id} filename={name} />
           <p className="muted small">
             Face clusters + semantic search + upscale land in later R·01
