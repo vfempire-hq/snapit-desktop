@@ -1,0 +1,122 @@
+[
+  {
+    "section": "social-instagram",
+    "name": "ig-latte-art",
+    "aspect": "square",
+    "prompt": "Overhead flatlay Instagram photograph of a latte with rosetta art in a ceramic cup, on a warm wooden cafe table, natural window light, editorial food-blogger IG aesthetic, tack sharp texture, deep saturation"
+  },
+  {
+    "section": "social-instagram",
+    "name": "ig-outfit-flatlay",
+    "aspect": "square",
+    "prompt": "Overhead flatlay Instagram photograph of a summer outfit \u2014 linen shirt, straw hat, sunglasses, canvas tote \u2014 arranged on a warm wooden floor, natural window light, editorial IG fashion aesthetic, deep saturation"
+  },
+  {
+    "section": "social-instagram",
+    "name": "ig-travel-selfie",
+    "aspect": "square",
+    "prompt": "Selfie-perspective Instagram photograph of a young couple laughing on a warm Maltese street, both facing the phone camera, golden-hour light, editorial travel IG aesthetic, slightly wide-angle lens compression, phone camera look"
+  },
+  {
+    "section": "social-instagram",
+    "name": "ig-yoga-beach",
+    "aspect": "square",
+    "prompt": "Instagram photograph of a woman in yoga pose on a Maltese beach at golden hour, warm honey backlight, editorial wellness IG aesthetic, deep saturation, medium format aesthetic"
+  },
+  {
+    "section": "social-instagram",
+    "name": "ig-book-shelf",
+    "aspect": "square",
+    "prompt": "Overhead Instagram photograph of a stack of well-worn books, a coffee cup, and reading glasses on a warm wooden desk, natural window light, editorial book-lover IG aesthetic, deep saturation"
+  },
+  {
+    "section": "social-instagram",
+    "name": "ig-flower-market",
+    "aspect": "square",
+    "prompt": "Instagram photograph of a hand holding a small bouquet of eucalyptus and pale roses at a flower market, warm morning light behind, editorial IG aesthetic, deep saturation, Sony a7 IV"
+  },
+  {
+    "section": "social-youtube",
+    "name": "yt-tech-review",
+    "aspect": "wide16x9",
+    "prompt": "YouTube tech-review thumbnail-style photograph of a young woman holding up a new smartphone with a genuine wow expression, natural bright studio light, deep saturated colours, subject facing camera, editorial channel aesthetic, no text on image"
+  },
+  {
+    "section": "social-youtube",
+    "name": "yt-travel-vlog",
+    "aspect": "wide16x9",
+    "prompt": "YouTube travel-vlog thumbnail-style photograph of a young man holding a camera on a Sicilian street at golden hour, big genuine smile, gelato in hand, editorial channel aesthetic, tack sharp, subject facing camera, no text on image"
+  },
+  {
+    "section": "social-youtube",
+    "name": "yt-fitness-outdoor",
+    "aspect": "wide16x9",
+    "prompt": "YouTube fitness-channel thumbnail-style photograph of a fit man in his forties finishing a beach workout at sunrise, warm gold light, sweat, big genuine smile, editorial channel aesthetic, no text on image"
+  },
+  {
+    "section": "social-youtube",
+    "name": "yt-diy-workshop",
+    "aspect": "wide16x9",
+    "prompt": "YouTube DIY-channel thumbnail-style photograph of a middle-aged man in overalls proudly holding a finished wooden bookshelf in a garage workshop, warm shop light, big genuine smile, editorial channel aesthetic, no text on image"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-cooking-mama",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot cooking video frame of an older Maltese woman stirring a large pot on a stove, warm kitchen light, natural candid moment, TikTok video aesthetic, phone camera compression, film grain, iPhone 15 Pro camera look"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-outfit-mirror",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot mirror-selfie video frame of a young woman in a summer outfit doing a small pose, natural bedroom light with warm bulb behind, TikTok fashion aesthetic, phone camera compression, iPhone 15 Pro look"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-street-food-eat",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot video frame of a young man taking a first bite of a pastizzi on a warm Valletta street, genuine surprised smile, TikTok food-review aesthetic, phone camera compression, iPhone 15 Pro"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-travel-walking",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot walking POV video frame down a warm Maltese side street at golden hour, slight motion blur suggesting handheld phone gimbal, TikTok travel-vlog aesthetic, iPhone 15 Pro camera look"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-workout-gym",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot gym video frame of a young man lifting a barbell, sweat, focused expression, natural gym fluorescent + warm side lamp, TikTok fitness aesthetic, phone camera compression, film grain"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-diy-craft",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot overhead video frame of hands painting a small ceramic pot on a warm wooden surface, natural window light, TikTok DIY aesthetic, phone camera compression, iPhone 15 Pro look"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-pet-cat",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot video frame of a fluffy cat batting at a piece of yarn on a warm rug, natural window light, TikTok pet aesthetic, phone camera compression, tack sharp on the cat, iPhone 15 Pro look"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-morning-routine",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot mirror video frame of a woman doing her morning skincare routine, warm bathroom light, TikTok lifestyle aesthetic, phone camera compression, iPhone 15 Pro camera look"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-cafe-review",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot video frame of a coffee being poured into a cup at a Maltese cafe, warm cafe light, slight motion blur, TikTok cafe-review aesthetic, phone camera compression"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-outdoor-hike",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot POV video frame at the summit of a Maltese cliff walk, hand in frame pointing at the sea view, wind in the hair, TikTok travel aesthetic, iPhone 15 Pro camera look"
+  }
+]

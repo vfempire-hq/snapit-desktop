@@ -326,20 +326,68 @@ button{cursor:pointer}
 .addbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 
 .avatarwrap{position:relative}
-.avatar{width:32px;height:32px;border-radius:4px;background:linear-gradient(135deg,var(--core-deep),var(--core));
-  color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.02em;cursor:pointer}
-.avatar-menu{position:absolute;top:44px;right:0;min-width:260px;background:rgba(0,0,0,.94);
-  border:1px solid var(--line-2);border-radius:2px;padding:12px 0;
-  transform:translateY(-6px);opacity:0;pointer-events:none;transition:transform .2s,opacity .2s;z-index:90}
-.avatarwrap.on .avatar-menu{transform:translateY(0);opacity:1;pointer-events:all}
-.avatar-menu::before{content:"";position:absolute;top:-8px;right:12px;border:5px solid transparent;border-bottom-color:var(--line-2)}
-.avatar-menu a{display:flex;align-items:center;gap:12px;padding:8px 18px;font-size:13px;color:var(--ink);
-  transition:color .15s}
-.avatar-menu a:hover{color:var(--core)}
-.avatar-menu a small{display:block;color:var(--dim);font-size:11px;font-weight:400}
-.avatar-menu hr{margin:8px 0;border:none;border-top:1px solid var(--line);opacity:.4}
-.avatar-menu .avatar-btn{color:var(--dim);font-size:12.5px;padding:8px 18px;display:block;text-align:left;width:100%}
-.avatar-menu .avatar-btn:hover{color:var(--ink)}
+.avatar{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--core-deep),var(--core));
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.02em;cursor:pointer;
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 2px 6px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.16);
+  transition:transform .18s cubic-bezier(.4,.2,.2,1),box-shadow .18s}
+.avatar:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(31,111,242,.32),inset 0 1px 0 rgba(255,255,255,.2)}
+.avatarwrap.on .avatar{box-shadow:0 0 0 3px rgba(31,111,242,.24),inset 0 1px 0 rgba(255,255,255,.2)}
+
+.avatar-menu{position:absolute;top:48px;right:-4px;min-width:328px;
+  background:rgba(11,12,15,.92);backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:8px;
+  box-shadow:0 24px 72px rgba(0,0,0,.68),0 0 0 1px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+  transform:translateY(-8px) scale(.97);transform-origin:100% 0;opacity:0;pointer-events:none;
+  transition:transform .2s cubic-bezier(.4,.2,.2,1),opacity .2s;z-index:90}
+.avatarwrap.on .avatar-menu{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
+.avatar-menu::before{content:"";position:absolute;top:-6px;right:14px;width:12px;height:12px;
+  background:rgba(11,12,15,.92);border-left:1px solid rgba(255,255,255,.08);border-top:1px solid rgba(255,255,255,.08);
+  transform:rotate(45deg)}
+
+/* Menu label — small caps section header */
+.avm-label{padding:8px 12px 4px;font-size:9.5px;color:rgba(255,255,255,.42);
+  letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+
+/* Big header card at the top of the menu */
+.avm-head{display:flex;align-items:center;gap:12px;padding:14px 12px 12px 12px;
+  background:linear-gradient(135deg,rgba(31,111,242,.14),rgba(31,111,242,.02));
+  border:1px solid rgba(31,111,242,.18);border-radius:10px;margin:2px 2px 6px;
+  cursor:pointer;transition:all .2s ease}
+.avm-head:hover{background:linear-gradient(135deg,rgba(31,111,242,.2),rgba(31,111,242,.06));
+  border-color:rgba(31,111,242,.32)}
+.avm-head-av{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:14px;letter-spacing:.02em;flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
+.avm-head-t{flex:1;min-width:0;color:var(--ink);font-size:14px;font-weight:600;letter-spacing:-.006em}
+.avm-head-s{color:var(--dim);font-size:11.5px;font-weight:400;margin-top:2px;letter-spacing:.005em}
+.avm-head-cog{color:rgba(255,255,255,.44);flex-shrink:0}
+
+/* Row: icon + label + meta */
+.avm-row{display:flex;align-items:center;gap:11px;padding:8px 12px;font-size:13px;color:var(--ink);
+  border-radius:8px;transition:background .14s;font-weight:500;letter-spacing:.005em;cursor:pointer;user-select:none;
+  position:relative}
+.avm-row:hover{background:rgba(255,255,255,.06)}
+.avm-row-ico{width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);flex-shrink:0}
+.avm-row-label{flex:1;min-width:0;line-height:1.35}
+.avm-row-meta{color:var(--dim);font-size:11px;font-weight:400;flex-shrink:0}
+.avm-row-tag{color:var(--core);font-size:10px;letter-spacing:.05em;background:rgba(31,111,242,.14);
+  padding:2px 6px;border-radius:99px;font-weight:600;flex-shrink:0}
+.avm-row.on-danger:hover{background:rgba(244,92,92,.08);color:#f8a0a0}
+.avm-row.on-danger:hover .avm-row-ico{color:#f45c5c}
+
+/* Profile switcher row — smaller ident, active accent */
+.avm-prof{display:flex;align-items:center;gap:11px;padding:7px 12px;border-radius:8px;
+  cursor:pointer;transition:background .14s}
+.avm-prof:hover{background:rgba(255,255,255,.05)}
+.avm-prof-av{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:700;font-size:10px;letter-spacing:.02em;flex-shrink:0}
+.avm-prof-info{flex:1;min-width:0}
+.avm-prof-name{font-size:12.5px;color:var(--ink);font-weight:600}
+.avm-prof-role{font-size:10.5px;color:var(--dim);margin-top:1px}
+
+/* Divider — tight, discreet */
+.avm-sep{height:1px;background:rgba(255,255,255,.06);margin:6px 4px}
 
 /* ================================================================
    BILLBOARD HERO — 80vh full-bleed with photo composite background
@@ -434,6 +482,20 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 /* Hover expansion — Netflix mechanic: card scales in place, preview panel drops */
 .card.landscape:hover{transform:scale(1.32);box-shadow:0 20px 40px -10px rgba(0,0,0,.8);z-index:10}
 .card.landscape:hover img{filter:brightness(.75)}
+/* Portrait cards (year row, people row) get a subtler lift — smaller footprint,
+   so a 1.32x would overflow the row. Softer glow, same visual energy. */
+.card.portrait{transition:transform .28s cubic-bezier(.4,.2,.2,1),box-shadow .28s,filter .28s}
+.card.portrait:hover{transform:scale(1.14) translateY(-4px);
+  box-shadow:0 24px 48px -12px rgba(0,0,0,.75),0 0 0 1px rgba(74,148,255,.3);z-index:10}
+.card.portrait:hover img{filter:brightness(1.06) saturate(1.08)}
+/* Circle (people) row also gets a smooth lift */
+.card.circle{transition:transform .28s cubic-bezier(.4,.2,.2,1)}
+.card.circle:hover{transform:scale(1.1) translateY(-3px)}
+.card.circle:hover .imgwrap{box-shadow:0 20px 40px -10px rgba(0,0,0,.5),0 0 0 2px var(--core)}
+/* Top-10 rank cards get a soft slide-forward */
+.card.top10{transition:transform .28s cubic-bezier(.4,.2,.2,1)}
+.card.top10:hover{transform:scale(1.06) translateY(-2px);z-index:10}
+.card.top10:hover .art{box-shadow:0 20px 42px -10px rgba(0,0,0,.68)}
 .card-badges{position:absolute;top:8px;right:8px;display:flex;gap:6px}
 .card-badges .b{padding:3px 8px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   background:rgba(0,0,0,.72);color:#fff;backdrop-filter:blur(6px)}
@@ -841,7 +903,25 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .modal-hero img{width:100%;height:100%;object-fit:cover}
 .modal-veil{position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,var(--bg-2) 100%)}
 .modal-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;
-  background:rgba(0,0,0,.7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:2}
+  background:rgba(0,0,0,.7);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:2;cursor:pointer;
+  transition:background .18s,transform .18s}
+.modal-close:hover{background:rgba(0,0,0,.9);transform:rotate(90deg)}
+
+/* One-click Enhance — floats top-left of the hero, gradient pill with animated shimmer */
+.quick-enhance{position:absolute;top:16px;left:16px;z-index:2;display:flex;align-items:center;gap:8px;
+  padding:10px 16px 10px 12px;border-radius:99px;color:#fff;font-size:13px;font-weight:600;letter-spacing:.005em;
+  background:linear-gradient(135deg,#1f6ff2 0%,#7c3aed 50%,#e1306c 100%);
+  border:1px solid rgba(255,255,255,.16);cursor:pointer;
+  box-shadow:0 8px 22px rgba(31,111,242,.36),0 0 0 1px rgba(255,255,255,.06),
+             inset 0 1px 0 rgba(255,255,255,.24);
+  transition:transform .2s cubic-bezier(.4,.2,.2,1),box-shadow .2s;
+  background-size:200% 200%;animation:qeShimmer 5s ease-in-out infinite}
+@keyframes qeShimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.quick-enhance:hover{transform:translateY(-1px) scale(1.04);
+  box-shadow:0 14px 32px rgba(31,111,242,.5),0 0 0 1px rgba(255,255,255,.12),
+             inset 0 1px 0 rgba(255,255,255,.28)}
+.quick-enhance svg{filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))}
+.quick-enhance span{filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
 .modal-body{padding:28px 40px 40px}
 .modal-title{font-size:32px;font-weight:600;letter-spacing:-.02em;margin-bottom:12px}
 .modal-meta{display:flex;gap:14px;color:var(--dim);font-size:13px;margin-bottom:20px;flex-wrap:wrap}
@@ -1023,41 +1103,62 @@ main{position:relative;padding-top:0;padding-bottom:80px}
    toggle persists via ProfileStore.update. The style matches the
    detail modal chrome — big serif titles + Hanken body.
    ================================================================ */
-.settings{position:fixed;inset:20px;z-index:900;display:none;flex-direction:column;
-  background:linear-gradient(180deg,#0a0b0f,#0d0e12);border-radius:14px;overflow:hidden;
-  border:1px solid var(--line-2);box-shadow:0 40px 120px rgba(0,0,0,.7);
-  opacity:0;transform:translateY(24px);transition:opacity .28s ease,transform .32s ease}
-.settings.on{display:flex;opacity:1;transform:translateY(0)}
-.st-top{display:flex;align-items:center;gap:18px;padding:22px 30px 20px;
-  border-bottom:1px solid var(--line)}
-.st-top h1{font-size:34px;font-weight:600;letter-spacing:-.024em;flex:1;margin:0}
+.settings{position:fixed;inset:24px;z-index:900;display:none;flex-direction:column;
+  background:radial-gradient(circle at 0% 0%,rgba(31,111,242,.06),transparent 50%),
+             linear-gradient(180deg,#0a0b0f 0%,#0d0e13 100%);
+  border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 60px 160px rgba(0,0,0,.72),0 0 0 1px rgba(0,0,0,.4);
+  opacity:0;transform:translateY(28px) scale(.985);
+  transition:opacity .32s ease,transform .36s cubic-bezier(.4,.2,.2,1)}
+.settings.on{display:flex;opacity:1;transform:translateY(0) scale(1)}
+.st-top{display:flex;align-items:center;gap:18px;padding:26px 36px 22px;
+  border-bottom:1px solid rgba(255,255,255,.06);position:relative}
+.st-top::before{content:"";position:absolute;left:36px;right:36px;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(31,111,242,.24),transparent)}
+.st-top h1{font-size:38px;font-weight:600;letter-spacing:-.028em;flex:1;margin:0;line-height:1}
 .st-top h1 em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
-.st-top .st-close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);
-  border:1px solid var(--line);color:var(--ink);display:flex;align-items:center;justify-content:center;
-  transition:all .18s}
-.st-top .st-close:hover{background:rgba(255,255,255,.12)}
-.st-body{display:grid;grid-template-columns:240px 1fr;flex:1;min-height:0;overflow:hidden}
-.st-rail{padding:16px 0;border-right:1px solid var(--line);overflow-y:auto}
-.st-rail a{display:flex;align-items:center;gap:11px;padding:9px 26px;font-size:13px;color:var(--dim);
-  font-weight:500;letter-spacing:.005em;transition:color .16s,background .16s;user-select:none;cursor:pointer}
-.st-rail a:hover{color:var(--ink);background:rgba(255,255,255,.04)}
-.st-rail a.on{color:var(--core);background:rgba(31,111,242,.08);
-  box-shadow:inset 2px 0 0 var(--core)}
-.st-rail a svg{opacity:.9;flex-shrink:0}
-.st-pane{overflow-y:auto;padding:28px 40px 40px}
+.st-top .st-close{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);color:var(--ink);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s cubic-bezier(.4,.2,.2,1)}
+.st-top .st-close:hover{background:rgba(255,255,255,.11);transform:rotate(90deg);border-color:rgba(255,255,255,.18)}
+.st-body{display:grid;grid-template-columns:260px 1fr;flex:1;min-height:0;overflow:hidden}
+.st-rail{padding:20px 12px;border-right:1px solid rgba(255,255,255,.06);overflow-y:auto;
+  background:linear-gradient(180deg,rgba(255,255,255,.015),transparent 30%)}
+.st-rail a{display:flex;align-items:center;gap:12px;padding:10px 14px;margin-bottom:2px;
+  font-size:13.5px;color:var(--dim);font-weight:500;letter-spacing:.005em;
+  border-radius:9px;transition:all .16s;user-select:none;cursor:pointer;position:relative}
+.st-rail a:hover{color:var(--ink);background:rgba(255,255,255,.045)}
+.st-rail a.on{color:var(--ink);background:linear-gradient(90deg,rgba(31,111,242,.16),rgba(31,111,242,.02));
+  box-shadow:inset 0 0 0 1px rgba(31,111,242,.24)}
+.st-rail a.on::before{content:"";position:absolute;left:0;top:22%;bottom:22%;width:3px;
+  background:var(--core);border-radius:99px}
+.st-rail a svg{opacity:.85;flex-shrink:0}
+.st-rail a.on svg{opacity:1;color:var(--core)}
+.st-pane{overflow-y:auto;padding:34px 48px 48px}
+.st-pane::-webkit-scrollbar{width:8px}
+.st-pane::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:99px}
+.st-pane::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.12)}
 .st-section{display:none}
-.st-section.on{display:block;animation:stFadeUp .28s ease}
-@keyframes stFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.st-h{font-size:24px;font-weight:600;letter-spacing:-.018em;margin-bottom:6px}
+.st-section.on{display:block;animation:stFadeUp .32s cubic-bezier(.4,.2,.2,1)}
+@keyframes stFadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.st-h{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px;line-height:1.1}
 .st-h em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
-.st-lead{color:var(--dim);font-size:13.5px;margin-bottom:24px;line-height:1.6;max-width:640px}
-.st-row{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;
-  padding:14px 0;border-bottom:1px solid var(--line);min-height:56px}
+.st-lead{color:var(--dim);font-size:14px;margin-bottom:28px;line-height:1.6;max-width:680px}
+.st-lead b{color:rgba(255,255,255,.85);font-weight:600}
+.st-row{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;
+  padding:16px 0;border-bottom:1px solid rgba(255,255,255,.05);min-height:60px;
+  transition:padding-left .16s}
 .st-row:last-child{border-bottom:none}
 .st-row-l{flex:1;min-width:0}
-.st-row-title{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:3px}
-.st-row-sub{font-size:12px;color:var(--dim);line-height:1.55;max-width:520px}
+.st-row-title{font-size:14px;color:var(--ink);font-weight:600;margin-bottom:4px;letter-spacing:-.003em}
+.st-row-sub{font-size:12.5px;color:var(--dim);line-height:1.55;max-width:540px;font-weight:400}
 .st-row-r{flex-shrink:0;display:flex;align-items:center;gap:8px}
+
+/* Group subheader — used between clumps of rows in one section */
+.st-group-h{font-size:10.5px;color:rgba(255,255,255,.4);letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;margin:26px 0 4px}
+.st-group-h:first-child{margin-top:0}
 
 /* Toggle switch */
 .st-toggle{width:38px;height:22px;background:rgba(255,255,255,.14);border-radius:99px;
@@ -1105,24 +1206,99 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .st-danger-h{color:#f45c5c;font-size:14px;font-weight:600;margin-bottom:8px}
 .st-danger-s{color:var(--dim);font-size:12.5px;margin-bottom:14px}
 
-/* Import queue */
+/* ============ IMPORT QUEUE — a proper mission-control view ============ */
+/* Hero band: giant animated counter on the left, waveform + metrics on the right */
+.iq-hero{position:relative;overflow:hidden;padding:32px 34px;border-radius:16px;margin-bottom:26px;
+  background:radial-gradient(circle at 20% 0%,rgba(31,111,242,.22),transparent 55%),
+             radial-gradient(circle at 90% 100%,rgba(124,58,237,.18),transparent 60%),
+             linear-gradient(180deg,#0f1319,#0b0d12);
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 32px rgba(0,0,0,.4)}
+.iq-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,rgba(31,111,242,.06) 50%,transparent 100%);
+  animation:iqSweep 6s linear infinite}
+@keyframes iqSweep{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.iq-hero-body{position:relative;display:grid;grid-template-columns:1.1fr 1fr;gap:36px;align-items:center}
+.iq-hero-num{font-size:88px;font-weight:600;letter-spacing:-.045em;line-height:1;color:#fff;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 4px 24px rgba(31,111,242,.4)}
+.iq-hero-lbl{font-size:11.5px;color:rgba(255,255,255,.55);letter-spacing:.18em;text-transform:uppercase;
+  font-weight:700;margin-top:8px}
+.iq-hero-sub{color:var(--dim);font-size:13px;margin-top:14px;line-height:1.6;max-width:360px}
+.iq-hero-sub b{color:rgba(255,255,255,.85);font-weight:600}
+.iq-hero-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.iq-mm{padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:10px}
+.iq-mm .v{font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--ink);
+  font-variant-numeric:tabular-nums;line-height:1.05}
+.iq-mm .v em{color:var(--core);font-style:normal;font-size:16px;margin-left:3px}
+.iq-mm .l{font-size:10.5px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-weight:700;margin-top:4px}
+
+/* Live rate sparkline */
+.iq-spark{grid-column:1/-1;height:36px;position:relative;margin-top:8px}
+.iq-spark svg{width:100%;height:100%}
+.iq-spark .grid line{stroke:rgba(255,255,255,.06);stroke-width:1}
+.iq-spark .curve{stroke:var(--core);stroke-width:2;fill:none;filter:drop-shadow(0 0 3px rgba(31,111,242,.45))}
+.iq-spark .fill{fill:url(#iqSparkGrad);opacity:.35}
+
+/* Source-source rows: bigger, richer, animated progress bar with running-light */
+.iq-src-h{font-size:11.5px;color:rgba(255,255,255,.45);letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin:0 0 12px 4px;display:flex;align-items:center;gap:10px}
+.iq-src-h::before,.iq-src-h::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.06)}
+.iq-list{display:flex;flex-direction:column;gap:10px}
+.iq-item{display:grid;grid-template-columns:44px 1fr 260px 88px;gap:18px;align-items:center;
+  padding:14px 18px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+  border:1px solid rgba(255,255,255,.06);border-radius:12px;
+  transition:transform .2s cubic-bezier(.4,.2,.2,1),background .2s,border-color .2s}
+.iq-item:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02))}
+.iq-item-ico{width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,#4a94ff,#1f6ff2);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 8px rgba(31,111,242,.34);position:relative}
+.iq-item-ico::after{content:"";position:absolute;inset:-1px;border-radius:11px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.24),transparent 60%);mix-blend-mode:overlay}
+.iq-item-name{font-size:14px;color:var(--ink);font-weight:600;letter-spacing:-.005em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iq-item-source{font-size:11.5px;color:var(--dim);margin-top:3px;display:flex;align-items:center;gap:6px}
+.iq-item-source .pulse{width:6px;height:6px;border-radius:50%;background:var(--core);
+  box-shadow:0 0 8px var(--core);animation:iqPulse 1.6s ease-in-out infinite}
+.iq-item.done .iq-item-source .pulse{background:var(--ok);box-shadow:0 0 8px var(--ok);animation:none}
+.iq-item.paused .iq-item-source .pulse{background:var(--dim);box-shadow:none;animation:none}
+@keyframes iqPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.42;transform:scale(.68)}}
+.iq-item-progress{height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;position:relative}
+.iq-item-progress-fill{height:100%;background:linear-gradient(90deg,#1f6ff2,#4a94ff);
+  border-radius:99px;transition:width .5s ease;position:relative;overflow:hidden}
+.iq-item-progress-fill::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);
+  animation:iqShine 1.8s linear infinite}
+@keyframes iqShine{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.iq-item.done .iq-item-progress-fill{background:linear-gradient(90deg,#3ecf8e,#65e5ac);animation:none}
+.iq-item.done .iq-item-progress-fill::after{display:none}
+.iq-item.paused .iq-item-progress-fill{background:rgba(255,255,255,.18);animation:none}
+.iq-item.paused .iq-item-progress-fill::after{display:none}
+.iq-item-state{font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums;text-align:right;
+  font-weight:500;letter-spacing:.01em}
+.iq-item.done .iq-item-state{color:var(--ok);font-weight:600}
+.iq-item.paused .iq-item-state{color:rgba(255,255,255,.4)}
+.iq-item.err .iq-item-state{color:#f45c5c}
+
+/* Bottom band: recent-imported thumbnail strip */
+.iq-strip-h{font-size:11.5px;color:rgba(255,255,255,.45);letter-spacing:.14em;text-transform:uppercase;
+  font-weight:700;margin:32px 0 10px;display:flex;align-items:center;gap:10px}
+.iq-strip-h::before,.iq-strip-h::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.06)}
+.iq-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px}
+.iq-strip-tile{aspect-ratio:1;border-radius:6px;overflow:hidden;position:relative;
+  background:rgba(255,255,255,.04);animation:iqTileIn .32s cubic-bezier(.4,.2,.2,1)}
+.iq-strip-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.iq-strip-tile::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.4));pointer-events:none}
+@keyframes iqTileIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* Legacy iq-summary + fallback (kept in case something still references) */
 .iq-summary{display:flex;gap:24px;padding:22px 26px;border-radius:12px;
   background:rgba(31,111,242,.08);border:1px solid rgba(31,111,242,.18);margin-bottom:20px}
 .iq-metric .v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
 .iq-metric .l{font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
-.iq-list{display:flex;flex-direction:column;gap:8px}
-.iq-item{display:grid;grid-template-columns:40px 1fr 100px auto;gap:14px;align-items:center;
-  padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px}
-.iq-item-ico{width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,#4a94ff,#1f6ff2);
-  display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0}
-.iq-item-name{font-size:13px;color:var(--ink);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.iq-item-source{font-size:11px;color:var(--dim);margin-top:2px}
-.iq-item-progress{width:100px;height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
-.iq-item-progress-fill{height:100%;background:var(--core)}
-.iq-item-state{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;text-align:right;min-width:60px}
-.iq-item.done .iq-item-state{color:var(--ok)}
-.iq-item.done .iq-item-progress-fill{background:var(--ok)}
-.iq-item.err .iq-item-state{color:#f45c5c}
 
 /* ================================================================
    PREMIUM HOVER TIPS
@@ -1867,6 +2043,13 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   <div class="modal-hero">
     <img id="cm-img" src="" alt="">
     <div class="modal-veil"></div>
+    <button class="quick-enhance" onclick="openUpscale(document.getElementById('cm-img').src)" data-tip="One-click enhance" data-tip-sub="Real-ESRGAN 2× runs on your GPU · non-destructive">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/>
+        <path d="M19 15l.6 1.8L21 17l-1.4.4-.6 1.6-.6-1.6L17 17l1.4-.2z"/>
+      </svg>
+      <span>Enhance</span>
+    </button>
     <button class="modal-close" onclick="closeCard()">×</button>
   </div>
   <div class="modal-body">
@@ -3083,35 +3266,119 @@ function pauseImportQueue() {
     _iqPaused = !_iqPaused;
     document.getElementById('iqPause').textContent = _iqPaused ? '▶ Resume all' : '⏸ Pause all';
 }
+// Live rate history — one point per tick, capped
+let _iqRateHistory = [];
+function _pushRateSample(rate) {
+    _iqRateHistory.push(rate);
+    if (_iqRateHistory.length > 48) _iqRateHistory.shift();
+}
+function _sparkPath(vals, w, h) {
+    if (!vals.length) return { path: '', fill: '' };
+    const max = Math.max(1, ...vals);
+    const step = w / Math.max(1, vals.length - 1);
+    const pts = vals.map((v, i) => [i * step, h - (v / max) * (h - 4) - 2]);
+    const path = 'M ' + pts.map(p => `${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' L ');
+    const fill = path + ` L ${w} ${h} L 0 ${h} Z`;
+    return { path, fill };
+}
 function renderImportQueue() {
     const pane = document.getElementById('iqPane');
     const remaining = 4218 - _iqRunning;
     const rateSec = _iqPaused ? 0 : 6;
-    const eta = _iqPaused ? '— paused —' : Math.ceil(remaining / rateSec / 60) + ' min';
+    if (!_iqPaused) _pushRateSample(rateSec);
+    const doneStr = _iqRunning.toLocaleString();
+    const remStr  = remaining.toLocaleString();
+    const eta = _iqPaused ? 'paused' : (remaining === 0 ? 'done' : Math.ceil(remaining / rateSec / 60) + ' min');
+    const gbFreed = (0.4 + _iqRunning * 0.0032).toFixed(1);
+    const dupsFolded = Math.floor(_iqRunning * 0.28);
+
+    // Source states — evolve as more get imported
     const sources = [
-        { name: 'iPhone.local: 2 145 items', label: 'iPhone-15-Pro', in_progress: true },
-        { name: 'NAS · Family: 987 items',   label: 'NAS · Family', in_progress: true },
-        { name: 'Nikon-Card: 612 items',     label: 'Nikon-Card',   in_progress: false },
-        { name: 'iCloud Photos: 474 items',  label: 'iCloud',       in_progress: false },
+        { name: 'iPhone-15-Pro',       count: 2145, camera: 'iPhone', pct: Math.min(100, 22 + _iqRunning / 42) },
+        { name: 'NAS · Family',         count: 987,  camera: 'NAS',    pct: Math.min(100, 15 + _iqRunning / 68) },
+        { name: 'Nikon-Card',           count: 612,  camera: 'Nikon',  pct: _iqRunning > 800 ? Math.min(100, (_iqRunning - 800) / 4) : 0 },
+        { name: 'iCloud Photos',        count: 474,  camera: 'iCloud', pct: _iqRunning > 1500 ? Math.min(100, (_iqRunning - 1500) / 6) : 0 },
     ];
+
+    // Sparkline for rate history
+    const spark = _sparkPath(_iqRateHistory, 300, 36);
+
+    // Recent-imported strip — pull real gallery items from the manifest, shuffle
+    const strip = [];
+    if (window.SNAPIT_GALLERY && window.SNAPIT_GALLERY.length) {
+        // "Recent" simulation — cycle through gallery based on _iqRunning tick
+        const g = window.SNAPIT_GALLERY;
+        const startIdx = Math.floor(_iqRunning / 6) % Math.max(1, g.length);
+        for (let i = 0; i < Math.min(16, g.length); i++) {
+            strip.push(g[(startIdx + i) % g.length]);
+        }
+    }
+
     pane.innerHTML = `
-      <div class="iq-summary">
-        <div class="iq-metric"><div class="v">${remaining.toLocaleString()}</div><div class="l">Remaining</div></div>
-        <div class="iq-metric"><div class="v">${_iqRunning.toLocaleString()}</div><div class="l">Imported this session</div></div>
-        <div class="iq-metric"><div class="v">${rateSec}/s</div><div class="l">Rate</div></div>
-        <div class="iq-metric"><div class="v">${eta}</div><div class="l">Est. done</div></div>
+      <div class="iq-hero">
+        <div class="iq-hero-body">
+          <div>
+            <div class="iq-hero-num">${remStr}</div>
+            <div class="iq-hero-lbl">Files to import</div>
+            <div class="iq-hero-sub">
+              Everything runs <b>on this machine</b> — no photos leave your network. Live progress across every watched source, deduped, EXIF-parsed, face-clustered.
+            </div>
+          </div>
+          <div class="iq-hero-metrics">
+            <div class="iq-mm"><div class="v">${doneStr}<em>done</em></div><div class="l">Imported this session</div></div>
+            <div class="iq-mm"><div class="v">${rateSec}<em>/s</em></div><div class="l">Live rate</div></div>
+            <div class="iq-mm"><div class="v">${eta}</div><div class="l">Time remaining</div></div>
+            <div class="iq-mm"><div class="v">${gbFreed}<em>GB</em></div><div class="l">Duplicates folded (${dupsFolded})</div></div>
+            <div class="iq-spark">
+              <svg viewBox="0 0 300 36" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="iqSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4a94ff" stop-opacity="1"/>
+                    <stop offset="100%" stop-color="#4a94ff" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <g class="grid">
+                  <line x1="0" y1="9" x2="300" y2="9"/>
+                  <line x1="0" y1="18" x2="300" y2="18"/>
+                  <line x1="0" y1="27" x2="300" y2="27"/>
+                </g>
+                <path class="fill" d="${spark.fill}"/>
+                <path class="curve" d="${spark.path}"/>
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="iq-list">${sources.map(s => `
-        <div class="iq-item ${_iqPaused ? '' : (s.in_progress ? '' : 'done')}">
-          <div class="iq-item-ico">${s.label[0]}</div>
+
+      <div class="iq-src-h">Active sources</div>
+      <div class="iq-list">${sources.map(s => {
+          const state = _iqPaused ? 'paused' : (s.pct >= 100 ? 'done' : (s.pct > 0 ? 'running' : 'queued'));
+          const cls = state === 'done' ? 'done' : (state === 'paused' ? 'paused' : '');
+          const stateTxt = state === 'done' ? '✓ Complete'
+                         : state === 'paused' ? '⏸ Paused'
+                         : state === 'running' ? `${Math.round(s.pct)}%`
+                                                : 'Queued';
+          const subTxt = state === 'done' ? 'all indexed'
+                        : state === 'paused' ? 'paused'
+                        : state === 'running' ? `${Math.floor(s.count * s.pct / 100).toLocaleString()} of ${s.count.toLocaleString()} indexed`
+                                              : `${s.count.toLocaleString()} pending`;
+          return `
+        <div class="iq-item ${cls}">
+          <div class="iq-item-ico">${s.name[0]}</div>
           <div>
             <div class="iq-item-name">${s.name}</div>
-            <div class="iq-item-source">${s.label}${s.in_progress && !_iqPaused ? ' · indexing' : (s.in_progress ? ' · paused' : ' · queued')}</div>
+            <div class="iq-item-source"><span class="pulse"></span>${subTxt}</div>
           </div>
-          <div class="iq-item-progress"><div class="iq-item-progress-fill" style="width:${s.in_progress && !_iqPaused ? (30 + (_iqRunning*3) % 65) : (s.in_progress ? 30 : 100)}%"></div></div>
-          <div class="iq-item-state">${s.in_progress && !_iqPaused ? 'indexing' : (s.in_progress ? 'paused' : 'ok')}</div>
-        </div>`).join('')}
-      </div>`;
+          <div class="iq-item-progress"><div class="iq-item-progress-fill" style="width:${s.pct}%"></div></div>
+          <div class="iq-item-state">${stateTxt}</div>
+        </div>`;}).join('')}
+      </div>
+
+      ${strip.length ? `
+      <div class="iq-strip-h">Just imported</div>
+      <div class="iq-strip">
+        ${strip.map(s => `<div class="iq-strip-tile"><img src="${s.thumb}" alt="" loading="lazy"></div>`).join('')}
+      </div>` : ''}`;
 }
 function tickImportQueue() {
     if (_iqPaused) return;
@@ -3899,30 +4166,95 @@ function updateHeaderAvatar() {
 function renderAvatarMenu() {
     const menu = document.getElementById('avatarMenu');
     const others = PROFILES.filter(p => p.id !== CURRENT_PROFILE.id);
+    const icon = (svg) => `<div class="avm-row-ico">${svg}</div>`;
+    const iconSet = {
+        settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.36.16.66.42.87.75.21.33.32.7.32 1.09"/></svg>',
+        add:      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+        source:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-12 0zM12 14v8"/></svg>',
+        broom:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M19 4l-9 9M9 15l-6 6M14 10l4 4M6 18l4 4"/></svg>',
+        face:     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r=".5" fill="currentColor"/><circle cx="15" cy="10" r=".5" fill="currentColor"/><path d="M9 15c1 1 4.5 1 6 0"/></svg>',
+        queue:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16"/></svg>',
+        key:      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v4M15 12v3"/></svg>',
+        shield:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2l9 4v7c0 5-4 9-9 10-5-1-9-5-9-10V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+        share:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>',
+        signout:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>',
+        chev:     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>',
+    };
+
     menu.innerHTML = `
-      <a href="#" onclick="event.preventDefault();openSettings('profile')" style="display:flex;align-items:center;gap:12px" data-tip="Open your profile settings">
-        <div style="width:32px;height:32px;border-radius:6px;background:${headerGradient(CURRENT_PROFILE.gradient)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px">${CURRENT_PROFILE.initials}</div>
-        <div><div>${CURRENT_PROFILE.name}</div><small>${CURRENT_PROFILE.role} · signed in · ${CURRENT_PROFILE.saves} saves</small></div>
-      </a>
-      <hr>
+      <div class="avm-head" onclick="event.preventDefault();openSettings('profile')" data-tip="Open your profile settings">
+        <div class="avm-head-av" style="background:${headerGradient(CURRENT_PROFILE.gradient)}">${CURRENT_PROFILE.initials}</div>
+        <div style="flex:1;min-width:0">
+          <div class="avm-head-t">${CURRENT_PROFILE.name}</div>
+          <div class="avm-head-s">${CURRENT_PROFILE.role} · ${CURRENT_PROFILE.saves ?? 0} saves${CURRENT_PROFILE.kids ? ' · Kids-safe' : ''}</div>
+        </div>
+        <div class="avm-head-cog">${iconSet.chev}</div>
+      </div>
+
+      ${others.length ? `<div class="avm-label">Switch profile</div>` : ''}
       ${others.map(p => `
-        <a href="#" onclick="event.preventDefault();selectProfileFromMenu('${p.id}')" style="display:flex;align-items:center;gap:12px" data-tip="Switch to ${p.name}">
-          <div style="width:28px;height:28px;border-radius:6px;background:${headerGradient(p.gradient)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px">${p.initials}</div>
-          <div><div>${p.name}</div><small>${p.role} · ${p.saves} saves</small></div>
-        </a>
+        <div class="avm-prof" onclick="selectProfileFromMenu('${p.id}')" data-tip="Switch to ${p.name}">
+          <div class="avm-prof-av" style="background:${headerGradient(p.gradient)}">${p.initials}</div>
+          <div class="avm-prof-info">
+            <div class="avm-prof-name">${p.name}</div>
+            <div class="avm-prof-role">${p.role} · ${p.saves ?? 0} saves</div>
+          </div>
+        </div>
       `).join('')}
-      <a href="#" onclick="event.preventDefault();openPicker()" data-tip="Add or manage family profiles"><div>＋ Add / manage profiles</div><small>Family Pack · 5 max</small></a>
-      <hr>
-      <a href="#" onclick="event.preventDefault();switchView('socials')" data-tip="See every connected drive">Sources &amp; drives <small>6 connected · 2 syncing</small></a>
-      <a href="#" onclick="event.preventDefault();openCleanup()" data-tip="Duplicates, blurred, screenshots, near-empty">Camera-roll cleanup <small>4 218 files flagged</small></a>
-      <a href="#" onclick="event.preventDefault();openFaceMatch()" data-tip="On-device only — faces never leave">Face grouping <small>Off — 3 unnamed people</small></a>
-      <a href="#" onclick="event.preventDefault();openImportQueue()" data-tip="Watch imports live">Import queue <small>4 218 files remaining</small></a>
-      <hr>
-      <a href="/seats" target="_blank" data-tip="Manage which machines can run SnapIT">Licence · Manage seats <small>4 of 5 used · Family Pack</small></a>
-      <a href="#" onclick="event.preventDefault();openSettings()" data-tip="Full app settings">Settings</a>
-      <a href="/permanence" target="_blank" data-tip="What happens if VF ever shuts down">Permanence guarantee</a>
-      <hr>
-      <button class="avatar-btn" onclick="signOut()" data-tip="Back to the profile picker">Sign out of SnapIT</button>
+      <div class="avm-row" onclick="openPicker()" data-tip="Add or manage family profiles">
+        ${icon(iconSet.add)}
+        <div class="avm-row-label">Add / manage profiles</div>
+        <div class="avm-row-meta">${PROFILES.length} of 5</div>
+      </div>
+
+      <div class="avm-sep"></div>
+      <div class="avm-label">Library</div>
+      <div class="avm-row" onclick="switchView('socials')" data-tip="See every connected drive">
+        ${icon(iconSet.source)}
+        <div class="avm-row-label">Sources &amp; drives</div>
+        <div class="avm-row-tag">2 syncing</div>
+      </div>
+      <div class="avm-row" onclick="openImportQueue()" data-tip="Watch imports live">
+        ${icon(iconSet.queue)}
+        <div class="avm-row-label">Import queue</div>
+        <div class="avm-row-meta">4 218 left</div>
+      </div>
+      <div class="avm-row" onclick="openCleanup()" data-tip="Duplicates, blurred, screenshots">
+        ${icon(iconSet.broom)}
+        <div class="avm-row-label">Camera-roll cleanup</div>
+        <div class="avm-row-meta">4 218 flagged</div>
+      </div>
+      <div class="avm-row" onclick="openFaceMatch()" data-tip="On-device only — faces never leave">
+        ${icon(iconSet.face)}
+        <div class="avm-row-label">Face grouping</div>
+        <div class="avm-row-meta">Off</div>
+      </div>
+      <div class="avm-row" onclick="openShareModal()" data-tip="End-to-end encrypted share links">
+        ${icon(iconSet.share)}
+        <div class="avm-row-label">Share library…</div>
+      </div>
+
+      <div class="avm-sep"></div>
+      <div class="avm-label">SnapIT</div>
+      <a class="avm-row" href="/seats" target="_blank" data-tip="Manage which machines can run SnapIT" style="text-decoration:none">
+        ${icon(iconSet.key)}
+        <div class="avm-row-label">Licence &amp; seats</div>
+        <div class="avm-row-meta">4 of 5</div>
+      </a>
+      <div class="avm-row" onclick="openSettings()" data-tip="Full app settings" data-tip-shortcut="⌘,">
+        ${icon(iconSet.settings)}
+        <div class="avm-row-label">Settings</div>
+      </div>
+      <a class="avm-row" href="/permanence" target="_blank" data-tip="What happens if VF ever shuts down" style="text-decoration:none">
+        ${icon(iconSet.shield)}
+        <div class="avm-row-label">Permanence guarantee</div>
+      </a>
+
+      <div class="avm-sep"></div>
+      <div class="avm-row on-danger" onclick="signOut()" data-tip="Back to the profile picker">
+        ${icon(iconSet.signout)}
+        <div class="avm-row-label">Sign out</div>
+      </div>
     `;
 }
 function headerGradient(cls) {
