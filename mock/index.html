@@ -3810,67 +3810,99 @@ function playCineSting() {
         if (ctx.state === 'suspended') ctx.resume();
         const now = ctx.currentTime;
 
-        // Master bus
+        // Master bus — a limiter/compressor keeps the peaks fat without clipping.
+        // Feeds a big output-gain so the sting lands loud on laptop speakers
+        // even though the individual voices are still restrained.
         const master = ctx.createGain();
-        master.gain.value = 0.28;
-        master.connect(ctx.destination);
+        master.gain.value = 0.95;                            // was 0.28 — barely audible
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.value = -18;
+        comp.knee.value = 12;
+        comp.ratio.value = 4;
+        comp.attack.value = 0.003;
+        comp.release.value = 0.15;
+        master.connect(comp); comp.connect(ctx.destination);
 
         // Cinematic reverb via delay+feedback (small-room verb, ~80ms taps)
         const delay = ctx.createDelay(1);
         delay.delayTime.value = 0.085;
         const fb = ctx.createGain();
-        fb.gain.value = 0.34;
+        fb.gain.value = 0.38;
         const wet = ctx.createGain();
-        wet.gain.value = 0.32;
+        wet.gain.value = 0.44;
         delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(master);
 
-        // 1) Sub-bass rumble — 55Hz, the foundation
+        // 1) Sub-bass rumble — 55Hz, the foundation. Laptop speakers roll off
+        //    below ~200Hz so this is mostly felt on headphones + phones + TVs.
         const sub = ctx.createOscillator();
         const subG = ctx.createGain();
         sub.type = 'sine'; sub.frequency.value = 55;
         subG.gain.setValueAtTime(0, now);
-        subG.gain.linearRampToValueAtTime(0.55, now + 0.42);
-        subG.gain.linearRampToValueAtTime(0.32, now + 0.9);
-        subG.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+        subG.gain.linearRampToValueAtTime(0.85, now + 0.42);
+        subG.gain.linearRampToValueAtTime(0.55, now + 0.9);
+        subG.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
         sub.connect(subG); subG.connect(master);
-        sub.start(now); sub.stop(now + 1.45);
+        sub.start(now); sub.stop(now + 1.55);
 
-        // 2) Low tuned note D2 (73.4Hz) — enters at 0.4s (aligns with 'S N A P I T' reveal)
+        // 2) Low tuned note D2 (73.4Hz) — enters at 0.4s
         const low = ctx.createOscillator();
         const lowG = ctx.createGain();
         low.type = 'triangle'; low.frequency.value = 73.4;
         lowG.gain.setValueAtTime(0, now + 0.4);
-        lowG.gain.linearRampToValueAtTime(0.32, now + 0.56);
-        lowG.gain.linearRampToValueAtTime(0.24, now + 0.85);
-        lowG.gain.exponentialRampToValueAtTime(0.001, now + 1.35);
+        lowG.gain.linearRampToValueAtTime(0.6, now + 0.56);
+        lowG.gain.linearRampToValueAtTime(0.42, now + 0.85);
+        lowG.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
         low.connect(lowG); lowG.connect(master); lowG.connect(delay);
-        low.start(now + 0.4); low.stop(now + 1.4);
+        low.start(now + 0.4); low.stop(now + 1.45);
 
-        // 3) Higher note D3 (perfect octave, 146.8Hz) — enters at 0.6s
+        // 3) Mid note D3 (146.8Hz) — enters at 0.55s, now with more presence
         const mid = ctx.createOscillator();
         const midG = ctx.createGain();
         mid.type = 'sine'; mid.frequency.value = 146.8;
-        midG.gain.setValueAtTime(0, now + 0.6);
-        midG.gain.linearRampToValueAtTime(0.22, now + 0.78);
-        midG.gain.linearRampToValueAtTime(0.14, now + 1.0);
-        midG.gain.exponentialRampToValueAtTime(0.001, now + 1.35);
+        midG.gain.setValueAtTime(0, now + 0.55);
+        midG.gain.linearRampToValueAtTime(0.48, now + 0.75);
+        midG.gain.linearRampToValueAtTime(0.32, now + 1.0);
+        midG.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
         mid.connect(midG); midG.connect(master); midG.connect(delay);
-        mid.start(now + 0.6); mid.stop(now + 1.4);
+        mid.start(now + 0.55); mid.stop(now + 1.4);
 
-        // 4) Airy noise sweep — 2kHz falling to 200Hz across 0.5-1.3s
-        const noiseBuffer = _makeNoise(ctx, 1.4);
+        // 4) High octave D4 (293.7Hz) — enters at 0.7s, this is the one that
+        //    laptop speakers actually reproduce well. Triangle wave for warmth.
+        const hi = ctx.createOscillator();
+        const hiG = ctx.createGain();
+        hi.type = 'triangle'; hi.frequency.value = 293.7;
+        hiG.gain.setValueAtTime(0, now + 0.7);
+        hiG.gain.linearRampToValueAtTime(0.34, now + 0.88);
+        hiG.gain.linearRampToValueAtTime(0.22, now + 1.1);
+        hiG.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+        hi.connect(hiG); hiG.connect(master); hiG.connect(delay);
+        hi.start(now + 0.7); hi.stop(now + 1.4);
+
+        // 5) Higher sparkle D5 (587.3Hz) — brief bell at the peak, gives the
+        //    sting a definitively-audible top on any speaker
+        const spark = ctx.createOscillator();
+        const sparkG = ctx.createGain();
+        spark.type = 'sine'; spark.frequency.value = 587.3;
+        sparkG.gain.setValueAtTime(0, now + 0.75);
+        sparkG.gain.linearRampToValueAtTime(0.22, now + 0.82);
+        sparkG.gain.exponentialRampToValueAtTime(0.001, now + 1.25);
+        spark.connect(sparkG); sparkG.connect(delay); sparkG.connect(master);
+        spark.start(now + 0.75); spark.stop(now + 1.3);
+
+        // 6) Airy noise sweep — 3kHz falling to 200Hz across 0.4-1.35s, louder
+        const noiseBuffer = _makeNoise(ctx, 1.55);
         const src = ctx.createBufferSource();
         src.buffer = noiseBuffer;
         const filt = ctx.createBiquadFilter();
-        filt.type = 'lowpass'; filt.Q.value = 1.2;
-        filt.frequency.setValueAtTime(2000, now + 0.5);
-        filt.frequency.exponentialRampToValueAtTime(220, now + 1.3);
+        filt.type = 'lowpass'; filt.Q.value = 1.4;
+        filt.frequency.setValueAtTime(3000, now + 0.4);
+        filt.frequency.exponentialRampToValueAtTime(220, now + 1.35);
         const nG = ctx.createGain();
-        nG.gain.setValueAtTime(0, now + 0.5);
-        nG.gain.linearRampToValueAtTime(0.12, now + 0.72);
-        nG.gain.exponentialRampToValueAtTime(0.001, now + 1.35);
+        nG.gain.setValueAtTime(0, now + 0.4);
+        nG.gain.linearRampToValueAtTime(0.22, now + 0.7);
+        nG.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
         src.connect(filt); filt.connect(nG); nG.connect(master); nG.connect(delay);
-        src.start(now + 0.5); src.stop(now + 1.4);
+        src.start(now + 0.4); src.stop(now + 1.45);
     } catch (_) { /* audio unavailable — silent fallback, visual still plays */ }
 }
 function _makeNoise(ctx, seconds) {
