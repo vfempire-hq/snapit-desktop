@@ -3141,6 +3141,12 @@ function socialBrand(it) {
     return typeof it.social === 'string' ? it.social : it.social.brand;
 }
 
+// Override map: any item passed to renderLandscape looks its ID up here
+// FIRST before falling back to MOCK_LIBRARY. This lets synthesised social
+// items (unique ids like "recent-01--tiktok") round-trip through openCard
+// with their .social metadata attached so the detail modal renders chrome.
+window._ITEM_OVERRIDES = {};
+
 // Netflix-style socials rows — one row per platform, plain landscape tiles
 // like the rest of the suite. Each row headers with the platform's brand
 // colour + logo dot; tiles carry .social metadata so the detail modal can
@@ -3159,36 +3165,43 @@ function _perPlatformSocialRows(L) {
         { brand:'linkedin',  label:'From your LinkedIn',    section:'social-linkedin'  },
     ];
     const rows = [];
-    // Fallback pool used when a platform section is empty on disk — pulls
-    // recent library items and adds a synthesised social meta record so the
-    // detail modal can still show chrome + a "from X" attribution.
     const pool = L.recent.items;
 
     for (const p of PLATFORMS) {
         const real = gallery.filter(x => x.section === p.section);
         let items;
         if (real.length >= 3) {
-            items = real;
+            // Real items — they already carry x.social from the manifest
+            items = real.map(x => {
+                // Register override so findItem returns the manifest item
+                // (which has the full SOCIAL_META caption/likes/music etc)
+                window._ITEM_OVERRIDES[x.id] = x;
+                return x;
+            });
         } else {
-            // Only show a synthetic row for brands with 0 real images if we
-            // want them in the launch story. Cap to 3 platforms without
-            // real images so we don't spam the home page.
-            items = pool.slice(0, 8).map((x, i) => ({
-                ...x,
-                social: {
-                    brand: p.brand,
-                    handle: p.brand === 'youtube' ? 'vincent falzon' : 'vincent.f',
-                    caption: 'moment from the library',
-                    hashtag: '',
-                    likes: p.brand === 'tiktok' ? '128K' : p.brand === 'youtube' ? '42K' : '1.2K',
-                    comments: '1.2K', saves: '3.4K',
-                    music: 'original sound',
-                    title: 'A moment from your library',
-                    time: '4:12 / 12:38',
-                },
-            }));
+            // Synthesised — give each a UNIQUE id per-platform so findItem
+            // returns the right social metadata even when the same underlying
+            // library item appears in multiple platform rows.
+            items = pool.slice(0, 8).map((x) => {
+                const synth = {
+                    ...x,
+                    id: `${x.id}--social-${p.brand}`,
+                    social: {
+                        brand: p.brand,
+                        handle: p.brand === 'youtube' ? 'vincent falzon' : 'vincent.f',
+                        caption: 'moment from the library',
+                        hashtag: '#snapit',
+                        likes: p.brand === 'tiktok' ? '128K' : p.brand === 'youtube' ? '42K' : '1.2K',
+                        comments: '1.2K', saves: '3.4K',
+                        music: 'original sound',
+                        title: 'A moment from your library',
+                        time: '4:12 / 12:38',
+                    },
+                };
+                window._ITEM_OVERRIDES[synth.id] = synth;
+                return synth;
+            });
         }
-        // Skip platforms with no items at all (shouldn't happen with pool)
         if (!items.length) continue;
         rows.push([{
             id: `socials-${p.brand}`,
@@ -4141,13 +4154,45 @@ async function toggleSocialChrome() {
         const updated = await window.ProfileStore.update(CURRENT_PROFILE.id, { show_platform_chrome: on });
         Object.assign(CURRENT_PROFILE, updated);
     } catch (e) {
-        console.warn('chrome toggle failed', e);
+        console.warn('overlay toggle failed', e);
         return;
     }
     updateChromePill();
-    // Re-render the visible view so tiles inherit the change
+    // If a detail modal is open, repaint its chrome so the change is
+    // immediately visible without closing/re-opening.
+    if (document.getElementById('cardModal')?.classList.contains('on') && _cmCurrentItem) {
+        const chromeWrap = document.getElementById('cm-chrome');
+        const toggleBtn  = document.getElementById('cm-chrome-toggle');
+        chromeWrap.classList.toggle('off', !on);
+        toggleBtn.classList.toggle('off', !on);
+        document.getElementById('cm-chrome-toggle-label').textContent = on ? 'Platform overlay on' : 'Platform overlay off';
+    }
+    // Toast — always show a small confirmation so the user sees the flip
+    _snapitToast(on ? 'Platform overlay ON · click any social tile to see the chrome' : 'Platform overlay OFF · tiles + detail views show clean media');
+    // Re-render the visible view so row-header toggles + any modal chrome update
     if (typeof rerenderCurrentView === 'function') rerenderCurrentView();
     else { renderHome && renderHome(); }
+}
+
+// Minimal top-center toast — 2s show, fades out. Zero deps.
+function _snapitToast(msg) {
+    let t = document.getElementById('snapitToast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'snapitToast';
+        t.style.cssText = 'position:fixed;top:88px;left:50%;transform:translateX(-50%) translateY(-8px);z-index:99998;padding:11px 20px;background:rgba(11,12,15,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.14);border-radius:99px;color:#fff;font-size:13px;font-weight:500;letter-spacing:.005em;box-shadow:0 12px 36px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    requestAnimationFrame(() => {
+        t.style.opacity = '1';
+        t.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(_snapitToast._t);
+    _snapitToast._t = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(-8px)';
+    }, 2400);
 }
 function updateChromePill() {
     // No top-nav pill anymore — the toggle lives inline in each social
@@ -5001,6 +5046,12 @@ function closeEvent() {
     document.getElementById('eventModal').classList.remove('on');
 }
 function findItem(id) {
+    // Overrides first — synthesised social tiles register their full
+    // item shape here so clicking them opens the modal with social
+    // metadata attached (chrome overlay only renders if it.social exists).
+    if (window._ITEM_OVERRIDES && window._ITEM_OVERRIDES[id]) {
+        return window._ITEM_OVERRIDES[id];
+    }
     for (const rowlist of Object.values(MOCK_LIBRARY.rows)) {
         const list = Array.isArray(rowlist) ? rowlist : [rowlist];
         for (const row of list) {
