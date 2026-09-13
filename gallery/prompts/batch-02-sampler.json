@@ -1,0 +1,68 @@
+[
+  {
+    "section": "portrait",
+    "name": "vincent-portrait",
+    "aspect": "portrait",
+    "prompt": "Environmental portrait of a Maltese man in his forties, warm ivory linen shirt, sitting at an outdoor cafe table in Valletta, morning golden light on stone wall behind him, hand around espresso cup, half-smile, unposed candid, natural film grain, Fuji X-T5 aesthetic, 85mm lens, shallow depth of field, tack sharp on eyes"
+  },
+  {
+    "section": "portrait",
+    "name": "elena-portrait",
+    "aspect": "portrait",
+    "prompt": "Environmental portrait of a woman in her late thirties with dark shoulder-length hair, cream cotton shirt, standing in a sunlit Maltese kitchen with terracotta tile and olive-wood shelving behind her, morning honey light through window, natural half-smile looking off-camera, unposed candid, 85mm shallow depth of field, tack sharp on eyes, medium format film aesthetic"
+  },
+  {
+    "section": "starred",
+    "name": "starred-boat-detail",
+    "aspect": "square",
+    "prompt": "Close-up detail shot of a wooden Maltese luzzu fishing boat prow, painted eye of Osiris in blue and yellow, sun-bleached azure and red paint, rope coiled on the deck, deep saturated colour, morning light, editorial photograph, Sony a7R IV, tack sharp texture"
+  },
+  {
+    "section": "video-still",
+    "name": "kids-fountain-video",
+    "aspect": "wide16x9",
+    "prompt": "Cinematic video frame of two young children mid-run through a limestone plaza fountain in Sliema at golden hour, water droplets caught in warm backlight, slight motion blur on legs indicating real video footage, GH6 gimbal handheld aesthetic, film grain, 24fps look, editorial family travel documentary style"
+  },
+  {
+    "section": "social-instagram",
+    "name": "ig-brunch",
+    "aspect": "square",
+    "prompt": "Overhead flatlay Instagram photo of a Maltese brunch spread on a rustic olive-wood table, fresh figs, ricotta on ftira bread, plate of tomatoes with basil, espresso cup, marble bowl of olives, natural window light, warm honey palette, high saturation, classic food-blogger IG aesthetic, tack sharp"
+  },
+  {
+    "section": "social-tiktok",
+    "name": "tt-dance-clip",
+    "aspect": "story",
+    "prompt": "Vertical phone-shot video frame of a teenager dancing in a bedroom lit by warm bedside lamps and blue LED strip, blurred posters on wall, TikTok Reels aesthetic, slight lens compression, phone camera look, film grain, genuine unposed candid, iPhone 15 Pro"
+  },
+  {
+    "section": "social-youtube",
+    "name": "yt-thumbnail-cook",
+    "aspect": "wide16x9",
+    "prompt": "YouTube thumbnail style photo of a home cook holding a wooden spoon over a bright saucepan of tomato ragù, natural warm kitchen light, subject facing camera with genuine surprised smile, editorial food channel aesthetic, tack sharp, high colour saturation but natural, no text on image"
+  },
+  {
+    "section": "place",
+    "name": "place-mdina-alley",
+    "aspect": "wide16x9",
+    "prompt": "Empty golden-hour photograph of a narrow limestone alley in Mdina Malta, no people, honey-coloured walls, one wrought-iron balcony with pink bougainvillea, deep shadow at the far end, cinematic long lens perspective, editorial architectural photograph, tack sharp, 35mm film aesthetic"
+  },
+  {
+    "section": "still-life",
+    "name": "still-camera-desk",
+    "aspect": "square",
+    "prompt": "Top-down still life photograph of a photographer's oak desk, Nikon Z8 with 50mm lens, brass memory card case, leather notebook, cup of espresso, natural window light from left, warm tones, deep shadow at the edges, editorial product photograph, tack sharp texture"
+  },
+  {
+    "section": "kids-row",
+    "name": "kids-beach-shells",
+    "aspect": "wide16x9",
+    "prompt": "Two young children crouched on a pale Maltese beach examining seashells in a bucket, backlit by low-angle afternoon sun, warm honey light on their faces, unposed candid family photograph, tack sharp on faces, medium format Fuji GFX aesthetic, no wide-angle distortion"
+  },
+  {
+    "section": "raw-technical",
+    "name": "raw-bird-detail",
+    "aspect": "wide16x9",
+    "prompt": "Long-lens wildlife photograph of a Maltese honey buzzard perched on a golden limestone wall, shallow depth of field, extreme detail on feathers and eye, morning light, editorial wildlife photograph, Nikon Z9 400mm f/2.8, tack sharp, subtle motion in tail feathers"
+  }
+]

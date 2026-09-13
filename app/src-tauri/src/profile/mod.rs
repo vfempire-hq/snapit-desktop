@@ -60,11 +60,19 @@ pub struct Profile {
     pub content_restrictions: String,
     #[serde(default = "default_language")]
     pub language: String,
+    /// Show the platform UI overlay (TikTok/IG/YT chrome) on saved social
+    /// content when it was captured as a screenshot. Clean extension/takeout
+    /// imports never show chrome regardless. Default ON — most users
+    /// screenshot more than they extension-save.
+    #[serde(default = "default_true")]
+    pub show_platform_chrome: bool,
     #[serde(default)]
     pub delete_forbidden: bool,
     #[serde(default)]
     pub created_at: String,
 }
+
+fn default_true() -> bool { true }
 
 fn default_role() -> String { "family".into() }
 fn default_initials() -> String { "?".into() }
@@ -190,6 +198,7 @@ pub fn update(profile_id: &str, patch: ProfilePatch) -> Result<Profile> {
     apply!(default_save);
     apply!(content_restrictions);
     apply!(language);
+    apply!(show_platform_chrome);
     let out = p.clone();
     save(&store)?;
     Ok(out)
@@ -272,6 +281,7 @@ pub struct ProfilePatch {
     pub default_save: Option<String>,
     pub content_restrictions: Option<String>,
     pub language: Option<String>,
+    pub show_platform_chrome: Option<bool>,
 }
 
 /// Public snapshot the frontend receives — hides the PIN hash by omission.
