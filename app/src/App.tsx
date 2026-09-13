@@ -12,11 +12,16 @@ type CatalogState = {
 };
 
 type ScanProgress = { kind: string; total: number; done: number };
+type UpdateInfo = { version: string; notes: string };
+type UpdateProgress = { chunk: number; total: number };
 
 export function App() {
   const [state, setState] = useState<CatalogState | null>(null);
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState<ScanProgress | null>(null);
+  const [update, setUpdate] = useState<UpdateInfo | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const [installProgress, setInstallProgress] = useState<UpdateProgress | null>(null);
 
   const refresh = async () => {
     try {
@@ -29,20 +34,43 @@ export function App() {
 
   useEffect(() => {
     refresh();
-    const unlisten = listen<ScanProgress>("snapit://scan/progress", (ev) => {
-      setProgress(ev.payload);
-      if (ev.payload.kind === "finish") {
-        // Refresh catalog stats when scan actually settles.
-        setTimeout(() => {
-          refresh();
-          setProgress(null);
-        }, 400);
-      }
-    });
+    const unlistens: Array<Promise<() => void>> = [];
+    unlistens.push(
+      listen<ScanProgress>("snapit://scan/progress", (ev) => {
+        setProgress(ev.payload);
+        if (ev.payload.kind === "finish") {
+          setTimeout(() => {
+            refresh();
+            setProgress(null);
+          }, 400);
+        }
+      }),
+    );
+    unlistens.push(
+      listen<UpdateInfo>("snapit://update/available", (ev) => {
+        setUpdate(ev.payload);
+      }),
+    );
+    unlistens.push(
+      listen<UpdateProgress>("snapit://update/progress", (ev) => {
+        setInstallProgress(ev.payload);
+      }),
+    );
     return () => {
-      unlisten.then((u) => u()).catch(() => {});
+      unlistens.forEach((p) => p.then((u) => u()).catch(() => {}));
     };
   }, []);
+
+  const installUpdate = async () => {
+    setInstalling(true);
+    try {
+      await invoke("update_install");
+      // On success, Tauri will restart the app — nothing else to do.
+    } catch (e) {
+      console.error("update_install failed", e);
+      setInstalling(false);
+    }
+  };
 
   const pickLibrary = async () => {
     const picked = await open({
@@ -71,7 +99,70 @@ export function App() {
     <>
       <LibraryView state={state} onRefresh={refresh} onRescan={pickLibrary} />
       {progress && progress.kind !== "finish" && <ProgressBar p={progress} />}
+      {update && (
+        <UpdateToast
+          info={update}
+          installing={installing}
+          progress={installProgress}
+          onInstall={installUpdate}
+          onDismiss={() => setUpdate(null)}
+        />
+      )}
     </>
+  );
+}
+
+function UpdateToast({
+  info,
+  installing,
+  progress,
+  onInstall,
+  onDismiss,
+}: {
+  info: UpdateInfo;
+  installing: boolean;
+  progress: UpdateProgress | null;
+  onInstall: () => void;
+  onDismiss: () => void;
+}) {
+  const pct =
+    installing && progress && progress.total > 0
+      ? Math.min(100, Math.round((progress.chunk / progress.total) * 100))
+      : null;
+  return (
+    <div className="update-toast">
+      <div className="update-head">
+        <span className="update-dot" />
+        <b>Update to SnapIT {info.version}</b>
+        {!installing && (
+          <button className="update-x" onClick={onDismiss} aria-label="Later">
+            ×
+          </button>
+        )}
+      </div>
+      {installing ? (
+        <>
+          <div className="scan-track" style={{ margin: "8px 0" }}>
+            <div className="scan-fill" style={{ width: (pct ?? 0) + "%" }} />
+          </div>
+          <div className="scan-meta">
+            {pct !== null ? `Downloading ${pct}%` : "Preparing…"}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="update-body">
+            Signed, verified, and ready to install. SnapIT will restart when it's done.
+          </div>
+          <div className="update-acts">
+            <button className="pri" onClick={onInstall}>
+              Install &amp; restart
+            </button>
+            <button onClick={onDismiss}>Later</button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 

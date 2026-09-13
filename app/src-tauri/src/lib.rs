@@ -11,6 +11,7 @@ use std::sync::Mutex;
 
 use serde::Serialize;
 use tauri::{Emitter, Manager, State};
+use tauri_plugin_updater::UpdaterExt;
 
 pub mod ai;
 pub mod catalog;
@@ -24,6 +25,9 @@ pub struct AppState {
     pub last_scan_at: Mutex<Option<chrono::DateTime<chrono::Utc>>>,
     /// Holds the running folder watcher while a library is open.
     pub watch: Mutex<Option<storage::watch::LibraryWatch>>,
+    /// Update returned by the launch-time updater check, waiting for the
+    /// user's Install click.
+    pub pending_update: Mutex<Option<tauri_plugin_updater::Update>>,
 }
 
 #[derive(Serialize)]
@@ -254,6 +258,44 @@ async fn licence_forget() -> Result<licence::LicenceStatus, String> {
     Ok(licence::compute_status())
 }
 
+// ---------- updater trigger from the frontend ----------
+
+#[tauri::command]
+async fn update_install(
+    state: State<'_, AppState>,
+    app: tauri::AppHandle,
+) -> Result<(), String> {
+    let update = state
+        .pending_update
+        .lock()
+        .unwrap()
+        .take()
+        .ok_or("no update pending")?;
+
+    let app_for_progress = app.clone();
+    update
+        .download_and_install(
+            move |chunk, total| {
+                // Emit progress so the frontend can show a bar.
+                let _ = app_for_progress.emit(
+                    "snapit://update/progress",
+                    serde_json::json!({
+                        "chunk": chunk,
+                        "total": total,
+                    }),
+                );
+            },
+            || {
+                // Download finished; install about to run.
+            },
+        )
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // On success the updater plugin will relaunch the app itself.
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tracing_subscriber::fmt().with_env_filter("info").init();
@@ -266,6 +308,7 @@ pub fn run() {
             library: Mutex::new(None),
             last_scan_at: Mutex::new(None),
             watch: Mutex::new(None),
+            pending_update: Mutex::new(None),
         })
         .setup(|app| {
             // Auto-reopen the last library if it's still on disk.
@@ -285,6 +328,37 @@ pub fn run() {
                     tracing::info!("last library {} no longer exists on disk", last);
                 }
             }
+
+            // Kick off a background update check ~3s after launch. If a signed
+            // update is found on our /updates endpoint the frontend gets a
+            // 'snapit://update/available' event with { version, notes } and can
+            // present its own toast; user clicks 'Install' → runs the
+            // update_install command below.
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+                match handle.updater() {
+                    Ok(updater) => match updater.check().await {
+                        Ok(Some(update)) => {
+                            tracing::info!("update available: {}", update.version);
+                            let _ = handle.emit(
+                                "snapit://update/available",
+                                serde_json::json!({
+                                    "version": update.version,
+                                    "notes":   update.body.clone().unwrap_or_default(),
+                                }),
+                            );
+                            // Store the pending update on the AppState so
+                            // update_install can pull it back out.
+                            let state = handle.state::<AppState>();
+                            *state.pending_update.lock().unwrap() = Some(update);
+                        }
+                        Ok(None) => tracing::info!("no update available"),
+                        Err(e) => tracing::warn!("updater check failed: {}", e),
+                    },
+                    Err(e) => tracing::warn!("updater init failed: {}", e),
+                }
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -305,6 +379,7 @@ pub fn run() {
             licence_status,
             licence_import,
             licence_forget,
+            update_install,
         ])
         .run(tauri::generate_context!())
         .expect("SnapIT failed to boot");
