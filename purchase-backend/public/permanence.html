@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Permanence Guarantee — SnapIT</title>
+<meta name="description" content="VF Empire's Permanence Guarantee for SnapIT. If we ever discontinue the product, everything you need to keep going is opened publicly within 90 days.">
+<style>
+:root { --bg:#0e0f11; --bg-2:#16181c; --fg:#eceff3; --muted:#8a8f96;
+  --acc:#ffb84a; --acc-2:#ff7a30; --line:#23252a;
+  --font-hero:"Fraunces","New York","Georgia",serif; }
+* { box-sizing:border-box; }
+html,body { margin:0; background:var(--bg); color:var(--fg);
+  font: 16px/1.65 -apple-system,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif; }
+a { color:var(--acc); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:760px; margin:0 auto; padding:64px 32px 96px; }
+h1 { font-family:var(--font-hero); font-weight:400; font-size:52px; letter-spacing:-.02em; margin:0 0 16px; }
+h2 { font-family:var(--font-hero); font-weight:400; font-size:30px; letter-spacing:-.01em; margin:48px 0 10px; }
+p { margin:12px 0; }
+.eyebrow { color:var(--acc); font-size:12px; letter-spacing:.28em; text-transform:uppercase; margin-bottom:16px; }
+.callout { background:var(--bg-2); border:1px solid var(--line); border-left:3px solid var(--acc);
+  padding:20px 24px; border-radius:10px; margin:24px 0; }
+.foot { border-top:1px solid var(--line); margin-top:80px; padding-top:24px; color:var(--muted); font-size:12px; text-align:center; }
+ul { margin:12px 0; padding-left:22px; }
+li { margin:6px 0; }
+code { background:#16181c; border:1px solid var(--line); border-radius:6px; padding:2px 8px; font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="/" class="eyebrow">← back</a>
+  <div class="eyebrow" style="margin-top:22px">HOUSE LAW · SEPTEMBER 2026</div>
+  <h1>The Permanence Guarantee.</h1>
+  <p>
+    Every VF product carries this guarantee. It's a house-wide law we wrote in September 2026 because
+    people are done with software companies that die or get acquired and take the user's data with them.
+  </p>
+
+  <div class="callout">
+    <b>If VF Empire ever discontinues SnapIT:</b>
+    <ul>
+      <li>Within <b>90 days</b> of the discontinuation announcement, the SnapIT source is opened to the public under a permissive licence.</li>
+      <li>The <b>sealed library format</b> is documented in a public spec — the SQLite schema, the sidecar XMP format, the edit-stack op vocabulary, the licence signing scheme.</li>
+      <li>The <b>Ed25519 licence public key</b> stays valid forever. Anyone can continue to verify existing licences.</li>
+      <li>The <b>installer files</b> for the last shipped version are mirrored to a public transparency log so anyone can independently reproduce a byte-identical build.</li>
+      <li>No copy-protection remote check-in has ever existed and none can be added, by design.</li>
+    </ul>
+  </div>
+
+  <h2>Why we wrote this.</h2>
+  <p>
+    In the last three years the world has watched Belkin discontinue Wemo cloud, Logitech shut down Harmony, Neato brick vacuum cleaners, and 23andMe put ten million people's genetic data at auction. Every one of those users bought a product on the promise that it would keep working, and every one of them ended up wrong.
+  </p>
+  <p>
+    SnapIT is designed so that promise is not a promise — it's a physical fact.
+    Your library lives on your storage. The catalog format is public. The licence key is a signed
+    text file. There is no server we can turn off that will break your access to your own photos.
+  </p>
+
+  <h2>What is technically guaranteed to keep working.</h2>
+  <ul>
+    <li><b>Opening your library on the last-shipped SnapIT binary</b> — always. There is no online activation, no expiring licence, no "call home" beacon anywhere in the code.</li>
+    <li><b>Reading your photos in any tool</b> — the originals are unmodified files in your folder. Every photo app on earth can read them. Your XMP sidecars are the format Adobe/Apple/Google all use.</li>
+    <li><b>Verifying licences purchased today, forever</b> — the Ed25519 public key <code>b9f9abbd93a38424712cabaad2b684017aa3bb6e0b80cef4e12a70f9787d66c1</code> stays baked in the app and is published here so anyone can independently verify a <code>.licence.json</code>+<code>.licence.sig</code> pair.</li>
+    <li><b>Continuing without us</b> — because the <code>_snapit/</code> directory schema is in <a href="https://github.com/vfempire-hq/snapit-desktop/blob/main/docs/LIBRARY-FORMAT.md">docs/LIBRARY-FORMAT.md</a>, a competent developer can write a viewer for it in a weekend if they need to.</li>
+  </ul>
+
+  <h2>What is not guaranteed.</h2>
+  <p>
+    Cloud features that do not exist in R·01 are the ones you never have to worry about. There is no
+    photo storage in the cloud, no receipts kept on a server, no analytics stream, no crash reporting,
+    no email marketing pipe. The only remote surfaces are:
+  </p>
+  <ul>
+    <li><b>Stripe checkout</b> for purchases — a payment page. No account, no login state, no ongoing tie.</li>
+    <li><b>Update manifest checks</b> (weekly, only when you're online, sends the version and OS you're on so we can serve the right installer). Turn it off in Settings and SnapIT will never touch the internet.</li>
+  </ul>
+
+  <p style="margin-top:40px">
+    <a href="/">← Back to SnapIT</a> &nbsp;·&nbsp;
+    <a href="https://github.com/vfempire-hq/snapit-desktop">Read the source</a> &nbsp;·&nbsp;
+    <a href="mailto:support@vfempire.com">support@vfempire.com</a>
+  </p>
+
+  <div class="foot">
+    © 2026 VF Empire Corp Ltd · Malta C 94160 · House-wide LAW logged in the project memory 2026-09-13.
+  </div>
+</div>
+</body>
+</html>

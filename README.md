@@ -54,6 +54,14 @@ curl -sSL https://snapit.vfempire.com/downloads/install.sh | bash
   that Apple/Google/Windows already do on your device.
 - Send crash reports, analytics, or telemetry.
 
+## The Permanence Guarantee
+
+**If VF Empire ever discontinues SnapIT**, within 90 days the source is opened publicly, the sealed library format is documented in a public spec, the Ed25519 licence public key stays valid forever, and the last-shipped installer is mirrored to a transparency log so anyone can independently reproduce a byte-identical build. No online activation, no expiring licences, no "call home" beacon exists in the code to break.
+
+Full text: [snapit.vfempire.com/permanence](https://snapit.vfempire.com/permanence).
+
+House-wide LAW as of 2026-09-13 — applies to every VF product from here on.
+
 ## Roadmap (public)
 
 | Phase | State | Scope |

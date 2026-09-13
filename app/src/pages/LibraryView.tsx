@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { LicenceBadge } from "./LicenceBadge";
 
 type CatalogState = {
   ready: boolean;
@@ -60,6 +61,7 @@ export function LibraryView({
     <div className="library">
       <header className="top-bar">
         <div className="brand">SnapIT</div>
+        <LicenceBadge />
         <input
           className="search"
           value={q}

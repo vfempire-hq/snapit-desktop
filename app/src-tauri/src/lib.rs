@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use serde::Serialize;
-use tauri::{Manager, State};
+use tauri::State;
 
 mod catalog;
 mod edit;
@@ -119,6 +119,28 @@ async fn edit_clear(photo_id: String, state: State<'_, AppState>) -> Result<(), 
     edit::clear_stack(&library, &photo_id).map_err(|e| e.to_string())
 }
 
+// ---------- licence ----------
+
+#[tauri::command]
+async fn licence_status() -> Result<licence::LicenceStatus, String> {
+    Ok(licence::compute_status())
+}
+
+#[tauri::command]
+async fn licence_import(
+    licence_json: String,
+    signature_b64: String,
+) -> Result<licence::LicenceStatus, String> {
+    licence::import(&licence_json, &signature_b64).map_err(|e| e.to_string())?;
+    Ok(licence::compute_status())
+}
+
+#[tauri::command]
+async fn licence_forget() -> Result<licence::LicenceStatus, String> {
+    licence::forget().map_err(|e| e.to_string())?;
+    Ok(licence::compute_status())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tracing_subscriber::fmt().with_env_filter("info").init();
@@ -145,6 +167,9 @@ pub fn run() {
             edit_get,
             edit_set,
             edit_clear,
+            licence_status,
+            licence_import,
+            licence_forget,
         ])
         .run(tauri::generate_context!())
         .expect("SnapIT failed to boot");
