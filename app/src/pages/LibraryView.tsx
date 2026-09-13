@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { LicenceBadge } from "./LicenceBadge";
 
 type CatalogState = {
@@ -191,6 +192,98 @@ function PhotoCell({ t, onOpen }: { t: Thumb; onOpen: () => void }) {
   );
 }
 
+type ExportReport = {
+  written_path: string;
+  bytes: number;
+  width: number;
+  height: number;
+  applied_ops: number;
+};
+
+function ExportPanel({ photoId, filename }: { photoId: string; filename: string }) {
+  const [quality, setQuality] = useState(92);
+  const [maxEdge, setMaxEdge] = useState<number | "">("");
+  const [busy, setBusy] = useState(false);
+  const [report, setReport] = useState<ExportReport | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const suggestedName = useMemo(() => {
+    const base = filename.replace(/\.[^.]+$/, "");
+    return `${base}.snapit.jpg`;
+  }, [filename]);
+
+  const doExport = async () => {
+    setErr(null);
+    setReport(null);
+    setBusy(true);
+    try {
+      const dest = await saveDialog({
+        defaultPath: suggestedName,
+        filters: [{ name: "JPEG", extensions: ["jpg", "jpeg"] }],
+      });
+      if (!dest) {
+        setBusy(false);
+        return;
+      }
+      const req = {
+        photo_id: photoId,
+        destination: dest,
+        quality,
+        ...(maxEdge && Number(maxEdge) > 0 ? { max_edge: Number(maxEdge) } : {}),
+      };
+      const r = await invoke<ExportReport>("edit_export", { request: req });
+      setReport(r);
+    } catch (e: any) {
+      setErr(String(e?.message ?? e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="export-panel">
+      <div className="export-title">Export</div>
+      <label className="export-row">
+        <span>JPEG quality</span>
+        <input
+          type="range"
+          min={40}
+          max={100}
+          step={1}
+          value={quality}
+          onChange={(e) => setQuality(Number(e.target.value))}
+        />
+        <span className="export-val">{quality}</span>
+      </label>
+      <label className="export-row">
+        <span>Max edge</span>
+        <input
+          type="number"
+          className="export-num"
+          placeholder="Full size"
+          min={256}
+          max={12000}
+          value={maxEdge}
+          onChange={(e) =>
+            setMaxEdge(e.target.value === "" ? "" : Number(e.target.value))
+          }
+        />
+        <span className="export-val muted">px</span>
+      </label>
+      <button className="pri export-btn" onClick={doExport} disabled={busy}>
+        {busy ? "Exporting…" : "Export JPEG"}
+      </button>
+      {report && (
+        <div className="export-ok">
+          Wrote {report.width}×{report.height} • {(report.bytes / 1024).toFixed(0)} KB
+          {report.applied_ops > 0 && ` • ${report.applied_ops} edit${report.applied_ops === 1 ? "" : "s"} applied`}
+        </div>
+      )}
+      {err && <div className="export-err">{err}</div>}
+    </div>
+  );
+}
+
 function PhotoDetail({
   thumb,
   onClose,
@@ -258,10 +351,11 @@ function PhotoDetail({
               </>
             )}
           </dl>
+          <ExportPanel photoId={thumb.id} filename={name} />
           <p className="muted small">
-            Edit stack + face clusters + upscale land in later R·01 milestones.
-            Everything on this panel lives inside your library folder — nothing
-            has been sent anywhere.
+            Face clusters + semantic search + upscale land in later R·01
+            milestones. Everything on this panel lives inside your library
+            folder — nothing has been sent anywhere.
           </p>
         </aside>
       </div>

@@ -64,11 +64,17 @@ jobs:
       - name: Build (Tauri v2, macOS unsigned for R·01)
         if: matrix.os == 'macos-latest'
         working-directory: app
-        run: cargo tauri build --target ${{ matrix.target }} --bundles app,dmg
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: cargo tauri build --target ${{ matrix.target }} --bundles app,dmg,updater
 
       - name: Build (Tauri v2, Linux + Windows)
         if: matrix.os != 'macos-latest'
         working-directory: app
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: cargo tauri build --target ${{ matrix.target }}
 
       - name: Collect artifacts

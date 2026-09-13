@@ -209,15 +209,115 @@ async function handleReissue(req: Request, env: Env): Promise<Response> {
 // -------------------------------------------------------------------------
 // /updates/:target/:arch/:current_version → signed update manifest
 // -------------------------------------------------------------------------
+//
+// Tauri v2's updater plugin calls this endpoint and expects one of:
+//   - 204 No Content  → nothing to install
+//   - 200 with a JSON body: { version, pub_date, platforms: { "<target>-<arch>": { url, signature } } }
+//
+// We resolve `latest` from the GitHub Releases API of the source repo. The
+// release's .sig files (produced by cargo-tauri build under the minisign key)
+// carry the signature that the client verifies against the pubkey baked into
+// its binary. No trust in this Worker — the Worker just points at signed
+// artifacts.
 
-async function handleUpdateCheck(_req: Request, _env: Env, url: URL): Promise<Response> {
+const GH_REPO = 'vfempire-hq/snapit-desktop';
+const UPDATE_CACHE_TTL_S = 300; // 5 min — fresh enough, cheap on GH API budget
+
+async function handleUpdateCheck(req: Request, env: Env, url: URL): Promise<Response> {
     // parts: '', 'updates', target, arch, current_version
     const parts = url.pathname.split('/');
     if (parts.length < 5) return new Response(null, { status: 204 });
-    // In R·01 we return 204 (no update) until we ship the release-manifest job.
-    // R·02 populates a KV entry per target+arch pointing at the latest signed
-    // installer in R2 and returns a JSON manifest with URL + signature.
-    return new Response(null, { status: 204 });
+    const [, , tauriTarget, tauriArch, current] = parts;
+
+    const cacheKey = new Request(new URL('/__cache/latest-release', url.origin).toString(), req);
+    const cache = (caches as any).default as Cache | undefined;
+    let releaseJson: any | null = null;
+
+    if (cache) {
+        const hit = await cache.match(cacheKey);
+        if (hit) {
+            try { releaseJson = await hit.json(); } catch { /* fall through */ }
+        }
+    }
+
+    if (!releaseJson) {
+        const gh = await fetch(`https://api.github.com/repos/${GH_REPO}/releases/latest`, {
+            headers: {
+                'user-agent': 'snapit-updater/1',
+                'accept': 'application/vnd.github+json',
+            },
+        });
+        if (!gh.ok) return new Response(null, { status: 204 });
+        releaseJson = await gh.json<any>();
+        if (cache) {
+            const cachedCopy = new Response(JSON.stringify(releaseJson), {
+                headers: {
+                    'content-type': 'application/json',
+                    'cache-control': `public, max-age=${UPDATE_CACHE_TTL_S}`,
+                },
+            });
+            await cache.put(cacheKey, cachedCopy);
+        }
+    }
+
+    const latestVersion = (releaseJson.tag_name || '').replace(/^v/, '');
+    if (!latestVersion || compareSemver(latestVersion, current) <= 0) {
+        return new Response(null, { status: 204 });
+    }
+
+    const platformKey = `${normaliseTauriTarget(tauriTarget)}-${tauriArch}`;
+    const matcher = platformMatchers[platformKey];
+    if (!matcher) return new Response(null, { status: 204 });
+
+    const assets: Array<{ name: string; browser_download_url: string }> = releaseJson.assets || [];
+    const installer = assets.find((a) => matcher.installer.test(a.name));
+    if (!installer) return new Response(null, { status: 204 });
+
+    // Signature file is either "<installer>.sig" or the .app.tar.gz.sig for macOS.
+    const sigAsset = assets.find((a) => a.name === `${installer.name}.sig`);
+    if (!sigAsset) return new Response(null, { status: 204 });
+
+    const sig = await fetch(sigAsset.browser_download_url).then((r) => (r.ok ? r.text() : ''));
+    if (!sig) return new Response(null, { status: 204 });
+
+    const body = {
+        version: latestVersion,
+        pub_date: releaseJson.published_at || new Date().toISOString(),
+        notes: (releaseJson.body || '').slice(0, 4000),
+        platforms: {
+            [platformKey]: {
+                url: installer.browser_download_url,
+                signature: sig.trim(),
+            },
+        },
+    };
+    return json(body);
+}
+
+// Tauri emits `darwin` / `linux` / `windows` as target and arch as
+// `aarch64` / `x86_64` / `armv7`. GH assets from `tauri build` land with
+// specific names per platform — regexes below map to those exact names.
+const platformMatchers: Record<string, { installer: RegExp }> = {
+    'linux-x86_64':   { installer: /\.AppImage$/ },
+    'windows-x86_64': { installer: /-setup\.exe$/ },
+    'darwin-x86_64':  { installer: /\.app\.tar\.gz$/ },
+    'darwin-aarch64': { installer: /\.app\.tar\.gz$/ },
+};
+
+function normaliseTauriTarget(t: string): string {
+    if (t.startsWith('darwin')) return 'darwin';
+    if (t.startsWith('linux')) return 'linux';
+    if (t.startsWith('windows')) return 'windows';
+    return t;
+}
+
+function compareSemver(a: string, b: string): number {
+    const [aa, bb] = [a, b].map((v) => v.split('.').map((n) => parseInt(n, 10) || 0));
+    for (let i = 0; i < 3; i++) {
+        const d = (aa[i] ?? 0) - (bb[i] ?? 0);
+        if (d !== 0) return d;
+    }
+    return 0;
 }
 
 // -------------------------------------------------------------------------

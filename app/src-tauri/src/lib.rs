@@ -131,6 +131,17 @@ async fn edit_clear(photo_id: String, state: State<'_, AppState>) -> Result<(), 
     edit::clear_stack(&library, &photo_id).map_err(|e| e.to_string())
 }
 
+// ---------- export ----------
+
+#[tauri::command]
+async fn edit_export(
+    request: edit::export::ExportRequest,
+    state: State<'_, AppState>,
+) -> Result<edit::export::ExportReport, String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    edit::export::export_one(&library, request).map_err(|e| e.to_string())
+}
+
 // ---------- search ----------
 
 #[tauri::command]
@@ -191,6 +202,7 @@ pub fn run() {
             edit_get,
             edit_set,
             edit_clear,
+            edit_export,
             search_text,
             licence_status,
             licence_import,

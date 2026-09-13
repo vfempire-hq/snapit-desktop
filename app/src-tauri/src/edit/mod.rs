@@ -13,6 +13,9 @@ use std::path::Path;
 
 use crate::catalog;
 
+pub mod apply;
+pub mod export;
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(tag = "op")]
 #[serde(rename_all = "lowercase")]
