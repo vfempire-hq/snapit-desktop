@@ -2207,9 +2207,9 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   </div>
   <div class="bb-veil"></div>
   <div class="bb-inner">
-    <div class="bb-eb"><span class="dot"></span>Featured event <span class="sep">·</span> AUTO-CLUSTERED FROM 4 DRIVES</div>
-    <h1 class="bb-title">Malta trip <em>· June.</em></h1>
-    <div class="bb-meta">
+    <div class="bb-eb" id="bbEyebrow"><span class="dot"></span>Featured event <span class="sep">·</span> AUTO-CLUSTERED FROM 4 DRIVES</div>
+    <h1 class="bb-title" id="bbTitle">Malta trip <em>· June.</em></h1>
+    <div class="bb-meta" id="bbMeta">
       <span><b>Jun 2 – Jun 8, 2026</b></span>
       <span>·</span>
       <span>Valletta · Sliema · Comino</span>
@@ -2218,7 +2218,7 @@ main{position:relative;padding-top:0;padding-bottom:80px}
       <span>·</span>
       <span class="match">98% cluster match</span>
     </div>
-    <p class="bb-syn">Six days, four drives, a hundred and eighteen shots. SnapIT clustered these from your iPhone, Elena's phone, the Nikon Z8 and the DJI Mavic 3 card into one event — sorted by day, deduplicated, ready to relive.</p>
+    <p class="bb-syn" id="bbSyn">Six days, four drives, a hundred and eighteen shots. SnapIT clustered these from your iPhone, Elena's phone, the Nikon Z8 and the DJI Mavic 3 card into one event — sorted by day, deduplicated, ready to relive.</p>
     <div class="bb-acts">
       <button class="bb-btn pri" onclick="playFeaturedEvent()"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Open event</button>
       <button class="bb-btn sec"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Add to timeline</button>
@@ -5094,7 +5094,6 @@ function applyFeatureWall() {
     closeFeatureWall();
 }
 function _paintBillboardFromFw() {
-    // Repaint the actual home billboard to reflect the choice
     const bg = document.querySelector('.bb-bg');
     if (!bg) return;
     const src = _fwSelected.sourceId
@@ -5102,12 +5101,131 @@ function _paintBillboardFromFw() {
         : (window.SNAPIT_GALLERY || [])[0];
     const url = src?.thumb || '';
     bg.innerHTML = `<div class="composite" id="composite" style="transform:none;filter:none">${_fwPreviewHTML(_fwSelected.layout, url)}</div>`;
-    // Composite already fills — for tiled we still call the original composite renderer below
     if (_fwSelected.layout === 'tiled' && typeof renderComposite === 'function') {
-        // Rebuild original composite
         bg.innerHTML = `<div class="composite" id="composite"></div>`;
         renderComposite();
     }
+    // Also update the billboard's title / meta / synopsis to match the
+    // picked shot. If no specific source was picked, restore the defaults.
+    if (_fwSelected.sourceId && src) {
+        _writeBillboardFromItem(src);
+    } else {
+        _writeBillboardDefaults();
+    }
+}
+
+// ---- billboard content injection --------------------------------------
+const _BB_DEFAULTS = {
+    eyebrow: '<span class="dot"></span>Featured event <span class="sep">·</span> AUTO-CLUSTERED FROM 4 DRIVES',
+    title:   'Malta trip <em>· June.</em>',
+    meta: `
+      <span><b>Jun 2 – Jun 8, 2026</b></span>
+      <span>·</span>
+      <span>Valletta · Sliema · Comino</span>
+      <span>·</span>
+      <span><b>118</b> shots · <b>3</b> videos</span>
+      <span>·</span>
+      <span class="match">98% cluster match</span>`,
+    syn: "Six days, four drives, a hundred and eighteen shots. SnapIT clustered these from your iPhone, Elena's phone, the Nikon Z8 and the DJI Mavic 3 card into one event — sorted by day, deduplicated, ready to relive.",
+};
+function _writeBillboardDefaults() {
+    const eb = document.getElementById('bbEyebrow');
+    const ti = document.getElementById('bbTitle');
+    const mt = document.getElementById('bbMeta');
+    const sy = document.getElementById('bbSyn');
+    if (eb) eb.innerHTML = _BB_DEFAULTS.eyebrow;
+    if (ti) ti.innerHTML = _BB_DEFAULTS.title;
+    if (mt) mt.innerHTML = _BB_DEFAULTS.meta;
+    if (sy) sy.innerHTML = _BB_DEFAULTS.syn;
+}
+function _writeBillboardFromItem(it) {
+    const eb = document.getElementById('bbEyebrow');
+    const ti = document.getElementById('bbTitle');
+    const mt = document.getElementById('bbMeta');
+    const sy = document.getElementById('bbSyn');
+    if (!eb || !ti || !mt || !sy) return;
+
+    // Eyebrow — event / place / date context. Kind flag left of it.
+    const kindLabel = it.kind === 'video' ? 'Featured video' : (it.event ? 'Featured event' : 'Featured shot');
+    const clusterHint = it.event ? 'AUTO-CLUSTERED · YOUR LIBRARY' : (it.section ? _fwSectionLabel(it.section) : 'FROM YOUR LIBRARY');
+    eb.innerHTML = `<span class="dot"></span>${kindLabel} <span class="sep">·</span> ${clusterHint}`;
+
+    // Title — prefer event, fall back to pretty (section-derived), else place, else date
+    const title = it.event || it.pretty || it.place || _fwPrettyDate(it.taken_at);
+    ti.innerHTML = _fmtTitleFragment(title);
+
+    // Meta — date · place · camera · kind stats
+    const parts = [];
+    parts.push(`<span><b>${_fwPrettyDate(it.taken_at)}</b></span>`);
+    if (it.place)  parts.push('<span>·</span>', `<span>${_esc(it.place)}</span>`);
+    if (it.camera) parts.push('<span>·</span>', `<span>${_esc(it.camera)}</span>`);
+    if (it.kind === 'video' && it.duration_s) parts.push('<span>·</span>', `<span><b>${_fmtDurationLong(it.duration_s)}</b> video</span>`);
+    if (it.starred) parts.push('<span>·</span>', `<span class="match">★ Starred</span>`);
+    if (it.raw && it.kind !== 'video') parts.push('<span>·</span>', `<span class="match">RAW</span>`);
+    if (it.social) {
+        const brand = typeof it.social === 'string' ? it.social : it.social.brand;
+        parts.push('<span>·</span>', `<span class="match">via ${brand}</span>`);
+    }
+    mt.innerHTML = parts.join('\n');
+
+    // Synopsis — one-liner from what we know
+    sy.innerHTML = _fwSynopsisForItem(it);
+}
+function _fwSectionLabel(section) {
+    return {
+        hero: 'HERO ARCHETYPE', highlights: 'HIGHLIGHT REEL',
+        portrait: 'PORTRAIT · PEOPLE ROW', starred: 'STARRED SHOTS',
+        'still-life':'STILL-LIFE ROW', 'video-still':'VIDEO STILL',
+        pets:'PETS ROW', 'action-sports':'SPORT & ACTION',
+        'concert-festival':'CONCERTS & GIGS', 'hobby-diy':'HOBBIES & DIY',
+        milestone:'MILESTONE MOMENT', 'season-weather':'SEASONS & WEATHER',
+        'nature-wildlife':'NATURE & WILDLIFE', selfies:'SELFIES',
+        place:'PLACES ROW', 'kids-row':'KIDS ROW', 'raw-technical':'RAW · TECHNICAL',
+    }[section] || section.toUpperCase().replace(/-/g,' ');
+}
+function _fwPrettyDate(iso) {
+    if (!iso) return '';
+    try {
+        const d = new Date(iso);
+        return d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    } catch { return iso; }
+}
+function _fmtDurationLong(s) {
+    const m = Math.floor(s / 60), r = s % 60;
+    return m ? `${m}m ${r}s` : `${r}s`;
+}
+function _fmtTitleFragment(text) {
+    // Break the title into a lead + italic tail so it matches the "Malta
+    // trip · June." style. Split on last " · " or last space if long.
+    const s = String(text || '').trim();
+    if (!s) return _BB_DEFAULTS.title;
+    if (s.includes(' · ')) {
+        const idx = s.lastIndexOf(' · ');
+        return `${_esc(s.slice(0, idx))} <em>· ${_esc(s.slice(idx + 3))}.</em>`;
+    }
+    return `${_esc(s)}<em>.</em>`;
+}
+function _fwSynopsisForItem(it) {
+    const bits = [];
+    const year = it.taken_at ? new Date(it.taken_at).getUTCFullYear() : null;
+    if (it.event) {
+        bits.push(`One shot from your <b>${_esc(it.event)}</b> event`);
+    } else if (it.section === 'hero' || it.section === 'highlights') {
+        bits.push('One shot from your library');
+    } else if (it.section && it.section.startsWith('social-')) {
+        const brand = it.section.replace('social-', '');
+        bits.push(`Imported from your <b>${brand}</b>, filed with the original caption and likes`);
+    } else if (it.pretty) {
+        bits.push(`A shot filed as <b>${_esc(it.pretty)}</b>`);
+    } else {
+        bits.push('A shot from your library');
+    }
+    if (it.place && year) bits.push(`taken in <b>${_esc(it.place)}</b> in ${year}`);
+    else if (it.place)   bits.push(`taken in <b>${_esc(it.place)}</b>`);
+    else if (year)       bits.push(`from ${year}`);
+    if (it.camera) bits.push(`on the <b>${_esc(it.camera)}</b>`);
+    if (it.drive)  bits.push(`filed from <b>${_esc(it.drive)}</b>`);
+    return bits.join(' · ') + '.';
 }
 // Restore persisted choice on boot
 function _fwBootRestore() {
