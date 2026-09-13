@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { LicenceBadge } from "./LicenceBadge";
@@ -27,20 +27,39 @@ export function LibraryView({
   onRefresh: () => void;
   onRescan: () => void;
 }) {
-  const [thumbs, setThumbs] = useState<Thumb[]>([]);
+  const [recent, setRecent] = useState<Thumb[]>([]);
+  const [hits, setHits] = useState<Thumb[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
+  const [selected, setSelected] = useState<Thumb | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const rows = await invoke<Thumb[]>("catalog_recent", { limit: 400 });
-      if (!cancelled) setThumbs(rows);
+      if (!cancelled) setRecent(rows);
     })();
     return () => {
       cancelled = true;
     };
   }, [state.photo_count]);
+
+  // Debounced search — 300 ms after user stops typing
+  useEffect(() => {
+    if (!q.trim()) {
+      setHits(null);
+      return;
+    }
+    const t = setTimeout(async () => {
+      try {
+        const rows = await invoke<Thumb[]>("search_text", { q, limit: 400 });
+        setHits(rows);
+      } catch (_) {}
+    }, 280);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  const shown = useMemo(() => hits ?? recent, [hits, recent]);
 
   const rescan = async () => {
     if (!state.library_path) return;
@@ -53,10 +72,6 @@ export function LibraryView({
     }
   };
 
-  const filtered = q.trim()
-    ? thumbs.filter((t) => t.path.toLowerCase().includes(q.trim().toLowerCase()))
-    : thumbs;
-
   return (
     <div className="library">
       <header className="top-bar">
@@ -66,14 +81,17 @@ export function LibraryView({
           className="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search filename (semantic search lands in R·01 M3)"
+          placeholder="Search filename, camera, date… (semantic search lands in M3-late)"
         />
         <div className="stats">
-          {state.photo_count.toLocaleString()} photos
-          {state.last_scan_at && (
-            <span className="muted" style={{ marginLeft: 12 }}>
-              last scan {new Date(state.last_scan_at).toLocaleString()}
-            </span>
+          {hits ? (
+            <>
+              {hits.length.toLocaleString()} hit{hits.length === 1 ? "" : "s"}
+              {" of "}
+              {state.photo_count.toLocaleString()}
+            </>
+          ) : (
+            <>{state.photo_count.toLocaleString()} photos</>
           )}
         </div>
         <div className="actions">
@@ -87,24 +105,41 @@ export function LibraryView({
         {state.library_path}
       </div>
       <main className="grid">
-        {filtered.length === 0 ? (
+        {shown.length === 0 ? (
           <div className="empty-grid muted">
-            {thumbs.length === 0
-              ? "No photos indexed yet. If you just picked the folder, hit Rescan."
-              : "No matches for that filter."}
+            {hits !== null
+              ? "No hits."
+              : "No photos indexed yet. If you just picked the folder, hit Rescan."}
           </div>
         ) : (
-          filtered.map((t) => <PhotoCell key={t.id} t={t} />)
+          shown.map((t) => (
+            <PhotoCell key={t.id} t={t} onOpen={() => setSelected(t)} />
+          ))
         )}
       </main>
+      {selected && (
+        <PhotoDetail
+          thumb={selected}
+          onClose={() => setSelected(null)}
+          onNext={() => {
+            const list = shown;
+            const i = list.findIndex((x) => x.id === selected.id);
+            if (i >= 0 && i + 1 < list.length) setSelected(list[i + 1]);
+          }}
+          onPrev={() => {
+            const list = shown;
+            const i = list.findIndex((x) => x.id === selected.id);
+            if (i > 0) setSelected(list[i - 1]);
+          }}
+        />
+      )}
     </div>
   );
 }
 
-function PhotoCell({ t }: { t: Thumb }) {
+function PhotoCell({ t, onOpen }: { t: Thumb; onOpen: () => void }) {
   const [src, setSrc] = useState<string | null>(null);
   const [err, setErr] = useState(false);
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -119,11 +154,9 @@ function PhotoCell({ t }: { t: Thumb }) {
       cancelled = true;
     };
   }, [t.id]);
-
   const name = t.path.split(/[\\/]/).pop() || t.path;
-
   return (
-    <div className="cell" title={t.path}>
+    <div className="cell" title={t.path} onDoubleClick={onOpen} onClick={onOpen}>
       <div className="cell-img">
         {src ? (
           <img src={src} alt={name} loading="lazy" />
@@ -147,6 +180,84 @@ function PhotoCell({ t }: { t: Thumb }) {
             </span>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function PhotoDetail({
+  thumb,
+  onClose,
+  onNext,
+  onPrev,
+}: {
+  thumb: Thumb;
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+}) {
+  const [big, setBig] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const abs = await invoke<string>("thumb_ensure", { photoId: thumb.id });
+        if (!cancelled) setBig(convertFileSrc(abs));
+      } catch (_) {}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [thumb.id]);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") onNext();
+      if (e.key === "ArrowLeft") onPrev();
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose, onNext, onPrev]);
+
+  const name = thumb.path.split(/[\\/]/).pop() || thumb.path;
+
+  return (
+    <div className="detail-overlay" onClick={onClose}>
+      <div className="detail-inner" onClick={(e) => e.stopPropagation()}>
+        <div className="detail-img">
+          {big && <img src={big} alt={name} />}
+          <button className="detail-nav prev" onClick={onPrev} aria-label="Previous">
+            ‹
+          </button>
+          <button className="detail-nav next" onClick={onNext} aria-label="Next">
+            ›
+          </button>
+          <button className="detail-close" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </div>
+        <aside className="detail-meta">
+          <h3>{name}</h3>
+          <div className="detail-path">{thumb.path}</div>
+          <dl>
+            <dt>Dimensions</dt>
+            <dd>
+              {thumb.width}×{thumb.height}
+            </dd>
+            {thumb.taken_at && (
+              <>
+                <dt>Taken</dt>
+                <dd>{new Date(thumb.taken_at).toLocaleString()}</dd>
+              </>
+            )}
+          </dl>
+          <p className="muted small">
+            Edit stack + face clusters + upscale land in later R·01 milestones.
+            Everything on this panel lives inside your library folder — nothing
+            has been sent anywhere.
+          </p>
+        </aside>
       </div>
     </div>
   );

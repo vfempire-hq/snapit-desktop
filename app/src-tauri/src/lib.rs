@@ -12,6 +12,7 @@ use std::sync::Mutex;
 use serde::Serialize;
 use tauri::State;
 
+mod ai;
 mod catalog;
 mod edit;
 mod licence;
@@ -119,6 +120,18 @@ async fn edit_clear(photo_id: String, state: State<'_, AppState>) -> Result<(), 
     edit::clear_stack(&library, &photo_id).map_err(|e| e.to_string())
 }
 
+// ---------- search ----------
+
+#[tauri::command]
+async fn search_text(
+    q: String,
+    limit: u32,
+    state: State<'_, AppState>,
+) -> Result<Vec<ai::search::SearchHit>, String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    ai::search::text_search(&library, &q, limit).map_err(|e| e.to_string())
+}
+
 // ---------- licence ----------
 
 #[tauri::command]
@@ -167,6 +180,7 @@ pub fn run() {
             edit_get,
             edit_set,
             edit_clear,
+            search_text,
             licence_status,
             licence_import,
             licence_forget,
