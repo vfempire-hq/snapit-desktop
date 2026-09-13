@@ -23,6 +23,37 @@ const IMAGE_EXTS: &[&str] = &[
     "cr2", "cr3", "nef", "arw", "dng", "rw2", "raf", "orf", "pef", "srw",
 ];
 
+const VIDEO_EXTS: &[&str] = &[
+    "mp4", "mov", "m4v", "avi", "mkv", "webm", "3gp", "mts", "m2ts", "hevc",
+];
+
+/// Media kind — what the frontend tile shows and how thumb_ensure treats it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MediaKind {
+    Photo,
+    Video,
+}
+
+impl MediaKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            MediaKind::Photo => "photo",
+            MediaKind::Video => "video",
+        }
+    }
+}
+
+pub fn classify(path: &Path) -> Option<MediaKind> {
+    let ext = path.extension().and_then(|e| e.to_str())?;
+    if IMAGE_EXTS.iter().any(|e| ext.eq_ignore_ascii_case(e)) {
+        return Some(MediaKind::Photo);
+    }
+    if VIDEO_EXTS.iter().any(|e| ext.eq_ignore_ascii_case(e)) {
+        return Some(MediaKind::Video);
+    }
+    None
+}
+
 /// Callback signature for progress reporting during a scan.
 pub type ScanProgress = Arc<dyn Fn(ScanProgressEvent) + Send + Sync>;
 
@@ -65,7 +96,7 @@ pub fn scan_with_progress(library_root: &Path, on_progress: Option<ScanProgress>
         let entry = match entry { Ok(e) => e, Err(_) => continue };
         if !entry.file_type().is_file() { continue; }
         let path = entry.into_path();
-        if is_image(&path) { candidates.push(path); }
+        if is_media(&path) { candidates.push(path); }
     }
 
     tracing::info!("scan: {} candidate files under {:?}", candidates.len(), library_root);
@@ -133,6 +164,11 @@ fn is_image(path: &Path) -> bool {
         Some(ext) => IMAGE_EXTS.iter().any(|e| ext.eq_ignore_ascii_case(e)),
         None => false,
     }
+}
+
+/// True if the scanner should index this file — image OR video.
+fn is_media(path: &Path) -> bool {
+    classify(path).is_some()
 }
 
 struct RowOwned {

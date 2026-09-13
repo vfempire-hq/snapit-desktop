@@ -16,6 +16,7 @@ use tauri_plugin_updater::UpdaterExt;
 pub mod ai;
 pub mod catalog;
 pub mod edit;
+pub mod events;
 pub mod licence;
 pub mod prefs;
 pub mod storage;
@@ -92,8 +93,30 @@ async fn library_scan(
     let ingested =
         storage::local::scan_with_progress(&root, Some(cb)).map_err(|e| e.to_string())?;
     *state.last_scan_at.lock().unwrap() = Some(chrono::Utc::now());
-    tracing::info!("scan finished: {} photos indexed under {}", ingested, path);
+    tracing::info!("scan finished: {} media indexed under {}", ingested, path);
+
+    // Kick off event re-clustering after every scan. Non-blocking failure —
+    // clustering is best-effort, we always fall back to the flat grid.
+    match events::recluster(&root) {
+        Ok(n) => tracing::info!("event clustering: {} events created", n),
+        Err(e) => tracing::warn!("event clustering failed: {}", e),
+    }
     Ok(ingested)
+}
+
+#[tauri::command]
+async fn events_recluster(state: State<'_, AppState>) -> Result<usize, String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    events::recluster(&library).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn events_list(
+    limit: u32,
+    state: State<'_, AppState>,
+) -> Result<Vec<catalog::EventRow>, String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    catalog::list_events(&library, limit).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -368,6 +391,8 @@ pub fn run() {
             library_scan,
             catalog_recent,
             catalog_duplicates,
+            events_recluster,
+            events_list,
             thumb_ensure,
             reveal_in_folder,
             rating_set,

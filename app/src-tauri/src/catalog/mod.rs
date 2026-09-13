@@ -10,7 +10,7 @@ use rusqlite::{params, Connection};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
-pub const SCHEMA_VERSION: u32 = 2;
+pub const SCHEMA_VERSION: u32 = 3;
 pub const CATALOG_DIR: &str = "_snapit";
 pub const CATALOG_FILE: &str = "catalog.sqlite";
 
@@ -44,6 +44,41 @@ fn migrate_1_to_2(conn: &Connection) -> Result<()> {
         "ALTER TABLE photos ADD COLUMN xmp_caption TEXT",
         "ALTER TABLE photos ADD COLUMN xmp_keywords TEXT",
         "CREATE INDEX IF NOT EXISTS idx_photos_rating ON photos (xmp_rating)",
+    ];
+    for sql in alters {
+        let _ = conn.execute_batch(sql);
+    }
+    Ok(())
+}
+
+fn migrate_2_to_3(conn: &Connection) -> Result<()> {
+    // v3 adds video support. Existing rows default to kind='photo' — the
+    // scanner sets kind explicitly on every subsequent scan.
+    let alters = &[
+        "ALTER TABLE photos ADD COLUMN kind TEXT NOT NULL DEFAULT 'photo'",
+        "ALTER TABLE photos ADD COLUMN duration_ms INTEGER",
+        "ALTER TABLE photos ADD COLUMN video_codec TEXT",
+        "ALTER TABLE photos ADD COLUMN fps REAL",
+        "CREATE INDEX IF NOT EXISTS idx_photos_kind ON photos (kind)",
+        // Event clustering — this is where the R·02 auto-events live.
+        r#"CREATE TABLE IF NOT EXISTS events (
+            id           TEXT PRIMARY KEY,
+            title        TEXT NOT NULL,
+            start_at     TEXT NOT NULL,
+            end_at       TEXT NOT NULL,
+            place        TEXT,
+            confidence   REAL NOT NULL DEFAULT 1.0,
+            cover_photo  TEXT,
+            created_at   TEXT NOT NULL,
+            edited       INTEGER NOT NULL DEFAULT 0
+        )"#,
+        r#"CREATE TABLE IF NOT EXISTS event_photos (
+            event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+            photo_id TEXT NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
+            PRIMARY KEY (event_id, photo_id)
+        )"#,
+        "CREATE INDEX IF NOT EXISTS idx_events_start ON events (start_at)",
+        "CREATE INDEX IF NOT EXISTS idx_event_photos_photo ON event_photos (photo_id)",
     ];
     for sql in alters {
         let _ = conn.execute_batch(sql);
@@ -86,12 +121,36 @@ fn init_schema(conn: &Connection) -> Result<()> {
             xmp_caption   TEXT,                       -- caption / description
             xmp_keywords  TEXT,                       -- CSV of hierarchical keywords
             imported_at   TEXT NOT NULL,
-            deleted_at    TEXT
+            deleted_at    TEXT,
+            kind          TEXT NOT NULL DEFAULT 'photo',  -- 'photo' | 'video'
+            duration_ms   INTEGER,                    -- video only
+            video_codec   TEXT,                       -- video only
+            fps           REAL                        -- video only
         );
         CREATE INDEX IF NOT EXISTS idx_photos_rating ON photos (xmp_rating);
         CREATE INDEX IF NOT EXISTS idx_photos_taken_at ON photos (taken_at);
         CREATE INDEX IF NOT EXISTS idx_photos_hash    ON photos (content_hash);
         CREATE INDEX IF NOT EXISTS idx_photos_perceptual ON photos (perceptual);
+        CREATE INDEX IF NOT EXISTS idx_photos_kind    ON photos (kind);
+
+        CREATE TABLE IF NOT EXISTS events (
+            id           TEXT PRIMARY KEY,
+            title        TEXT NOT NULL,
+            start_at     TEXT NOT NULL,
+            end_at       TEXT NOT NULL,
+            place        TEXT,
+            confidence   REAL NOT NULL DEFAULT 1.0,
+            cover_photo  TEXT,
+            created_at   TEXT NOT NULL,
+            edited       INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS idx_events_start ON events (start_at);
+        CREATE TABLE IF NOT EXISTS event_photos (
+            event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+            photo_id TEXT NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
+            PRIMARY KEY (event_id, photo_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_event_photos_photo ON event_photos (photo_id);
 
         CREATE TABLE IF NOT EXISTS tags (
             id     TEXT PRIMARY KEY,
@@ -144,6 +203,9 @@ fn init_schema(conn: &Connection) -> Result<()> {
     let cur = current_version(conn).unwrap_or(0);
     if cur < 2 {
         migrate_1_to_2(conn)?;
+    }
+    if cur < 3 {
+        migrate_2_to_3(conn)?;
     }
     conn.execute(
         "INSERT OR REPLACE INTO meta (key, value) VALUES ('schema_version', ?1)",
@@ -217,6 +279,45 @@ pub fn duplicate_groups(library_root: &Path, limit: u32) -> Result<Vec<Duplicate
         });
     }
     Ok(groups)
+}
+
+#[derive(Serialize)]
+pub struct EventRow {
+    pub id: String,
+    pub title: String,
+    pub start_at: String,
+    pub end_at: String,
+    pub place: Option<String>,
+    pub confidence: f64,
+    pub cover_photo: Option<String>,
+    pub photo_count: i64,
+}
+
+pub fn list_events(library_root: &Path, limit: u32) -> Result<Vec<EventRow>> {
+    let conn = open(library_root)?;
+    let mut stmt = conn.prepare(
+        r#"SELECT e.id, e.title, e.start_at, e.end_at, e.place, e.confidence, e.cover_photo,
+                  (SELECT COUNT(*) FROM event_photos ep WHERE ep.event_id = e.id) AS n
+           FROM events e
+           ORDER BY e.start_at DESC
+           LIMIT ?1"#,
+    )?;
+    let rows = stmt
+        .query_map(params![limit], |r| {
+            Ok(EventRow {
+                id: r.get(0)?,
+                title: r.get(1)?,
+                start_at: r.get(2)?,
+                end_at: r.get(3)?,
+                place: r.get(4).ok(),
+                confidence: r.get(5)?,
+                cover_photo: r.get(6).ok(),
+                photo_count: r.get(7)?,
+            })
+        })?
+        .filter_map(|r| r.ok())
+        .collect();
+    Ok(rows)
 }
 
 #[derive(Serialize)]
