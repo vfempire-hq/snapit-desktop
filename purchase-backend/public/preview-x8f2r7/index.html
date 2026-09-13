@@ -418,11 +418,22 @@ button{cursor:pointer}
 .bb-btn.pri:hover{opacity:.75}
 .bb-btn.sec{background:rgba(109,109,110,.7);color:#fff;backdrop-filter:blur(4px)}
 .bb-btn.sec:hover{background:rgba(109,109,110,.45)}
-.bb-corner{position:absolute;right:4vw;bottom:14vh;display:flex;align-items:center;gap:12px}
+.bb-corner{position:absolute;right:4vw;bottom:14vh;display:flex;align-items:center;gap:12px;z-index:3}
 .bb-corner .ribbon{padding:6px 22px 6px 12px;background:rgba(0,0,0,.55);border-left:3px solid var(--core);
   font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);font-weight:600}
 .bb-corner .mute{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.7);
   display:flex;align-items:center;justify-content:center;color:#fff;background:transparent}
+
+/* Feature-wall launcher — small pill nested in the billboard corner */
+.fw-launcher{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 10px;border-radius:99px;
+  background:rgba(0,0,0,.44);backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  border:1px solid rgba(255,255,255,.14);color:#fff;
+  font-size:12px;letter-spacing:.02em;font-weight:600;cursor:pointer;
+  transition:transform .18s cubic-bezier(.4,.2,.2,1),background .18s,border-color .18s;
+  box-shadow:0 6px 20px rgba(0,0,0,.32)}
+.fw-launcher:hover{transform:translateY(-1px);background:rgba(0,0,0,.68);border-color:rgba(255,255,255,.28)}
+.fw-launcher svg{color:var(--core)}
 
 /* ================================================================
    MAIN AREA — rows stack below the billboard
@@ -457,6 +468,41 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .card img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .3s}
 
 .card.landscape{width:min(18vw,320px);aspect-ratio:16/9}
+/* Native-aspect social tiles — each platform keeps its true shape.
+   Widths pick the sweet spot: square/portrait platforms narrower so they
+   don't dominate the row; YouTube stays landscape width. */
+.card.social{width:min(14vw,260px);flex-shrink:0;position:relative;border-radius:6px;overflow:hidden;
+  background:#0a0a0d;cursor:pointer;transition:transform .28s cubic-bezier(.4,.2,.2,1),box-shadow .28s,filter .28s}
+.card.social img{width:100%;height:100%;object-fit:cover;display:block}
+.card.social:hover{transform:scale(1.14) translateY(-4px);z-index:10;
+  box-shadow:0 24px 48px -12px rgba(0,0,0,.75),0 0 0 1px rgba(74,148,255,.3)}
+.card.social:hover img{filter:brightness(1.06)}
+.card.social[data-brand="tiktok"],
+.card.social[data-brand="snapchat"]{width:min(10vw,180px);aspect-ratio:9/16}
+.card.social[data-brand="instagram"]{width:min(13vw,250px);aspect-ratio:1}
+.card.social[data-brand="youtube"],
+.card.social[data-brand="x"],
+.card.social[data-brand="linkedin"]{width:min(18vw,320px);aspect-ratio:16/9}
+.card.social[data-brand="pinterest"]{width:min(11vw,200px);aspect-ratio:2/3}
+.card.social[data-brand="threads"],
+.card.social[data-brand="facebook"],
+.card.social[data-brand="reddit"]{width:min(12vw,220px);aspect-ratio:4/5}
+.card.social[data-brand="bereal"]{width:min(11vw,200px);aspect-ratio:3/4}
+/* Small brand corner label so users can tell platforms apart at a glance */
+.card.social .brand-dot{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.2);z-index:3}
+.card.social[data-brand="instagram"] .brand-dot{background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)}
+.card.social[data-brand="tiktok"]    .brand-dot{background:#000}
+.card.social[data-brand="youtube"]   .brand-dot{background:#ff0000}
+.card.social[data-brand="pinterest"] .brand-dot{background:#e60023}
+.card.social[data-brand="snapchat"]  .brand-dot{background:#fffc00;color:#000}
+.card.social[data-brand="x"]         .brand-dot{background:#0b0b0e}
+.card.social[data-brand="threads"]   .brand-dot{background:#000}
+.card.social[data-brand="facebook"]  .brand-dot{background:#1877f2}
+.card.social[data-brand="linkedin"]  .brand-dot{background:#0a66c2}
+.card.social[data-brand="reddit"]    .brand-dot{background:#ff4500}
+.card.social[data-brand="bereal"]    .brand-dot{background:#000}
 .card.landscape .card-preview{padding:14px 16px 16px}
 
 .card.portrait{width:min(11vw,180px);aspect-ratio:2/3}
@@ -1097,6 +1143,288 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .action-choice .chev{color:var(--dim);font-size:14px}
 
 /* ================================================================
+   COMPACT SOCIAL CHROME — overlays on tiles when show_platform_chrome
+   is on and the tile has social metadata. Real chrome + big overlays
+   live on the showcase page; this is the "reads-as-social" version
+   for library tiles.
+   ================================================================ */
+.sc-chrome{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;
+  justify-content:space-between;padding:9px 11px}
+.sc-top{display:flex;align-items:center;gap:8px}
+.sc-av{width:22px;height:22px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;border:1.5px solid rgba(255,255,255,.9);
+  box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.sc-handle{font-size:11.5px;font-weight:700;color:#fff;letter-spacing:-.003em;
+  text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.sc-play{margin-left:auto;width:24px;height:24px;background:#ff0000;color:#fff;border-radius:2px;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.sc-bot{display:flex;justify-content:space-between;align-items:flex-end;color:#fff}
+.sc-likes{display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;
+  padding:4px 8px;background:rgba(0,0,0,.44);border-radius:99px;backdrop-filter:blur(4px);
+  text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.sc-likes svg{color:#ff5c7a}
+.sc-chrome[data-brand="tiktok"] .sc-likes svg{color:#fff}
+.sc-chrome[data-brand="youtube"] .sc-likes{background:rgba(255,0,0,.85)}
+.sc-chrome[data-brand="youtube"] .sc-likes svg{display:none}
+.sc-chrome[data-brand="youtube"] .sc-handle::before{content:"▶ ";color:#ff0000}
+/* On hover the chrome fades out so the underlying image is fully visible */
+.card.landscape:hover .sc-chrome{opacity:0;transition:opacity .18s}
+
+/* Chrome toggle pill in the top-nav util area */
+.chromepill{display:flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border-radius:99px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--dim);cursor:pointer;
+  font-size:11.5px;font-weight:600;letter-spacing:.02em;transition:all .18s;user-select:none}
+.chromepill:hover{background:rgba(255,255,255,.09);color:var(--ink)}
+.chromepill.on{background:linear-gradient(135deg,rgba(31,111,242,.16),rgba(31,111,242,.06));
+  border-color:rgba(31,111,242,.32);color:var(--core)}
+.chromepill svg{opacity:.85}
+
+/* ================================================================
+   FEATURE WALL — full-screen picker for the home billboard.
+   Left: scrollable list of 10 pro layout thumbnails (each an SVG
+   diagram). Right: source picker (which event / shot / video to
+   feature) + preview at billboard scale.
+   ================================================================ */
+.fw-modal{position:fixed;inset:24px;z-index:930;display:none;flex-direction:column;
+  background:radial-gradient(circle at 100% 0%,rgba(31,111,242,.09),transparent 55%),
+             linear-gradient(180deg,#0a0b0f 0%,#0d0e13 100%);
+  border-radius:18px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 60px 160px rgba(0,0,0,.72),0 0 0 1px rgba(0,0,0,.4);
+  opacity:0;transform:translateY(28px) scale(.985);
+  transition:opacity .32s ease,transform .36s cubic-bezier(.4,.2,.2,1)}
+.fw-modal.on{display:flex;opacity:1;transform:translateY(0) scale(1)}
+.fw-top{display:flex;align-items:center;gap:16px;padding:24px 34px 20px;
+  border-bottom:1px solid rgba(255,255,255,.06);position:relative}
+.fw-top::before{content:"";position:absolute;left:34px;right:34px;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(31,111,242,.22),transparent)}
+.fw-top-icon{width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(31,111,242,.24),rgba(31,111,242,.06));
+  border:1px solid rgba(31,111,242,.3);color:var(--core);display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.fw-top-t{flex:1}
+.fw-top-t h2{font-size:26px;font-weight:600;letter-spacing:-.02em;margin:0;line-height:1}
+.fw-top-t h2 em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.fw-top-t .sub{font-size:12.5px;color:var(--dim);margin-top:4px}
+.fw-close{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);color:var(--ink);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s cubic-bezier(.4,.2,.2,1)}
+.fw-close:hover{background:rgba(255,255,255,.11);transform:rotate(90deg)}
+
+.fw-body{display:grid;grid-template-columns:340px 1fr;flex:1;min-height:0;overflow:hidden}
+.fw-left{padding:18px;border-right:1px solid rgba(255,255,255,.06);overflow-y:auto;
+  background:linear-gradient(180deg,rgba(255,255,255,.015),transparent 20%)}
+.fw-left-h{font-size:10.5px;color:rgba(255,255,255,.42);letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;margin:6px 6px 12px}
+.fw-layouts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fw-layout{position:relative;padding:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;cursor:pointer;transition:all .18s cubic-bezier(.4,.2,.2,1);user-select:none}
+.fw-layout:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.14);transform:translateY(-1px)}
+.fw-layout.on{background:linear-gradient(135deg,rgba(31,111,242,.16),rgba(31,111,242,.03));
+  border-color:rgba(31,111,242,.36);box-shadow:0 6px 20px rgba(31,111,242,.14),inset 0 1px 0 rgba(255,255,255,.05)}
+.fw-layout.on::after{content:"✓";position:absolute;top:6px;right:6px;width:16px;height:16px;
+  background:var(--core);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;box-shadow:0 2px 4px rgba(31,111,242,.42)}
+.fw-layout-svg{width:100%;aspect-ratio:16/10;border-radius:6px;overflow:hidden;background:#0a0c11;position:relative}
+.fw-layout-svg svg{width:100%;height:100%;display:block}
+.fw-layout-name{margin-top:8px;font-size:11.5px;color:var(--ink);font-weight:600;letter-spacing:-.003em}
+.fw-layout-tag{font-size:9.5px;color:var(--dim);letter-spacing:.05em;margin-top:1px;text-transform:uppercase;font-weight:600}
+.fw-layout.pro .fw-layout-name::after{content:"PRO";margin-left:6px;font-size:8.5px;padding:1px 5px;
+  background:linear-gradient(135deg,#f5c15d,#e0a83a);color:#0b0d12;border-radius:3px;letter-spacing:.06em;font-weight:800;vertical-align:middle}
+
+.fw-right{padding:22px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:22px}
+.fw-preview{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;
+  background:#000;border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.fw-preview .fw-preview-inner{position:absolute;inset:0}
+
+.fw-picker-h{font-size:10.5px;color:rgba(255,255,255,.42);letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;margin:0 0 10px}
+.fw-picker-search{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:12px}
+.fw-picker-search svg{color:var(--dim);flex-shrink:0}
+.fw-picker-search input{flex:1;background:transparent;border:0;color:var(--ink);outline:none;font-size:13px;font-family:inherit}
+.fw-picker-search input::placeholder{color:rgba(255,255,255,.32)}
+
+.fw-source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;max-height:280px;overflow-y:auto;padding-right:4px}
+.fw-source-grid::-webkit-scrollbar{width:6px}
+.fw-source-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:99px}
+.fw-src{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;position:relative;
+  border:1px solid rgba(255,255,255,.07);transition:all .18s}
+.fw-src img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.fw-src:hover img{transform:scale(1.06)}
+.fw-src:hover{border-color:rgba(255,255,255,.18)}
+.fw-src.on{border-color:var(--core);box-shadow:0 0 0 2px var(--core),0 8px 20px rgba(31,111,242,.32)}
+.fw-src.on::after{content:"✓";position:absolute;top:6px;right:6px;width:18px;height:18px;
+  background:var(--core);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+
+.fw-cta{display:flex;justify-content:flex-end;gap:10px;padding:16px 30px;border-top:1px solid rgba(255,255,255,.06);
+  background:rgba(0,0,0,.32)}
+.fw-cta-primary{padding:12px 22px;border-radius:10px;color:#fff;font-size:13.5px;font-weight:600;
+  background:linear-gradient(135deg,#1f6ff2 0%,#4a94ff 100%);
+  border:1px solid rgba(255,255,255,.14);cursor:pointer;
+  box-shadow:0 8px 22px rgba(31,111,242,.32),inset 0 1px 0 rgba(255,255,255,.24);
+  transition:transform .18s cubic-bezier(.4,.2,.2,1)}
+.fw-cta-primary:hover{transform:translateY(-1px)}
+.fw-cta-secondary{padding:12px 22px;border-radius:10px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.09);color:var(--ink);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .18s}
+.fw-cta-secondary:hover{background:rgba(255,255,255,.1)}
+
+/* ================================================================
+   SHARE MODAL — dedicated look: scope cards, brand share targets,
+   animated success. Wider + fully custom rather than borrowing
+   upscale-modal styles.
+   ================================================================ */
+.share-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);
+  width:min(760px,94vw);max-height:92vh;overflow-y:auto;z-index:920;
+  background:radial-gradient(circle at 0% 0%,rgba(31,111,242,.12),transparent 55%),
+             linear-gradient(180deg,#0b0d12 0%,#0c0e13 100%);
+  border-radius:18px;border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);
+  opacity:0;pointer-events:none;
+  transition:transform .34s cubic-bezier(.4,.2,.2,1),opacity .28s ease;
+  padding:32px 34px 34px}
+.share-modal.on{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:all}
+.share-modal::-webkit-scrollbar{width:8px}
+.share-modal::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:99px}
+
+.sh-head{margin-bottom:22px;position:relative}
+.sh-head h3{font-size:32px;font-weight:600;letter-spacing:-.024em;margin:0;line-height:1.05}
+.sh-head h3 em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.sh-head .lead{color:var(--dim);font-size:13.5px;margin-top:6px;line-height:1.55;max-width:520px}
+.sh-head .lead b{color:rgba(255,255,255,.85);font-weight:600}
+.sh-head .lock{position:absolute;top:4px;right:0;display:flex;align-items:center;gap:6px;
+  color:var(--core);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;
+  padding:5px 10px;border-radius:99px;background:rgba(31,111,242,.1);border:1px solid rgba(31,111,242,.24)}
+
+/* Section wrapper — small caps label + content */
+.sh-sec{margin-top:22px}
+.sh-sec-h{font-size:10.5px;color:rgba(255,255,255,.44);letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sh-sec-h .step{width:18px;height:18px;border-radius:50%;background:rgba(31,111,242,.14);
+  border:1px solid rgba(31,111,242,.34);color:var(--core);display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700}
+
+/* Scope grid — richer than pills; each scope is a small card with icon+label+meta */
+.sh-scope-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+.sh-scope{padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:10px;cursor:pointer;transition:all .18s cubic-bezier(.4,.2,.2,1);
+  display:flex;flex-direction:column;gap:6px;position:relative;user-select:none}
+.sh-scope:hover{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.14);transform:translateY(-1px)}
+.sh-scope.on{background:linear-gradient(135deg,rgba(31,111,242,.14),rgba(31,111,242,.02));
+  border-color:rgba(31,111,242,.36);box-shadow:0 8px 22px rgba(31,111,242,.14),inset 0 1px 0 rgba(255,255,255,.06)}
+.sh-scope.on::after{content:"✓";position:absolute;top:8px;right:10px;width:18px;height:18px;
+  background:var(--core);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700}
+.sh-scope-ico{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.75)}
+.sh-scope.on .sh-scope-ico{background:rgba(31,111,242,.16);border-color:rgba(31,111,242,.3);color:var(--core)}
+.sh-scope-t{font-size:12.5px;color:var(--ink);font-weight:600;letter-spacing:-.003em;line-height:1.25}
+.sh-scope-s{font-size:11px;color:var(--dim);line-height:1.35}
+
+/* Grid pill row for expiry + permissions */
+.sh-optrow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+@media (max-width:640px){ .sh-optrow{grid-template-columns:1fr} }
+.sh-opt{padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px}
+.sh-opt-l{font-size:11px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.sh-opt-pills{display:flex;gap:4px;background:rgba(0,0,0,.24);padding:3px;border-radius:8px}
+.sh-opt-pill{flex:1;text-align:center;padding:7px 4px;font-size:11.5px;color:var(--dim);font-weight:600;
+  border-radius:6px;cursor:pointer;transition:all .16s;letter-spacing:.02em;user-select:none}
+.sh-opt-pill.on{background:linear-gradient(135deg,var(--core-deep),var(--core));color:#fff;
+  box-shadow:0 2px 8px rgba(31,111,242,.32),inset 0 1px 0 rgba(255,255,255,.14)}
+
+/* Fancy input row with leading icon */
+.sh-input{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);border-radius:10px;transition:border-color .18s,background .18s}
+.sh-input:focus-within{border-color:rgba(31,111,242,.4);background:rgba(255,255,255,.05)}
+.sh-input svg{color:var(--dim);flex-shrink:0}
+.sh-input input{flex:1;background:transparent;border:0;color:var(--ink);font-size:13.5px;outline:none;font-family:inherit}
+.sh-input input::placeholder{color:rgba(255,255,255,.32)}
+
+/* Primary create button — big gradient CTA */
+.sh-cta{margin-top:26px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sh-cta-primary{flex:1;min-width:220px;padding:14px 20px;border-radius:12px;color:#fff;font-size:14px;
+  font-weight:600;letter-spacing:.005em;cursor:pointer;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#1f6ff2 0%,#4a94ff 45%,#7c3aed 100%);
+  background-size:180% 180%;border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 12px 28px rgba(31,111,242,.32),inset 0 1px 0 rgba(255,255,255,.24);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:transform .18s cubic-bezier(.4,.2,.2,1),box-shadow .18s;
+  animation:shCtaShift 5s ease-in-out infinite}
+@keyframes shCtaShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.sh-cta-primary:hover{transform:translateY(-1px);box-shadow:0 18px 40px rgba(31,111,242,.48),inset 0 1px 0 rgba(255,255,255,.3)}
+.sh-cta-primary:active{transform:translateY(0)}
+.sh-cta-secondary{padding:12px 18px;border-radius:10px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);color:var(--ink);font-size:13px;font-weight:500;cursor:pointer;transition:all .18s}
+.sh-cta-secondary:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18)}
+
+/* SUCCESS STATE */
+.sh-success-card{padding:26px 24px;border-radius:14px;
+  background:radial-gradient(circle at 50% 0%,rgba(62,207,142,.14),transparent 55%),
+             linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));
+  border:1px solid rgba(62,207,142,.24);box-shadow:0 12px 32px rgba(62,207,142,.08);
+  animation:shSuccessIn .5s cubic-bezier(.34,1.34,.6,1)}
+@keyframes shSuccessIn{
+  from{opacity:0;transform:scale(.94)}
+  to{opacity:1;transform:scale(1)}
+}
+.sh-success-badge{display:flex;align-items:center;justify-content:center;width:56px;height:56px;
+  border-radius:50%;background:linear-gradient(135deg,#3ecf8e,#22a56d);color:#fff;margin:0 auto 12px;
+  box-shadow:0 8px 22px rgba(62,207,142,.42),inset 0 1px 0 rgba(255,255,255,.28);
+  animation:shBadgePop .6s cubic-bezier(.34,1.56,.6,1) .1s both}
+@keyframes shBadgePop{
+  0%{transform:scale(0) rotate(-30deg);opacity:0}
+  60%{transform:scale(1.12) rotate(6deg);opacity:1}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.sh-success-t{font-size:22px;font-weight:600;letter-spacing:-.02em;text-align:center;color:var(--ink);line-height:1.15}
+.sh-success-s{font-size:13px;color:var(--dim);text-align:center;margin-top:6px;line-height:1.55;max-width:480px;margin-left:auto;margin-right:auto}
+.sh-success-s b{color:rgba(255,255,255,.88);font-weight:600}
+.sh-url-box{margin-top:20px;padding:14px 16px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;font-family:'SF Mono','Menlo',monospace;font-size:12.5px;color:var(--ink);
+  word-break:break-all;line-height:1.5;position:relative}
+.sh-url-box::before{content:"URL";position:absolute;top:-8px;left:12px;padding:1px 8px;
+  background:#0b0d12;color:var(--dim);font-size:9px;letter-spacing:.16em;font-weight:700;font-family:'Hanken',sans-serif;
+  border:1px solid rgba(255,255,255,.08);border-radius:4px}
+
+/* Share-target grid — WhatsApp / Signal / Mail / Copy / QR */
+.sh-targets{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.sh-target{padding:14px 8px;border-radius:12px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .2s cubic-bezier(.4,.2,.2,1);
+  display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;overflow:hidden;user-select:none}
+.sh-target:hover{transform:translateY(-2px);background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16)}
+.sh-target-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.2)}
+.sh-target[data-t="whatsapp"] .sh-target-ico{background:linear-gradient(135deg,#25d366,#128c7e)}
+.sh-target[data-t="signal"]   .sh-target-ico{background:linear-gradient(135deg,#3a76f0,#2f5fd6)}
+.sh-target[data-t="telegram"] .sh-target-ico{background:linear-gradient(135deg,#37a7e7,#1e88c9)}
+.sh-target[data-t="mail"]     .sh-target-ico{background:linear-gradient(135deg,#ff6b6b,#e14c4c)}
+.sh-target[data-t="copy"]     .sh-target-ico{background:linear-gradient(135deg,#4a94ff,#1f6ff2)}
+.sh-target[data-t="qr"]       .sh-target-ico{background:linear-gradient(135deg,#f5c15d,#e0a83a);color:#0b0d12}
+.sh-target-l{font-size:11.5px;font-weight:600;color:var(--ink);letter-spacing:-.003em}
+
+/* QR-code stub — CSS-only checker grid so no image dep */
+.sh-qr-wrap{margin-top:18px;padding:18px;background:#fff;border-radius:12px;
+  display:none;justify-content:center;align-items:center}
+.sh-qr-wrap.on{display:flex;animation:shSuccessIn .3s}
+.sh-qr{width:180px;height:180px;background-image:
+    linear-gradient(#0b0d12 2px,transparent 2px),
+    linear-gradient(90deg,#0b0d12 2px,transparent 2px);
+  background-size:9px 9px;background-position:0 0,0 0;
+  position:relative;overflow:hidden}
+.sh-qr::before,.sh-qr::after{content:"";position:absolute;width:36px;height:36px;
+  border:6px solid #0b0d12;background:#fff}
+.sh-qr::before{top:0;left:0}
+.sh-qr::after{top:0;right:0}
+.sh-qr-c{position:absolute;bottom:0;left:0;width:36px;height:36px;border:6px solid #0b0d12;background:#fff}
+
+/* Footer explaining privacy */
+.sh-privacy{margin-top:18px;padding:14px 18px;background:rgba(0,0,0,.2);border:1px dashed rgba(255,255,255,.08);
+  border-radius:10px;font-size:12px;color:var(--dim);line-height:1.6}
+.sh-privacy code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;font-family:'SF Mono','Menlo',monospace;font-size:11px}
+
+/* ================================================================
    SETTINGS + IMPORT QUEUE
    Full-page overlay: fixed 20px inset with backdrop, dark card with
    left rail (section list) + right pane (section content). Every
@@ -1588,6 +1916,10 @@ main{position:relative;padding-top:0;padding-bottom:80px}
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       Add source
     </button>
+    <div class="chromepill" id="chromePill" onclick="toggleSocialChrome()" data-tip="Socials chrome overlay" data-tip-sub="Show/hide TikTok / Instagram / YouTube UI painted over imported clips">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M9 20h6M12 18v2"/></svg>
+      <span id="chromePillLabel">Chrome</span>
+    </div>
     <button class="iconbtn new" onclick="openImportQueue()" data-tip="Import queue" data-tip-sub="Watch imports as they happen — 4 218 files remaining">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
     </button>
@@ -1628,7 +1960,12 @@ main{position:relative;padding-top:0;padding-bottom:80px}
     </div>
   </div>
   <div class="bb-corner">
-    <div class="ribbon">Local · Not shared</div>
+    <button class="fw-launcher" onclick="openFeatureWall()" data-tip="Customise your feature wall" data-tip-sub="Pick a layout · pick the event or shot · make the home page yours">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+      </svg>
+      <span>Feature wall</span>
+    </button>
   </div>
 </section>
 
@@ -2106,97 +2443,183 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   </div>
 </div>
 
-<!-- ============================== SHARE LIBRARY MODAL ============================== -->
-<div class="backdrop" id="shareBackdrop" onclick="closeShareModal()"></div>
-<div class="upscale-modal" id="shareModal" style="width:min(680px,94vw);max-height:88vh;overflow-y:auto">
-  <div class="upscale-head">
-    <div>
-      <h3>Share <em>library.</em></h3>
-      <div style="font-size:12.5px;color:var(--dim);margin-top:4px">Create an end-to-end encrypted link. SnapIT never sees your photos.</div>
+<!-- ============================== FEATURE WALL PICKER ============================== -->
+<div class="backdrop" id="featureWallBackdrop" onclick="closeFeatureWall()"></div>
+<div class="fw-modal" id="featureWall">
+  <div class="fw-top">
+    <div class="fw-top-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+    </div>
+    <div class="fw-top-t">
+      <h2>Feature <em>wall.</em></h2>
+      <div class="sub">Pick a layout · pick the shot · make your home page yours.</div>
+    </div>
+    <button class="fw-close" onclick="closeFeatureWall()" data-tip="Close" data-tip-shortcut="Esc">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+  </div>
+  <div class="fw-body">
+    <div class="fw-left">
+      <div class="fw-left-h">Choose a layout</div>
+      <div class="fw-layouts" id="fwLayouts"></div>
+    </div>
+    <div class="fw-right">
+      <div>
+        <div class="fw-picker-h">Live preview</div>
+        <div class="fw-preview"><div class="fw-preview-inner" id="fwPreview"></div></div>
+      </div>
+      <div>
+        <div class="fw-picker-h">Feature this shot / event</div>
+        <div class="fw-picker-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <input type="text" placeholder="Search your library — try 'Malta June' or 'Sofia'" id="fwSourceSearch" oninput="renderFwSources()">
+        </div>
+        <div class="fw-source-grid" id="fwSourceGrid"></div>
+      </div>
     </div>
   </div>
-  <div id="sharePicker" style="margin-top:16px">
-    <div class="st-row">
-      <div class="st-row-l">
-        <div class="st-row-title">What are you sharing?</div>
-        <div class="st-row-sub">Pick a scope. You can always revoke later.</div>
-      </div>
-    </div>
-    <div class="st-pills" style="margin-top:8px;flex-wrap:wrap">
-      <div class="st-pill on" data-share-scope="event">Event · Malta trip · June</div>
-      <div class="st-pill" data-share-scope="album">Album · Kitchen renovation</div>
-      <div class="st-pill" data-share-scope="starred">All starred</div>
-      <div class="st-pill" data-share-scope="library">Whole library</div>
-      <div class="st-pill" data-share-scope="picked">Picked selection…</div>
-    </div>
+  <div class="fw-cta">
+    <button class="fw-cta-secondary" onclick="closeFeatureWall()">Cancel</button>
+    <button class="fw-cta-primary" onclick="applyFeatureWall()">Apply feature wall</button>
+  </div>
+</div>
 
-    <div class="st-row">
-      <div class="st-row-l">
-        <div class="st-row-title">Recipient</div>
-        <div class="st-row-sub">Optional. If you enter an email, they get a magic invite. Otherwise you just copy the link.</div>
-      </div>
-      <div class="st-row-r">
-        <input type="email" placeholder="mom@example.com" id="shareRecipient" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:6px;font-size:13px;width:220px">
-      </div>
+<!-- ============================== SHARE LIBRARY MODAL ============================== -->
+<div class="backdrop" id="shareBackdrop" onclick="closeShareModal()"></div>
+<div class="share-modal" id="shareModal">
+  <div class="sh-head">
+    <div class="lock">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      E2E encrypted
     </div>
+    <h3>Share your <em>library.</em></h3>
+    <div class="lead">Create a link only the recipient can open. The decryption key lives in the URL fragment — <b>servers never see your photos</b>. You can revoke instantly.</div>
+  </div>
 
-    <div class="st-row">
-      <div class="st-row-l">
-        <div class="st-row-title">Expires</div>
-        <div class="st-row-sub">Link dies automatically after this window.</div>
-      </div>
-      <div class="st-row-r">
-        <div class="st-pills">
-          <div class="st-pill" data-share-exp="24h">24h</div>
-          <div class="st-pill on" data-share-exp="7d">7 days</div>
-          <div class="st-pill" data-share-exp="30d">30 days</div>
-          <div class="st-pill" data-share-exp="never">Never</div>
+  <div id="sharePicker">
+    <!-- STEP 1: Scope -->
+    <div class="sh-sec">
+      <div class="sh-sec-h"><span class="step">1</span>What are you sharing?</div>
+      <div class="sh-scope-grid">
+        <div class="sh-scope on" data-share-scope="event">
+          <div class="sh-scope-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div class="sh-scope-t">Event</div>
+          <div class="sh-scope-s">Malta trip · June<br>118 shots · 3 videos</div>
+        </div>
+        <div class="sh-scope" data-share-scope="album">
+          <div class="sh-scope-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+          <div class="sh-scope-t">Album</div>
+          <div class="sh-scope-s">Kitchen renovation<br>42 shots</div>
+        </div>
+        <div class="sh-scope" data-share-scope="starred">
+          <div class="sh-scope-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z"/></svg></div>
+          <div class="sh-scope-t">Starred</div>
+          <div class="sh-scope-s">Your best of 2026<br>24 shots</div>
+        </div>
+        <div class="sh-scope" data-share-scope="library">
+          <div class="sh-scope-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M4 10h16M10 4v16"/></svg></div>
+          <div class="sh-scope-t">Whole library</div>
+          <div class="sh-scope-s">Everything indexed<br>read-only</div>
+        </div>
+        <div class="sh-scope" data-share-scope="picked">
+          <div class="sh-scope-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8 6l-4 4 4 4M16 6l4 4-4 4M11 21l2-16"/></svg></div>
+          <div class="sh-scope-t">Picked</div>
+          <div class="sh-scope-s">Custom selection<br>choose after</div>
         </div>
       </div>
     </div>
 
-    <div class="st-row">
-      <div class="st-row-l">
-        <div class="st-row-title">Password (optional)</div>
-        <div class="st-row-sub">Adds a second gate on top of the E2E key. Handy for very private shares.</div>
-      </div>
-      <div class="st-row-r">
-        <input type="text" placeholder="4+ characters" id="sharePw" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:6px;font-size:13px;width:220px">
+    <!-- STEP 2: Recipient -->
+    <div class="sh-sec">
+      <div class="sh-sec-h"><span class="step">2</span>Who's this for? (optional)</div>
+      <div class="sh-input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+        <input type="email" placeholder="mom@example.com — or leave blank and copy the link yourself" id="shareRecipient">
       </div>
     </div>
 
-    <div class="st-row">
-      <div class="st-row-l">
-        <div class="st-row-title">Permissions</div>
-        <div class="st-row-sub">What recipients can do.</div>
-      </div>
-      <div class="st-row-r">
-        <div class="st-pills">
-          <div class="st-pill on" data-share-perm="view">View only</div>
-          <div class="st-pill" data-share-perm="download">View + download</div>
+    <!-- STEP 3: Options — two-column grid -->
+    <div class="sh-sec">
+      <div class="sh-sec-h"><span class="step">3</span>Access &amp; expiry</div>
+      <div class="sh-optrow">
+        <div class="sh-opt">
+          <div class="sh-opt-l">Expires</div>
+          <div class="sh-opt-pills">
+            <div class="sh-opt-pill" data-share-exp="24h">24h</div>
+            <div class="sh-opt-pill on" data-share-exp="7d">7 days</div>
+            <div class="sh-opt-pill" data-share-exp="30d">30 days</div>
+            <div class="sh-opt-pill" data-share-exp="never">Never</div>
+          </div>
+        </div>
+        <div class="sh-opt">
+          <div class="sh-opt-l">Permissions</div>
+          <div class="sh-opt-pills">
+            <div class="sh-opt-pill on" data-share-perm="view">View only</div>
+            <div class="sh-opt-pill" data-share-perm="download">View + download</div>
+          </div>
         </div>
       </div>
+      <div style="margin-top:12px" class="sh-input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <input type="text" placeholder="Add a password (optional — extra gate on top of the E2E key)" id="sharePw">
+      </div>
     </div>
 
-    <div class="upscale-actions" style="margin-top:16px">
-      <button class="save-new" onclick="createShare()">🔗 Create share link</button>
-      <button class="discard" onclick="closeShareModal()">Cancel</button>
+    <div class="sh-cta">
+      <button class="sh-cta-primary" onclick="createShare()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l4-4a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-4 4a5 5 0 0 0 7 7l1-1"/></svg>
+        Create encrypted share link
+      </button>
+      <button class="sh-cta-secondary" onclick="closeShareModal()">Cancel</button>
+    </div>
+
+    <div class="sh-privacy">
+      <b style="color:rgba(255,255,255,.85);font-weight:600">How this stays private:</b> the decryption key lives in the URL fragment after <code>#</code>, so it's never sent to any server (browsers don't transmit fragments). Only someone with the full URL can decrypt. Revoke anytime from Settings → Sharing.
     </div>
   </div>
 
   <!-- Post-create state -->
-  <div id="shareResult" hidden style="margin-top:16px">
-    <div style="padding:22px;background:rgba(31,111,242,.08);border:1px solid rgba(31,111,242,.24);border-radius:12px;text-align:center">
-      <div style="font-size:11px;color:var(--core);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:10px">Share link ready · end-to-end encrypted</div>
-      <div style="font-family:'SF Mono','Menlo',monospace;font-size:13px;color:var(--ink);word-break:break-all;padding:12px 16px;background:rgba(255,255,255,.06);border-radius:8px;line-height:1.5" id="shareUrl">https://share.snapit.vfempire.com/s/xJc7-K3v#k=&hellip;</div>
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
-        <button class="st-btn pri" onclick="copyShareLink(event)">📋 Copy link</button>
-        <button class="st-btn" onclick="sendShareByMail()" id="shareMailBtn">✉️ Send by email</button>
-        <button class="st-btn" onclick="closeShareModal()">Done</button>
+  <div id="shareResult" hidden>
+    <div class="sh-success-card">
+      <div class="sh-success-badge">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6 10-12"/></svg>
       </div>
-      <div style="font-size:11.5px;color:var(--dim);margin-top:14px;line-height:1.6">
-        Decryption key stays in the URL fragment (after <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px">#</code>) — servers never see it.<br>
-        You can revoke this share anytime from Settings → Sharing.
+      <div class="sh-success-t">Your share link is ready.</div>
+      <div class="sh-success-s">Send it however you like — <b>SnapIT never sees the photos</b>. The key stays in the URL fragment.</div>
+
+      <div class="sh-url-box" id="shareUrl">https://share.snapit.vfempire.com/s/xJc7-K3v#k=&hellip;</div>
+
+      <div class="sh-targets">
+        <div class="sh-target" data-t="copy" onclick="copyShareLink(event)">
+          <div class="sh-target-ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M6 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2"/></svg></div>
+          <div class="sh-target-l">Copy link</div>
+        </div>
+        <div class="sh-target" data-t="whatsapp" onclick="sendShareVia('whatsapp')">
+          <div class="sh-target-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3 17.5L2 22l4.6-1a11 11 0 0 0 13.9-17.5zm-8.5 17a9 9 0 0 1-4.6-1.3l-.3-.2-3.3.7.7-3.2-.2-.3a9 9 0 1 1 7.7 4.3zm5-6.7c-.3-.1-1.6-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1s-1.1-.4-2-1.2c-.8-.7-1.3-1.6-1.5-1.8-.1-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.3 0-.5s-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1.1 2.8 1.2 3c.2.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.6-.7 1.9-1.3.2-.7.2-1.2.2-1.3 0-.1-.3-.2-.6-.3z"/></svg></div>
+          <div class="sh-target-l">WhatsApp</div>
+        </div>
+        <div class="sh-target" data-t="signal" onclick="sendShareVia('signal')">
+          <div class="sh-target-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 1.7.4 3.3 1.2 4.7L2 22l5.3-1.2c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg></div>
+          <div class="sh-target-l">Signal</div>
+        </div>
+        <div class="sh-target" data-t="telegram" onclick="sendShareVia('telegram')">
+          <div class="sh-target-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 4L2 12l6 2 2 6 3-4 4 3 4-15z"/></svg></div>
+          <div class="sh-target-l">Telegram</div>
+        </div>
+        <div class="sh-target" data-t="mail" onclick="sendShareByMail()">
+          <div class="sh-target-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+          <div class="sh-target-l">Email</div>
+        </div>
+        <div class="sh-target" data-t="qr" onclick="toggleShareQr()">
+          <div class="sh-target-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/></svg></div>
+          <div class="sh-target-l">QR code</div>
+        </div>
+      </div>
+
+      <div class="sh-qr-wrap" id="shareQrWrap"><div class="sh-qr"><div class="sh-qr-c"></div></div></div>
+
+      <div style="text-align:center;margin-top:18px">
+        <button class="sh-cta-secondary" onclick="closeShareModal()">Done</button>
       </div>
     </div>
   </div>
@@ -2451,7 +2874,10 @@ function renderLandscape(it) {
     const badges = [];
     if (it.kind === 'video') badges.push(`<span class="b video">${iconVideo()} Video</span>`);
     if (it.raw && it.kind !== 'video') badges.push(`<span class="b raw">RAW</span>`);
-    if (it.social) badges.push(`<span class="b" style="background:${socialColor(it.social)};color:#fff">${it.social}</span>`);
+    if (it.social) {
+        const brand = typeof it.social === 'string' ? it.social : it.social.brand;
+        badges.push(`<span class="b" style="background:${socialColor(brand)};color:#fff">${brand}</span>`);
+    }
     const dur = it.kind === 'video' ? `<span class="card-dur">${fmtDur(it.duration_s)}</span>` : '';
     const star = it.starred ? iconStar() : '';
     return `
@@ -2460,6 +2886,7 @@ function renderLandscape(it) {
         ${star}
         <div class="card-badges">${badges.join('')}</div>
         ${dur}
+        ${socialChromeCompact(it)}
         <span class="card-source">${it.drive}</span>
         <div class="card-preview">
           <div class="cp-title">${fmtDate(it.taken_at)}</div>
@@ -2470,6 +2897,66 @@ function renderLandscape(it) {
             <button class="cp-btn" title="Star">${it.starred ? '★' : '☆'}</button>
             <button class="cp-btn" title="More">⌄</button>
           </div>
+        </div>
+      </div>`;
+}
+// Native-aspect social tile — keeps the true platform shape (square IG,
+// 9:16 TikTok, 16:9 YouTube, etc). Chrome overlay obeys the profile flag.
+function renderSocialTile(it) {
+    const brand = socialBrand(it);
+    const dur = it.kind === 'video' ? `<span class="card-dur">${fmtDur(it.duration_s)}</span>` : '';
+    const brandIcon = _socialBrandIcon(brand);
+    return `
+      <div class="card social" data-brand="${brand}" onclick="openCard('${it.id}')">
+        <img src="${it.thumb}" alt="" loading="lazy">
+        <div class="brand-dot">${brandIcon}</div>
+        ${socialChromeCompact(it)}
+        ${dur}
+      </div>`;
+}
+function _socialBrandIcon(b) {
+    const ic = {
+        instagram: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor"/></svg>',
+        tiktok:    '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M15 3v11a3 3 0 1 1-3-3v3a0 0 0 0 0 0 0 0 0 0 0 0v0"/><path d="M15 3c0 3 2 5 5 5v3c-2 0-4-.7-5-2v6a6 6 0 1 1-6-6v3a3 3 0 1 0 3 3V3z"/></svg>',
+        youtube:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 6l10 6-10 6z"/></svg>',
+        pinterest: '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-4 19c0-2 0-3 .5-4 .3-1 2-8 2-8s-.5-1-.5-2c0-2 1-3 2-3 1 0 1.5.8 1.5 2 0 1.2-1 3-1 4.5 0 1.4 1 2 2 2 3 0 4-4 4-6 0-2-2-4-4-4-3 0-5 2-5 5 0 1 .5 2 1 3l-.5 1-1 .5C7 12 6 10 6 8c0-3 3-6 6-6 3 0 6 2 6 5 0 3-2 6-5 6-1 0-2-.5-2-1l-1 3c0 1-1 2-1 3a10 10 0 0 0 3-19z"/></svg>',
+        snapchat:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c4 0 6 3 6 7v3c0 1 1 2 2 3l-3 1-1 2c-2 0-3-1-4-1s-2 1-4 1l-1-2-3-1c1-1 2-2 2-3v-3c0-4 2-7 6-7z"/></svg>',
+        x:         '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4l7 8-7 8h3l5-6 4 6h5l-8-9 8-7h-3l-5 6-4-6z"/></svg>',
+        threads:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5 0 9-3 9-9s-3-9-9-9-9 3-9 9c0 3 1 6 4 8"/><path d="M9 11c1-2 3-3 5-3s3 1 3 3-1 3-3 4c-2 0-3 0-3-2"/></svg>',
+        facebook:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M14 22v-8h3l1-4h-4V8c0-1 0-2 2-2h2V2h-4c-3 0-4 2-4 4v4H7v4h3v8z"/></svg>',
+        linkedin:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><g fill="#0a66c2"><rect x="6" y="9" width="3" height="9"/><circle cx="7.5" cy="6.5" r="1.5"/><path d="M11 9h3v1c1-1 2-1.5 3-1.5 2 0 3 1 3 3v6h-3v-5c0-1-.5-1.5-1.5-1.5S13 12 13 13v5h-2z"/></g></svg>',
+        reddit:    '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><g fill="#ff4500"><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><path d="M8 15c1 1.5 2.5 2 4 2s3-.5 4-2"/></g></svg>',
+        bereal:    '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="8" cy="13" r="3" fill="#000"/><rect x="14" y="9" width="6" height="8" rx="1" fill="#000"/></svg>',
+    };
+    return ic[b] || '';
+}
+// Compact chrome for tiles — shows a mini avatar + handle + likes + brand icon
+// only when profile has show_platform_chrome on AND item has social metadata
+function socialChromeCompact(it) {
+    if (!it.social) return '';
+    if (CURRENT_PROFILE?.show_platform_chrome === false) return '';
+    const brand = typeof it.social === 'string' ? it.social : it.social.brand;
+    const meta  = typeof it.social === 'object' ? it.social : {};
+    const handle = meta.handle || (brand === 'youtube' ? 'youtube' : 'vincent');
+    const likes  = meta.likes  || (brand === 'tiktok' ? '128K' : '1.2K');
+    const brandGrad = {
+        instagram: 'linear-gradient(135deg,#f58529,#dd2a7b,#8134af)',
+        tiktok:    'linear-gradient(135deg,#00f2ea,#ff0050)',
+        youtube:   'linear-gradient(135deg,#ff4444,#cc0000)',
+        facebook:  'linear-gradient(135deg,#4267b2,#4b83e4)',
+        threads:   'linear-gradient(135deg,#333,#7c3aed)',
+    }[brand] || 'linear-gradient(135deg,#4a94ff,#1f6ff2)';
+    const heart = '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-6-8-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-8 12-8 12z"/></svg>';
+    const play  = brand === 'youtube' ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' : '';
+    return `
+      <div class="sc-chrome" data-brand="${brand}">
+        <div class="sc-top">
+          <div class="sc-av" style="background:${brandGrad}">${handle[0].toUpperCase()}</div>
+          <div class="sc-handle">${handle}</div>
+          ${play ? `<div class="sc-play">${play}</div>` : ''}
+        </div>
+        <div class="sc-bot">
+          <span class="sc-likes">${heart}<span>${likes}</span></span>
         </div>
       </div>`;
 }
@@ -2502,7 +2989,28 @@ function renderTop10(it, rank) {
 }
 
 function socialColor(s) {
-    return { tiktok:'#00f2ea', instagram:'#e1306c', youtube:'#ff4444', facebook:'#4267b2', snapchat:'#fffc00', threads:'#7c3aed', x:'#0b0b0e' }[s] ?? 'var(--surface)';
+    return { tiktok:'#00f2ea', instagram:'#e1306c', youtube:'#ff4444', facebook:'#4267b2',
+             snapchat:'#fffc00', threads:'#7c3aed', x:'#0b0b0e', pinterest:'#e60023',
+             linkedin:'#0a66c2', reddit:'#ff4500', bereal:'#000' }[s] ?? 'var(--surface)';
+}
+// Native aspect ratios per platform — real client shows each platform tile
+// in the shape the original post uses, so imports look identical to the source.
+const SOCIAL_ASPECT = {
+    instagram: '1',       // 1:1 square (grid post) — carousel still uses 4:5 but square is the safe default
+    tiktok:    '9/16',    // vertical
+    youtube:   '16/9',    // landscape thumbnail
+    pinterest: '2/3',     // vertical pin
+    snapchat:  '9/16',    // vertical story
+    x:         '16/9',    // landscape
+    threads:   '4/5',     // portrait
+    facebook:  '4/5',     // portrait
+    linkedin:  '16/9',    // landscape
+    reddit:    '4/5',     // portrait
+    bereal:    '3/4',     // near-portrait dual cam
+};
+function socialBrand(it) {
+    if (!it || !it.social) return null;
+    return typeof it.social === 'string' ? it.social : it.social.brand;
 }
 
 function renderRow(row, variant) {
@@ -2513,6 +3021,11 @@ function renderRow(row, variant) {
         // #7 AI album covers — if the row carries albumCover, first tile is a collage
         if (row.albumCover && i === 0) {
             return renderAlbumCover(row, items.slice(0, 5));
+        }
+        // Native-aspect social tiles when the item has social metadata AND
+        // the row explicitly wants native shapes (or is the socials-back row)
+        if (it.social && (row.nativeSocials || row.id === 'socials-back' || variant === 'social')) {
+            return renderSocialTile(it);
         }
         return renderLandscape(it);
     }).join('');
@@ -2621,7 +3134,13 @@ function renderHome() {
         [{ id:'top10', title:'Top 10 shots this year', subtitle:'By stars, plays and re-visits', items: shuffle(L.starred.items.concat(L.recent.items)).slice(0,10) }, 'top10'],
         [albumEvent1, 'landscape'],
         [hiddenGems, 'landscape'],
-        [{ id:'socials-back', title:'From your Instagram takeout', subtitle:'Captions and dates recovered', items: L.recent.items.slice(0,10).map(x => ({...x, social:'instagram'})) }, 'landscape'],
+        [{ id:'socials-back', title:'From your socials', subtitle:'Every platform · restored to native shape · original captions + likes',
+           nativeSocials: true,
+           items: L.recent.items.slice(0, 14).map((x, i) => {
+               // Cycle through platforms so users see the variety
+               const brands = ['instagram','tiktok','youtube','pinterest','x','snapchat','threads','facebook','instagram','tiktok','pinterest','youtube','x','snapchat'];
+               return {...x, social: { brand: brands[i], handle: 'vincent.f', likes: brands[i]==='tiktok'?'128K':brands[i]==='youtube'?'42K':'1.2K' }};
+           }) }, 'landscape'],
         [albumEvent2, 'landscape'],
         [{ id:'videos', title:'Videos across everything', subtitle:'Playable in-app · no external player', items: getAllVideos().slice(0,12) }, 'landscape'],
         [L.place[0], 'landscape'],
@@ -2661,11 +3180,17 @@ const SOCIALS = [
     { key:'instagram', name:'Instagram',   status:'Not connected', posts:0, oauth:true,  hint:'Meta Graph API — polished OAuth flow.' },
     { key:'tiktok',    name:'TikTok',      status:'Not connected', posts:0, oauth:false, hint:'No public consumer API — takeout ZIP only.' },
     { key:'youtube',   name:'YouTube',     status:'Not connected', posts:0, oauth:true,  hint:'Google Takeout or the YouTube Data API.' },
-    { key:'facebook',  name:'Facebook',    status:'Not connected', posts:0, oauth:true,  hint:'Meta Graph API — same OAuth as Instagram.' },
+    { key:'pinterest', name:'Pinterest',   status:'Not connected', posts:0, oauth:true,  hint:'Pinterest OAuth — pin boards + saved images.' },
+    { key:'x',         name:'X (Twitter)', status:'Not connected', posts:0, oauth:false, hint:'API paid-only — use their archive export.' },
     { key:'snapchat',  name:'Snapchat',    status:'Not connected', posts:0, oauth:false, hint:'No public API — takeout ZIP only.' },
     { key:'threads',   name:'Threads',     status:'Not connected', posts:0, oauth:false, hint:'API in preview — takeout for now.' },
-    { key:'x',         name:'X (Twitter)', status:'Not connected', posts:0, oauth:false, hint:'API paid-only — use their archive export.' },
+    { key:'facebook',  name:'Facebook',    status:'Not connected', posts:0, oauth:true,  hint:'Meta Graph API — same OAuth as Instagram.' },
     { key:'linkedin',  name:'LinkedIn',    status:'Not connected', posts:0, oauth:true,  hint:'OAuth v2 for media on your profile.' },
+    { key:'reddit',    name:'Reddit',      status:'Not connected', posts:0, oauth:true,  hint:'Reddit API — saved posts + your submissions.' },
+    { key:'bereal',    name:'BeReal',      status:'Not connected', posts:0, oauth:false, hint:'No public API — takeout ZIP only.' },
+    { key:'flickr',    name:'Flickr',      status:'Not connected', posts:0, oauth:true,  hint:'Flickr OAuth — the classic photo archive.' },
+    { key:'vsco',      name:'VSCO',        status:'Not connected', posts:0, oauth:false, hint:'Takeout ZIP — VSCO exports on request.' },
+    { key:'vero',      name:'Vero',        status:'Not connected', posts:0, oauth:false, hint:'Takeout ZIP — no public API yet.' },
 ];
 const CONNECTED = [
     { key:'instagram', name:'Instagram · @vincentfalzon', status:'Connected · last sync 4h ago',   posts:812, size_gb:2.1, mode:'takeout' },
@@ -3391,11 +3916,292 @@ function tickImportQueue() {
 // Esc to close active modal
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (document.getElementById('featureWall').classList.contains('on'))   return closeFeatureWall();
     if (document.getElementById('shareModal').classList.contains('on'))    return closeShareModal();
     if (document.getElementById('settings').classList.contains('on'))      return closeSettings();
     if (document.getElementById('importQueue').classList.contains('on'))   return closeImportQueue();
     if (document.getElementById('upscaleModal').classList.contains('on'))  return closeUpscale();
 });
+
+/* ================================================================
+   Socials-chrome global toggle.
+   Flips the profile's show_platform_chrome flag AND re-renders every
+   view so tiles pick up (or drop) the chrome overlay immediately.
+   Persistent through ProfileStore.update, so it survives reloads.
+   ================================================================ */
+async function toggleSocialChrome() {
+    const on = CURRENT_PROFILE?.show_platform_chrome === false; // flip
+    try {
+        const updated = await window.ProfileStore.update(CURRENT_PROFILE.id, { show_platform_chrome: on });
+        Object.assign(CURRENT_PROFILE, updated);
+    } catch (e) {
+        console.warn('chrome toggle failed', e);
+        return;
+    }
+    updateChromePill();
+    // Re-render the visible view so tiles inherit the change
+    if (typeof rerenderCurrentView === 'function') rerenderCurrentView();
+    else { renderHome && renderHome(); }
+}
+function updateChromePill() {
+    const on = CURRENT_PROFILE?.show_platform_chrome !== false;
+    const pill = document.getElementById('chromePill');
+    const lbl  = document.getElementById('chromePillLabel');
+    if (!pill) return;
+    pill.classList.toggle('on', on);
+    if (lbl) lbl.textContent = on ? 'Chrome on' : 'Chrome off';
+}
+
+/* ================================================================
+   Feature-wall controller.
+   Ten pro layouts for the home billboard. Each layout is:
+     - a thumb SVG (rendered in the left rail)
+     - a preview builder that draws it live at billboard scale
+     - an applyToBillboard() that mutates the real billboard DOM
+   User picks layout + source, hits Apply — billboard updates + choice
+   persists in localStorage so it survives reloads.
+   ================================================================ */
+const FW_KEY = 'snapit_featurewall_v1';
+const FW_LAYOUTS = [
+    { id:'tiled',    name:'Tiled composite',   tag:'Default',    pro:false },
+    { id:'cinema',   name:'Cinema mono',       tag:'Editorial',  pro:false },
+    { id:'split',    name:'Split diptych',     tag:'Editorial',  pro:false },
+    { id:'kenburns', name:'Ken Burns',         tag:'Motion',     pro:true  },
+    { id:'stack',    name:'Card stack',        tag:'Playful',    pro:true  },
+    { id:'triptych', name:'Vertical triptych', tag:'Magazine',   pro:true  },
+    { id:'fillbig',  name:'Big single',        tag:'Classic',    pro:false },
+    { id:'mosaic',   name:'Mosaic gallery',    tag:'Dense',      pro:false },
+    { id:'polaroid', name:'Polaroid cluster',  tag:'Playful',    pro:true  },
+    { id:'strip',    name:'Filmstrip',         tag:'Motion',     pro:true  },
+];
+let _fwSelected = { layout: 'tiled', sourceId: null };
+let _fwFilter = '';
+
+function _fwThumb(id) {
+    // Tiny SVG diagrams — CSS-only rectangles that visually communicate the layout
+    const b = '#0e131b', hi = '#2b5db5', ac = '#4a94ff', lo = '#1a2333';
+    const svg = (parts) => `<svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="160" height="100" fill="${b}"/>${parts}</svg>`;
+    switch (id) {
+        case 'tiled':    return svg(`<g>
+            <rect x="4" y="4" width="34" height="28" fill="${hi}"/>
+            <rect x="42" y="4" width="34" height="28" fill="${ac}" opacity=".7"/>
+            <rect x="80" y="4" width="34" height="28" fill="${lo}"/>
+            <rect x="118" y="4" width="38" height="28" fill="${hi}" opacity=".8"/>
+            <rect x="4" y="36" width="34" height="28" fill="${ac}" opacity=".5"/>
+            <rect x="42" y="36" width="34" height="28" fill="${hi}"/>
+            <rect x="80" y="36" width="34" height="28" fill="${lo}"/>
+            <rect x="118" y="36" width="38" height="28" fill="${ac}" opacity=".6"/>
+            <rect x="4" y="68" width="152" height="28" fill="${b}" opacity=".92"/></g>`);
+        case 'cinema':   return svg(`<rect x="4" y="4" width="152" height="92" fill="${hi}"/>
+            <rect x="4" y="70" width="152" height="26" fill="url(#g1)"/>
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${b}" stop-opacity="0"/><stop offset="100%" stop-color="${b}" stop-opacity="1"/></linearGradient></defs>`);
+        case 'split':    return svg(`<rect x="4" y="4" width="76" height="92" fill="${hi}"/>
+            <rect x="82" y="4" width="74" height="92" fill="${ac}" opacity=".7"/>`);
+        case 'kenburns': return svg(`<rect x="4" y="4" width="152" height="92" fill="${hi}"/>
+            <rect x="30" y="20" width="90" height="52" fill="${ac}" opacity=".55" stroke="${ac}" stroke-dasharray="3 3"/>
+            <path d="M30 46 L120 46" stroke="${ac}" stroke-width="1" stroke-dasharray="2 3"/>`);
+        case 'stack':    return svg(`<rect x="14" y="20" width="132" height="60" rx="4" fill="${lo}"/>
+            <rect x="10" y="14" width="132" height="60" rx="4" fill="${hi}" opacity=".65"/>
+            <rect x="6"  y="8"  width="132" height="60" rx="4" fill="${ac}"/>`);
+        case 'triptych': return svg(`<rect x="4"   y="4" width="49" height="92" fill="${hi}"/>
+            <rect x="55"  y="4" width="49" height="92" fill="${ac}" opacity=".7"/>
+            <rect x="106" y="4" width="50" height="92" fill="${lo}"/>`);
+        case 'fillbig':  return svg(`<rect x="4" y="4" width="152" height="92" fill="${hi}"/>`);
+        case 'mosaic':   return svg(`<g>
+            <rect x="4"  y="4"  width="62" height="60" fill="${hi}"/>
+            <rect x="68" y="4"  width="40" height="28" fill="${ac}" opacity=".65"/>
+            <rect x="110" y="4" width="46" height="28" fill="${lo}"/>
+            <rect x="68" y="34" width="40" height="30" fill="${lo}"/>
+            <rect x="110" y="34" width="46" height="30" fill="${ac}" opacity=".7"/>
+            <rect x="4"  y="66" width="70" height="30" fill="${lo}"/>
+            <rect x="76" y="66" width="80" height="30" fill="${hi}" opacity=".7"/></g>`);
+        case 'polaroid': return svg(`<g transform="translate(30 12) rotate(-6)">
+            <rect x="0" y="0" width="42" height="52" fill="#fff"/><rect x="3" y="3" width="36" height="36" fill="${hi}"/></g>
+            <g transform="translate(66 8) rotate(2)">
+            <rect x="0" y="0" width="42" height="52" fill="#fff"/><rect x="3" y="3" width="36" height="36" fill="${ac}"/></g>
+            <g transform="translate(100 16) rotate(-3)">
+            <rect x="0" y="0" width="42" height="52" fill="#fff"/><rect x="3" y="3" width="36" height="36" fill="${lo}"/></g>`);
+        case 'strip':    return svg(`<rect x="0" y="20" width="160" height="60" fill="#000"/>
+            <g transform="translate(4 26)">
+            <rect x="0"  y="0" width="24" height="48" fill="${hi}"/>
+            <rect x="26" y="0" width="24" height="48" fill="${ac}" opacity=".6"/>
+            <rect x="52" y="0" width="24" height="48" fill="${lo}"/>
+            <rect x="78" y="0" width="24" height="48" fill="${hi}" opacity=".7"/>
+            <rect x="104" y="0" width="24" height="48" fill="${ac}"/>
+            <rect x="130" y="0" width="24" height="48" fill="${lo}"/></g>
+            <g fill="#fff">
+              <rect x="4" y="20" width="6" height="4"/><rect x="30" y="20" width="6" height="4"/><rect x="56" y="20" width="6" height="4"/><rect x="82" y="20" width="6" height="4"/><rect x="108" y="20" width="6" height="4"/><rect x="134" y="20" width="6" height="4"/>
+              <rect x="4" y="76" width="6" height="4"/><rect x="30" y="76" width="6" height="4"/><rect x="56" y="76" width="6" height="4"/><rect x="82" y="76" width="6" height="4"/><rect x="108" y="76" width="6" height="4"/><rect x="134" y="76" width="6" height="4"/>
+            </g>`);
+        default:         return svg('');
+    }
+}
+
+function openFeatureWall() {
+    // Read persisted choice
+    const persisted = _fwLoad();
+    _fwSelected = persisted || { layout: 'tiled', sourceId: null };
+    document.getElementById('featureWallBackdrop').classList.add('on');
+    document.getElementById('featureWall').classList.add('on');
+    renderFwLayouts();
+    renderFwSources();
+    renderFwPreview();
+}
+function closeFeatureWall() {
+    document.getElementById('featureWallBackdrop').classList.remove('on');
+    document.getElementById('featureWall').classList.remove('on');
+}
+function _fwLoad() {
+    try { return JSON.parse(localStorage.getItem(FW_KEY) || 'null'); } catch { return null; }
+}
+function _fwSave(v) { localStorage.setItem(FW_KEY, JSON.stringify(v)); }
+
+function renderFwLayouts() {
+    document.getElementById('fwLayouts').innerHTML = FW_LAYOUTS.map(l => `
+      <div class="fw-layout ${l.pro ? 'pro' : ''} ${l.id === _fwSelected.layout ? 'on' : ''}" onclick="selectFwLayout('${l.id}')">
+        <div class="fw-layout-svg">${_fwThumb(l.id)}</div>
+        <div class="fw-layout-name">${l.name}</div>
+        <div class="fw-layout-tag">${l.tag}</div>
+      </div>`).join('');
+}
+function selectFwLayout(id) {
+    _fwSelected.layout = id;
+    renderFwLayouts();
+    renderFwPreview();
+}
+function renderFwSources() {
+    const q = (document.getElementById('fwSourceSearch')?.value || '').toLowerCase().trim();
+    const all = _fwCandidateSources();
+    const filt = q ? all.filter(s => (s.title || '').toLowerCase().includes(q) || (s.pretty || '').toLowerCase().includes(q)) : all;
+    document.getElementById('fwSourceGrid').innerHTML = filt.slice(0, 60).map(s => `
+      <div class="fw-src ${s.id === _fwSelected.sourceId ? 'on' : ''}" onclick="selectFwSource('${s.id}')">
+        <img src="${s.thumb}" alt="" loading="lazy">
+      </div>`).join('');
+}
+function _fwCandidateSources() {
+    // Every real photo/video across the manifest — starred first, then hero+highlights
+    const g = (window.SNAPIT_GALLERY || []);
+    const priority = (x) => (x.starred ? 0 : 1) + (x.section === 'hero' ? 0 : (x.section === 'highlights' ? 0.3 : 0.6));
+    return [...g].sort((a,b) => priority(a) - priority(b)).map(x => ({ id: x.id, thumb: x.thumb, title: x.event || x.place, pretty: x.pretty }));
+}
+function selectFwSource(id) {
+    _fwSelected.sourceId = id;
+    renderFwSources();
+    renderFwPreview();
+}
+function renderFwPreview() {
+    const pane = document.getElementById('fwPreview');
+    if (!pane) return;
+    const src = _fwSelected.sourceId
+        ? (window.SNAPIT_GALLERY || []).find(x => x.id === _fwSelected.sourceId)
+        : (window.SNAPIT_GALLERY || [])[0];
+    const url = src?.thumb || '';
+    pane.innerHTML = _fwPreviewHTML(_fwSelected.layout, url);
+}
+function _fwPreviewHTML(layout, url) {
+    // Return small-scale preview markup for the chosen layout
+    const bg = `background:#000 center/cover url('${url}')`;
+    switch (layout) {
+        case 'cinema':
+            return `<div style="position:absolute;inset:0;${bg}"></div>
+                    <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(0,0,0,.75))"></div>
+                    <div style="position:absolute;left:5%;bottom:8%;color:#fff">
+                      <div style="font-size:22px;font-weight:700;letter-spacing:-.02em">Malta trip · June</div>
+                      <div style="font-size:12px;opacity:.72;margin-top:4px">118 shots · 3 videos</div>
+                    </div>`;
+        case 'split':
+            return `<div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
+                      <div style="${bg}"></div>
+                      <div style="${bg};filter:hue-rotate(20deg) saturate(.8)"></div>
+                    </div>`;
+        case 'kenburns':
+            return `<div style="position:absolute;inset:0;${bg};animation:kbPan 8s ease-in-out infinite alternate;transform-origin:center"></div>
+                    <style>@keyframes kbPan{0%{transform:scale(1.05) translate(-2%,-1%)}100%{transform:scale(1.14) translate(2%,1%)}}</style>`;
+        case 'stack':
+            return `<div style="position:absolute;inset:12% 16%;transform:rotate(-4deg);${bg};border-radius:8px;box-shadow:0 20px 40px rgba(0,0,0,.7)"></div>
+                    <div style="position:absolute;inset:14% 12%;transform:rotate(2deg);${bg};border-radius:8px;box-shadow:0 20px 40px rgba(0,0,0,.7);filter:hue-rotate(10deg)"></div>
+                    <div style="position:absolute;inset:16% 8%;transform:rotate(-1deg);${bg};border-radius:8px;box-shadow:0 24px 44px rgba(0,0,0,.8)"></div>`;
+        case 'triptych':
+            return `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;height:100%;gap:2px">
+                      <div style="${bg}"></div>
+                      <div style="${bg};filter:saturate(1.15)"></div>
+                      <div style="${bg};filter:brightness(.85)"></div>
+                    </div>`;
+        case 'fillbig':
+            return `<div style="position:absolute;inset:0;${bg}"></div>`;
+        case 'mosaic': {
+            const g = window.SNAPIT_GALLERY || [];
+            const pick = (i) => g[i % g.length]?.thumb || url;
+            return `<div style="display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:2px;height:100%">
+              <div style="grid-row:1/3;background:#000 center/cover url('${pick(0)}')"></div>
+              <div style="background:#000 center/cover url('${pick(1)}')"></div>
+              <div style="background:#000 center/cover url('${pick(2)}')"></div>
+              <div style="background:#000 center/cover url('${pick(3)}')"></div>
+              <div style="background:#000 center/cover url('${pick(4)}')"></div>
+            </div>`;
+        }
+        case 'polaroid':
+            return `<div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1e,#0a0a0d)"></div>
+                    <div style="position:absolute;left:12%;top:22%;padding:6px 6px 22px;background:#fff;transform:rotate(-6deg);width:26%;box-shadow:0 12px 24px rgba(0,0,0,.5)"><div style="aspect-ratio:1;${bg}"></div></div>
+                    <div style="position:absolute;left:40%;top:16%;padding:6px 6px 22px;background:#fff;transform:rotate(3deg);width:26%;box-shadow:0 12px 24px rgba(0,0,0,.5)"><div style="aspect-ratio:1;${bg};filter:saturate(1.1)"></div></div>
+                    <div style="position:absolute;left:66%;top:24%;padding:6px 6px 22px;background:#fff;transform:rotate(-2deg);width:26%;box-shadow:0 12px 24px rgba(0,0,0,.5)"><div style="aspect-ratio:1;${bg};filter:brightness(.9)"></div></div>`;
+        case 'strip': {
+            const g = window.SNAPIT_GALLERY || [];
+            const p = (i) => g[i % Math.max(1,g.length)]?.thumb || url;
+            return `<div style="position:absolute;inset:0;background:#000"></div>
+                    <div style="position:absolute;top:30%;bottom:30%;left:0;right:0;background:#000;
+                      display:flex;gap:2px;padding:2px 6px;border-top:12px solid transparent;border-bottom:12px solid transparent;
+                      background-image:radial-gradient(circle at 8px 8px,#000 6px,transparent 6.5px);background-size:16px 16px;background-color:#111">
+                      <div style="flex:1;${bg.replace(url,p(0))}"></div>
+                      <div style="flex:1;${bg.replace(url,p(1))}"></div>
+                      <div style="flex:1;${bg.replace(url,p(2))}"></div>
+                      <div style="flex:1;${bg.replace(url,p(3))}"></div>
+                      <div style="flex:1;${bg.replace(url,p(4))}"></div>
+                    </div>`;
+        }
+        case 'tiled':
+        default: {
+            const g = window.SNAPIT_GALLERY || [];
+            const p = (i) => g[i % Math.max(1,g.length)]?.thumb || url;
+            return `<div style="display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(3,1fr);height:100%;gap:0">
+              ${Array.from({length:18},(_,i) => `<div style="background:#000 center/cover url('${p(i)}')"></div>`).join('')}
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,11,14,.2) 0%,rgba(11,11,14,.75) 100%);pointer-events:none"></div>
+            </div>`;
+        }
+    }
+}
+
+function applyFeatureWall() {
+    _fwSave(_fwSelected);
+    _paintBillboardFromFw();
+    closeFeatureWall();
+}
+function _paintBillboardFromFw() {
+    // Repaint the actual home billboard to reflect the choice
+    const bg = document.querySelector('.bb-bg');
+    if (!bg) return;
+    const src = _fwSelected.sourceId
+        ? (window.SNAPIT_GALLERY || []).find(x => x.id === _fwSelected.sourceId)
+        : (window.SNAPIT_GALLERY || [])[0];
+    const url = src?.thumb || '';
+    bg.innerHTML = `<div class="composite" id="composite" style="transform:none;filter:none">${_fwPreviewHTML(_fwSelected.layout, url)}</div>`;
+    // Composite already fills — for tiled we still call the original composite renderer below
+    if (_fwSelected.layout === 'tiled' && typeof renderComposite === 'function') {
+        // Rebuild original composite
+        bg.innerHTML = `<div class="composite" id="composite"></div>`;
+        renderComposite();
+    }
+}
+// Restore persisted choice on boot
+function _fwBootRestore() {
+    const persisted = _fwLoad();
+    if (persisted && persisted.layout) {
+        _fwSelected = persisted;
+        // Only override if the composite has already been rendered
+        setTimeout(_paintBillboardFromFw, 100);
+    }
+}
 
 /* ================================================================
    Share-library controller.
@@ -3417,6 +4223,8 @@ function openShareModal(scopeHint) {
     // Reset UI
     document.getElementById('shareResult').hidden = true;
     document.getElementById('sharePicker').style.display = 'block';
+    const qrWrap = document.getElementById('shareQrWrap');
+    if (qrWrap) qrWrap.classList.remove('on');
     // Reset selections to defaults
     _resetPillGroup('data-share-scope', scopeHint || 'event');
     _resetPillGroup('data-share-exp', '7d');
@@ -3442,6 +4250,22 @@ function _resetPillGroup(attr, val) {
     document.querySelectorAll('[' + attr + ']').forEach(p => {
         p.classList.toggle('on', p.getAttribute(attr) === val);
     });
+}
+function _selectedShare(attr) {
+    return document.querySelector('.on[' + attr + ']')?.getAttribute(attr);
+}
+function toggleShareQr() {
+    document.getElementById('shareQrWrap')?.classList.toggle('on');
+}
+function sendShareVia(target) {
+    const url = document.getElementById('shareUrl')?.textContent || '';
+    if (target === 'whatsapp') {
+        window.open('https://wa.me/?text=' + encodeURIComponent(url), '_blank');
+    } else if (target === 'telegram') {
+        window.open('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent('A SnapIT share for you'), '_blank');
+    } else if (target === 'signal') {
+        window.open('https://signal.me/#p/' + encodeURIComponent(url), '_blank');
+    }
 }
 function closeShareModal() {
     document.getElementById('shareBackdrop').classList.remove('on');
@@ -3987,7 +4811,10 @@ function findItem(id) {
 /* ============================================================
    View routing (Netflix-style tab bar)
    ============================================================ */
+let _CURRENT_VIEW = 'home';
+function rerenderCurrentView() { switchView(_CURRENT_VIEW); }
 function switchView(view) {
+    _CURRENT_VIEW = view;
     // Update tab state
     document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === view));
 
@@ -4302,6 +5129,8 @@ function selectProfileFromMenu(id) {
     CURRENT_PROFILE = PROFILES.find(p => p.id === id) || PROFILES[0];
     updateHeaderAvatar();
     renderAvatarMenu();
+    updateChromePill();
+    rerenderCurrentView();
     document.getElementById('avatarwrap').classList.remove('on');
 }
 function openPicker() {
@@ -4675,6 +5504,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateHeaderAvatar();
     renderAvatarMenu();
     initTooltips();
+    _fwBootRestore();
+    updateChromePill();
     // Splash → picker (or direct to a screen via ?open=)
     const params = new URLSearchParams(window.location.search);
     const openTarget = params.get('open');
