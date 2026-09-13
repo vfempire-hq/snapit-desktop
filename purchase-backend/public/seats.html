@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seat management · SnapIT</title>
+<meta name="description" content="Manage the machines your SnapIT licence is activated on. Kick a machine, request a fresh licence, or ask for a full reset.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5f5f7'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%231d1d1f' text-anchor='middle'%3EVF%3C/text%3E%3C/svg%3E">
+<style>
+@font-face{font-family:'Hanken';src:url('/fonts/hanken.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Instrument';src:url('/fonts/instrument-italic.woff2') format('woff2');font-style:italic;font-display:swap}
+:root{
+  --paper:#fbfbfd; --silver:#f5f5f7; --mist:#eceff3; --ink:#1d1d1f; --dove:#6e6e73; --faint:#a1a1a6;
+  --line:#e4e6ea; --core:#1f6ff2; --core-deep:#0b47b8; --glow:rgba(37,110,245,.35);
+  --ok:#3ecf8e; --warn:#f5c15d; --danger:#c93221;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Hanken',-apple-system,'SF Pro Text','Inter','Segoe UI',system-ui,sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+em.i{font-family:'Instrument',serif;font-style:italic;font-weight:400;color:var(--core)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+.nav{position:sticky;top:0;z-index:10;background:rgba(251,251,253,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);padding:14px 28px}
+.nav-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.14em;font-size:12.5px}
+.parent{color:var(--dove);font-size:12.5px;letter-spacing:.02em}
+.parent:hover{color:var(--core)}
+.nav .status{margin-left:auto;font-size:12px;color:var(--dove)}
+.nav .status b{color:var(--ink);font-weight:600}
+
+.wrap{max-width:1000px;margin:0 auto;padding:60px 28px}
+
+/* Header */
+.head{margin-bottom:36px}
+.head .k{color:var(--core);font-size:11px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+.head h1{font-size:clamp(38px,4.5vw,58px);font-weight:600;letter-spacing:-.028em;line-height:1.03}
+.head h1 em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.head p{color:var(--dove);font-size:16px;max-width:640px;margin-top:16px;line-height:1.65}
+
+/* Licence summary card */
+.summary{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 30px;margin-bottom:22px;
+  box-shadow:0 12px 40px -30px rgba(29,29,31,.18)}
+.sum-top{display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap}
+.sum-tier{padding:5px 12px;border-radius:99px;background:var(--core);color:#fff;font-size:10.5px;
+  letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+.sum-tier.fp{background:linear-gradient(135deg,#1f6ff2,#4a94ff)}
+.sum-tier.founder{background:linear-gradient(135deg,var(--warn),#c99628);color:#3a2d10}
+.sum-name{font-size:17px;font-weight:600;margin-top:14px;letter-spacing:-.005em}
+.sum-email{color:var(--dove);font-size:13px;margin-top:2px}
+.sum-facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:22px;margin-top:22px;padding-top:22px;border-top:1px solid var(--line)}
+.sum-fact{}
+.sum-fact .l{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dove);font-weight:600;margin-bottom:5px}
+.sum-fact .v{font-size:15px;color:var(--ink);font-weight:500}
+.sum-fact .v b{color:var(--core);font-weight:600}
+.sum-fact .v.ok::before{content:"● ";color:var(--ok);font-size:10px}
+
+/* Seat progress bar */
+.seat-bar{margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+.seat-bar-head{display:flex;justify-content:space-between;font-size:13px;color:var(--dove);margin-bottom:10px}
+.seat-bar-head b{color:var(--ink);font-weight:600}
+.seat-track{height:8px;background:var(--silver);border-radius:99px;overflow:hidden;position:relative}
+.seat-fill{height:100%;background:linear-gradient(90deg,var(--core-deep),var(--core));border-radius:99px;transition:width .4s ease}
+
+/* Machines list */
+.section-title{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--dove);font-weight:700;margin:36px 0 14px}
+.machines{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.machine{display:flex;align-items:center;gap:18px;padding:20px 26px;border-top:1px solid var(--line);transition:background .18s}
+.machine:first-child{border-top:none}
+.machine:hover{background:var(--silver)}
+.mch-ic{width:44px;height:44px;border-radius:11px;background:var(--silver);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.mch-ic.mac{background:#1d1d1f;color:#fff}
+.mch-ic.win{background:#0078d4;color:#fff}
+.mch-ic.linux{background:#f5c15d;color:#1d1d1f}
+.mch-body{flex:1;min-width:0}
+.mch-name{font-size:15px;font-weight:600;letter-spacing:-.005em;color:var(--ink)}
+.mch-name .this{margin-left:10px;padding:2px 8px;background:var(--core);color:#fff;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;border-radius:99px;vertical-align:2px}
+.mch-details{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--dove);margin-top:4px;letter-spacing:.01em}
+.mch-details .ok{color:var(--ok)}
+.mch-details .warn{color:#8a6e12}
+.mch-hash{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;color:var(--faint);letter-spacing:.01em}
+.mch-kick{padding:8px 16px;border-radius:99px;background:var(--silver);color:var(--dove);font-size:12px;
+  font-weight:600;letter-spacing:.02em;transition:all .18s;flex-shrink:0}
+.mch-kick:hover{background:#ffe4e0;color:var(--danger)}
+.mch-kick[disabled]{opacity:.35;cursor:not-allowed}
+
+/* Danger zone */
+.danger-zone{margin-top:36px;background:#fff;border:1px dashed var(--line);border-radius:18px;padding:26px 30px}
+.dz-title{font-size:15px;font-weight:600;letter-spacing:-.005em;margin-bottom:6px}
+.dz-lead{color:var(--dove);font-size:13.5px;margin-bottom:20px;line-height:1.55}
+.dz-actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.dz-btn{background:var(--silver);color:var(--ink);border-radius:12px;padding:14px 18px;text-align:left;transition:all .18s;border:1px solid transparent}
+.dz-btn:hover{border-color:var(--line);background:#fff;transform:translateY(-1px)}
+.dz-btn .t{font-size:13.5px;font-weight:600;letter-spacing:-.005em}
+.dz-btn .s{font-size:11.5px;color:var(--dove);margin-top:3px}
+.dz-btn.danger .t{color:var(--danger)}
+.dz-btn.danger:hover{background:#fef2f0;border-color:#f3c4bb}
+
+/* Auth stub */
+.auth{max-width:440px;margin:120px auto;padding:36px 40px;background:#fff;border:1px solid var(--line);border-radius:20px;text-align:center}
+.auth h2{font-size:22px;font-weight:600;letter-spacing:-.015em;margin-bottom:8px}
+.auth h2 em{color:var(--core);font-family:'Instrument',serif;font-style:italic}
+.auth p{color:var(--dove);font-size:14px;margin-bottom:24px;line-height:1.55}
+.auth input{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--line);background:var(--silver);
+  font-family:inherit;font-size:14px;color:var(--ink);outline:none;margin-bottom:12px}
+.auth input:focus{border-color:var(--core);background:#fff}
+.auth button{width:100%;padding:12px 18px;border-radius:99px;background:var(--ink);color:#fff;font-weight:600;font-size:14px;letter-spacing:.02em;transition:all .18s}
+.auth button:hover{background:var(--core)}
+.auth .fine{margin-top:16px;font-size:12px;color:var(--faint);line-height:1.5}
+.auth .fine b{color:var(--dove)}
+
+/* Kicked toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
+  padding:14px 22px;border-radius:99px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:20;box-shadow:0 20px 40px -16px rgba(0,0,0,.4)}
+.toast.on{opacity:1}
+.toast b{color:var(--ok);font-weight:600}
+
+.foot{border-top:1px solid var(--line);margin-top:80px;padding:36px 0;text-align:center;color:var(--dove);
+  font-size:12.5px;background:var(--silver)}
+
+@media (max-width:640px){
+  .wrap{padding:36px 20px}
+  .machine{padding:16px 18px;flex-wrap:wrap}
+  .mch-kick{width:100%;margin-top:8px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="https://vfempire.com">
+      <svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 4l5.2 16h2.2L4.4 4H3zm7 0l5.2 16h2.2L11.4 4H10zm10.6 0h-6.2l.7 2.1h5.5V4zm-4.2 6.6l.7 2.1h3.5v-2.1h-4.2z" fill="#1d1d1f"/></svg>
+      VF EMPIRE
+    </a>
+    <a class="parent" href="/">SnapIT / Seats</a>
+    <div class="status" id="statusBar" hidden>Signed in as <b id="statusEmail"></b> · <a href="#" onclick="signOut();return false" style="color:var(--core)">sign out</a></div>
+  </div>
+</nav>
+
+<!-- Auth screen (shown until magic-link click) -->
+<div class="wrap" id="authView">
+  <div class="auth">
+    <h2>Seat <em>management.</em></h2>
+    <p>Enter the email you bought SnapIT with. We'll mail you a signed link to view the machines your licence is currently activated on. <b>No password, no account — just the email you already have.</b></p>
+    <input type="email" id="authEmail" placeholder="you@wherever.com" value="vincent@vfempire.com">
+    <button onclick="mockSignIn()">Email me the seat link</button>
+    <div class="fine">Link is Ed25519-signed by SnapIT and expires in <b>15 minutes</b>. Clicking it lands you here. Nothing lives on our servers except the machine ledger for your licence.</div>
+  </div>
+</div>
+
+<!-- Main seat management (shown after auth) -->
+<div class="wrap" id="mainView" hidden>
+  <div class="head">
+    <div class="k">Licence · Seat management</div>
+    <h1>Your machines, <em>all in one place.</em></h1>
+    <p>Every device SnapIT is activated on. Kick a machine to free the seat — the next launch on that device drops back to trial mode. Seats renew silently every 30 days as long as the machine has ever been online since.</p>
+  </div>
+
+  <!-- Licence summary -->
+  <div class="summary" id="licSummary"></div>
+
+  <!-- Machines list -->
+  <div class="section-title">Activated machines · <span id="mchCount">5</span></div>
+  <div class="machines" id="mchList"></div>
+
+  <!-- Danger zone / reset actions -->
+  <div class="section-title">Ledger tools</div>
+  <div class="danger-zone">
+    <div class="dz-title">If something's off, do this first.</div>
+    <p class="dz-lead">Someone shared your licence? Lost a machine you can't kick? All these are reversible — you can always come back and reactivate on the same or different machines within your seat cap.</p>
+    <div class="dz-actions">
+      <button class="dz-btn" onclick="toast('Fresh licence e-mailed', true)"><div class="t">Resend licence files</div><div class="s">Get a fresh <code>.json</code> + <code>.sig</code> pair to import</div></button>
+      <button class="dz-btn" onclick="toast('Ledger nudge queued', true)"><div class="t">Ping all machines</div><div class="s">Silent renewal push, no user prompt</div></button>
+      <button class="dz-btn danger" onclick="if(confirm('Reset all activations? Every machine drops to trial on next launch. Re-activate at will within your seat cap.')) resetAll()"><div class="t">Reset ALL activations</div><div class="s">Every machine drops to trial</div></button>
+      <button class="dz-btn danger" onclick="toast('Transfer link e-mailed', true)"><div class="t">Transfer to another owner</div><div class="s">Change the email on this licence</div></button>
+    </div>
+  </div>
+
+</div>
+
+<div class="foot">
+  A VF Empire product · © 2026 VF Empire Corp Ltd · Malta C 94160 ·
+  <a href="mailto:support@vfempire.com">support@vfempire.com</a> ·
+  <a href="/permanence">permanence guarantee</a> ·
+  <a href="https://vfempire.com">vfempire.com</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== Demo state — server-authoritative in the real app ==========
+// Licence + machine ledger. Backend equivalent lives in the Worker's KV bucket.
+const LICENCE = {
+    tier: 'family',
+    tier_label: 'Family Pack',
+    founding: true,
+    owner: 'Vincent Falzon',
+    email: 'vincent@vfempire.com',
+    licence_id: 'SNAP-2026-A9F3-B1C7-MC7X',
+    seats_used: 4,
+    seats_max: 5,
+    purchased_at: '2026-09-13',
+    version_locked: '1.x',
+};
+
+let MACHINES = [
+    { id:'m1', kind:'mac',   name:"Vincent's MacBook Pro",  os:'macOS 15.1', hostname:'vincent-mbp.local', hash:'af12...9c3e', activated_at:'2026-09-13', last_seen:'a moment ago',    this_device:true,  status:'ok'   },
+    { id:'m2', kind:'mac',   name:"Vincent's iMac (Studio)", os:'macOS 15.1', hostname:'vf-studio.local',  hash:'bc94...02d1', activated_at:'2026-09-14', last_seen:'6 minutes ago',  this_device:false, status:'ok'   },
+    { id:'m3', kind:'win',   name:"Elena's Windows PC",     os:'Windows 11', hostname:'ELENA-DESKTOP',    hash:'71ba...ee44', activated_at:'2026-09-15', last_seen:'2 hours ago',    this_device:false, status:'ok'   },
+    { id:'m4', kind:'linux', name:"Home NAS",               os:'Debian 12',   hostname:'nas-beast.local',  hash:'d3f0...7a19', activated_at:'2026-09-17', last_seen:'yesterday',      this_device:false, status:'ok'   },
+    { id:'m5', kind:'mac',   name:"Old MacBook (Liam)",     os:'macOS 12.6', hostname:'liam-air.local',   hash:'e281...4c8a', activated_at:'2026-08-04', last_seen:'42 days ago',    this_device:false, status:'warn' },
+];
+
+// ========== UI ==========
+function mockSignIn() {
+    const email = document.getElementById('authEmail').value.trim();
+    if (!email) return;
+    localStorage.setItem('snapit_seats_email', email);
+    LICENCE.email = email;
+    document.getElementById('authView').hidden = true;
+    document.getElementById('mainView').hidden = false;
+    document.getElementById('statusBar').hidden = false;
+    document.getElementById('statusEmail').textContent = email;
+    render();
+}
+function signOut() {
+    localStorage.removeItem('snapit_seats_email');
+    location.reload();
+}
+
+function renderSummary() {
+    const l = LICENCE;
+    const tierClass = l.tier === 'family' ? 'fp' : (l.tier === 'pro' ? 'pro' : '');
+    const foundingBadge = l.founding
+        ? '<span class="sum-tier founder" style="margin-left:6px">Founding</span>'
+        : '';
+    document.getElementById('licSummary').innerHTML = `
+      <div class="sum-top">
+        <div>
+          <span class="sum-tier ${tierClass}">${l.tier_label}</span>${foundingBadge}
+          <div class="sum-name">${l.owner}</div>
+          <div class="sum-email">${l.email}</div>
+        </div>
+      </div>
+      <div class="sum-facts">
+        <div class="sum-fact"><div class="l">Licence ID</div><div class="v" style="font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12px;letter-spacing:.02em">${l.licence_id}</div></div>
+        <div class="sum-fact"><div class="l">Purchased</div><div class="v">${l.purchased_at}</div></div>
+        <div class="sum-fact"><div class="l">Version</div><div class="v"><b>v${l.version_locked}</b> · perpetual</div></div>
+        <div class="sum-fact"><div class="l">Ledger</div><div class="v ok">Signed &amp; verified</div></div>
+      </div>
+      <div class="seat-bar">
+        <div class="seat-bar-head">
+          <span><b>${l.seats_used}</b> of ${l.seats_max} seats used</span>
+          <span>${l.seats_max - l.seats_used} free · reactivate any time</span>
+        </div>
+        <div class="seat-track"><div class="seat-fill" style="width:${(l.seats_used / l.seats_max) * 100}%"></div></div>
+      </div>`;
+}
+
+function renderMachines() {
+    const html = MACHINES.map(m => {
+        const staleClass = m.status === 'warn' ? 'warn' : 'ok';
+        const dot = m.status === 'ok' ? '●' : '⚠';
+        return `
+          <div class="machine">
+            <div class="mch-ic ${m.kind}">${m.kind === 'mac' ? '' : (m.kind === 'win' ? '⊞' : 'ᐁ')}</div>
+            <div class="mch-body">
+              <div class="mch-name">${m.name}${m.this_device ? '<span class="this">This device</span>' : ''}</div>
+              <div class="mch-details">
+                <span>${m.os}</span>
+                <span>·</span>
+                <span>Activated ${m.activated_at}</span>
+                <span>·</span>
+                <span class="${staleClass}">${dot} last seen ${m.last_seen}</span>
+                <span>·</span>
+                <span class="mch-hash">machine ${m.hash}</span>
+              </div>
+            </div>
+            <button class="mch-kick" onclick="kick('${m.id}')" ${m.this_device ? 'disabled title="Kick this device from within the SnapIT app itself"' : ''}>Kick</button>
+          </div>`;
+    }).join('');
+    document.getElementById('mchList').innerHTML = html;
+    document.getElementById('mchCount').textContent = MACHINES.length;
+}
+
+function render() { renderSummary(); renderMachines(); }
+
+function kick(id) {
+    const m = MACHINES.find(x => x.id === id);
+    if (!m) return;
+    if (m.this_device) return;
+    MACHINES = MACHINES.filter(x => x.id !== id);
+    LICENCE.seats_used = MACHINES.length;
+    render();
+    toast(`Kicked <b>${m.name}</b> — that seat is free`, true);
+}
+
+function resetAll() {
+    MACHINES = MACHINES.filter(x => x.this_device);
+    LICENCE.seats_used = MACHINES.length;
+    render();
+    toast('All activations reset · your seat cap is fresh', true);
+}
+
+let toastTimer;
+function toast(msg, ok) {
+    const t = document.getElementById('toast');
+    t.innerHTML = (ok ? '✓ ' : '') + msg;
+    t.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('on'), 3200);
+}
+
+// Auto-sign-in if we've already been here (demo persistence)
+(function boot() {
+    const saved = localStorage.getItem('snapit_seats_email');
+    if (saved) {
+        document.getElementById('authEmail').value = saved;
+        mockSignIn();
+    }
+})();
+</script>
+</body>
+</html>
