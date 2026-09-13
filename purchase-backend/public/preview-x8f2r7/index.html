@@ -1012,6 +1012,77 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .action-choice .chev{color:var(--dim);font-size:14px}
 
 /* ================================================================
+   UPSCALE + BEFORE/AFTER COMPARISON SLIDER
+   Real backend runs Real-ESRGAN 4x (via ComfyUI on the user's own
+   machine); the visual mechanic is a drag-handle wipe reveal.
+   ================================================================ */
+.upscale-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.94);
+  width:min(880px,96vw);background:#161821;border:1px solid rgba(255,255,255,.08);border-radius:20px;
+  padding:32px 36px;opacity:0;pointer-events:none;transition:all .3s;z-index:102;
+  box-shadow:0 40px 90px -20px rgba(0,0,0,.9)}
+.upscale-modal.on{opacity:1;pointer-events:all;transform:translate(-50%,-50%) scale(1)}
+.upscale-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+.upscale-head h3{font-size:22px;font-weight:600;letter-spacing:-.015em}
+.upscale-head h3 em{color:var(--core);font-family:'Instrument',serif;font-style:italic}
+.upscale-head .sizes{color:var(--dim);font-size:13px;font-family:ui-monospace,'SF Mono',Menlo,monospace}
+.upscale-head .sizes b{color:var(--ink);font-weight:600}
+.upscale-head .sizes .arrow{color:var(--core);margin:0 8px}
+
+/* Progress state — showing while Real-ESRGAN runs */
+.up-progress{margin:24px 0;padding:22px 24px;background:var(--bg-3);border:1px solid var(--line);border-radius:12px}
+.up-progress-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:13px}
+.up-progress-head .lbl{color:var(--ink);font-weight:600;display:flex;align-items:center;gap:10px}
+.up-progress-head .lbl svg{animation:up-spin 2s linear infinite;color:var(--core)}
+.up-progress-head .pct{color:var(--core);font-family:ui-monospace,'SF Mono',Menlo,monospace;font-weight:700}
+@keyframes up-spin{to{transform:rotate(360deg)}}
+.up-progress-track{height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.up-progress-fill{height:100%;background:linear-gradient(90deg,var(--core-deep),var(--core));border-radius:99px;transition:width .3s ease}
+.up-progress-note{margin-top:10px;font-size:11.5px;color:var(--dim);line-height:1.5}
+.up-progress-note b{color:var(--ink);font-weight:600}
+
+/* Compare slider — draggable wipe */
+.compare-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:12px;
+  background:#050506;user-select:none;cursor:ew-resize}
+.compare-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.compare-wrap .before{filter:contrast(.72) brightness(.9) blur(2.5px) saturate(.75)}
+.compare-wrap .after{clip-path:inset(0 0 0 var(--split,50%));filter:contrast(1.05) saturate(1.08)}
+.compare-wrap .handle{position:absolute;top:0;bottom:0;left:var(--split,50%);width:3px;
+  background:linear-gradient(180deg,var(--core),var(--core-deep));transform:translateX(-50%);z-index:3;
+  box-shadow:0 0 20px rgba(74,148,255,.6)}
+.compare-wrap .handle-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:48px;height:48px;border-radius:50%;background:#fff;color:#0b0b0e;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;
+  box-shadow:0 6px 20px rgba(0,0,0,.5),0 0 0 4px rgba(74,148,255,.35);cursor:ew-resize}
+.compare-wrap .handle-dot svg{width:22px;height:22px}
+.compare-wrap .cmp-label{position:absolute;top:14px;padding:5px 12px;background:rgba(0,0,0,.68);
+  color:#fff;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+  border-radius:99px;backdrop-filter:blur(6px);z-index:2}
+.compare-wrap .cmp-label.before{left:14px}
+.compare-wrap .cmp-label.after{right:14px;background:var(--core)}
+
+.upscale-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px}
+.upscale-stat{background:var(--bg-3);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.upscale-stat .l{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:5px}
+.upscale-stat .v{font-size:15px;color:var(--ink);font-weight:600;letter-spacing:-.005em}
+.upscale-stat .v em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+
+.upscale-actions{display:flex;gap:8px;margin-top:24px;padding-top:22px;border-top:1px solid var(--line)}
+.upscale-actions button{flex:1;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;letter-spacing:.02em}
+.upscale-actions .save-new{background:var(--core);color:#fff}
+.upscale-actions .save-new:hover{background:var(--core-deep)}
+.upscale-actions .replace{background:rgba(255,255,255,.06);color:var(--ink);border:1px solid var(--line-2)}
+.upscale-actions .replace:hover{background:rgba(255,255,255,.1)}
+.upscale-actions .discard{background:transparent;color:var(--dim);border:1px solid transparent}
+.upscale-actions .discard:hover{color:#ff7a7a}
+
+/* Model picker — sits below the head */
+.up-model-picker{display:flex;gap:6px;margin:12px 0 4px}
+.up-model{padding:6px 14px;border-radius:99px;font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  background:var(--bg-3);border:1px solid var(--line);color:var(--dim);transition:all .18s}
+.up-model:hover{border-color:var(--line-2);color:var(--ink)}
+.up-model.on{background:var(--core-soft);border-color:var(--core);color:var(--core)}
+
+/* ================================================================
    CINEMATIC INTRO — the "SnapIT presents..." reveal.
    Plays before starred content, featured events, and long-form videos
    (respects the per-profile "Cinematic intro" toggle). Skip via Esc / click.
@@ -1667,10 +1738,10 @@ main{position:relative;padding-top:0;padding-bottom:80px}
         <div class="l">Blur strangers</div>
         <div class="s">On-device faces</div>
       </button>
-      <button class="mo-tool" onclick="alert('Auto-enhance: reads scene type (portrait/landscape/food), applies non-destructive edit stack. Original untouched.')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/><path d="M4 20l2-1.5L8 20l-2 1.5z"/><path d="M18 4l1-.5L20 4l-1 .5z"/></svg>
-        <div class="l">Auto-enhance</div>
-        <div class="s">Non-destructive</div>
+      <button class="mo-tool" onclick="openUpscale(document.getElementById('cm-img').src)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6M3 3v6M21 3h-6M21 3v6M3 21h6M3 21v-6M21 21h-6M21 21v-6"/><path d="M8 12l4-4 4 4M12 8v8"/></svg>
+        <div class="l">Upscale &amp; enhance</div>
+        <div class="s">Real-ESRGAN · 2× / 4×</div>
       </button>
       <button class="mo-tool" onclick="const n = prompt('Photo diary note — will be searchable across your library:'); if(n) alert('Saved: ' + n)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H4z"/><line x1="7" y1="10" x2="17" y2="10"/><line x1="7" y1="14" x2="17" y2="14"/><line x1="7" y1="18" x2="12" y2="18"/></svg>
@@ -1685,6 +1756,62 @@ main{position:relative;padding-top:0;padding-bottom:80px}
     </div>
 
     <div class="modal-info-grid" id="cm-info"></div>
+  </div>
+</div>
+
+<!-- ============================== UPSCALE + COMPARE MODAL ============================== -->
+<div class="backdrop" id="upscaleBackdrop" onclick="closeUpscale()"></div>
+<div class="upscale-modal" id="upscaleModal">
+  <div class="upscale-head">
+    <div>
+      <h3>On-device <em>upscale.</em></h3>
+      <div class="up-model-picker">
+        <button class="up-model on" data-scale="2">Real-ESRGAN · 2×</button>
+        <button class="up-model" data-scale="4">Real-ESRGAN · 4×</button>
+        <button class="up-model" data-scale="face">GFPGAN · Face-focus</button>
+      </div>
+    </div>
+    <div class="sizes">
+      <span id="upBefore"><b>1 200×900</b></span>
+      <span class="arrow">→</span>
+      <span id="upAfter"><b>2 400×1 800</b></span>
+    </div>
+  </div>
+
+  <!-- Running state -->
+  <div class="up-progress" id="upProgress" hidden>
+    <div class="up-progress-head">
+      <div class="lbl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Real-ESRGAN running · <span id="upStep">Loading model</span></div>
+      <div class="pct" id="upPct">0%</div>
+    </div>
+    <div class="up-progress-track"><div class="up-progress-fill" id="upFill" style="width:0%"></div></div>
+    <div class="up-progress-note">
+      Model + weights load once per session (~1.2 s), then each shot lands in ~4–8 s on your GPU. <b>Nothing leaves your machine.</b> Original file stays put in your library — this is non-destructive.
+    </div>
+  </div>
+
+  <!-- Result: draggable before/after slider -->
+  <div class="compare-wrap" id="compareWrap" hidden>
+    <img class="before" id="cmpBefore" src="" alt="">
+    <img class="after"  id="cmpAfter"  src="" alt="">
+    <div class="cmp-label before">Before · 1200×900</div>
+    <div class="cmp-label after">After · 2400×1800</div>
+    <div class="handle">
+      <div class="handle-dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></div>
+    </div>
+  </div>
+
+  <div class="upscale-stats" id="upStats" hidden>
+    <div class="upscale-stat"><div class="l">Sharpness</div><div class="v">+ 42 <em>points</em></div></div>
+    <div class="upscale-stat"><div class="l">Detail recovery</div><div class="v">Textures, edges</div></div>
+    <div class="upscale-stat"><div class="l">Model</div><div class="v">Real-ESRGAN 4×</div></div>
+    <div class="upscale-stat"><div class="l">Time</div><div class="v">6.3<em> s</em></div></div>
+  </div>
+
+  <div class="upscale-actions" id="upActions" hidden>
+    <button class="save-new" onclick="closeUpscale()">💾 Save as new file</button>
+    <button class="replace"  onclick="closeUpscale()">↺ Replace original (backed up)</button>
+    <button class="discard"  onclick="closeUpscale()">Discard</button>
   </div>
 </div>
 
@@ -2334,6 +2461,152 @@ function playFeaturedEvent() {
         subhead: 'A featured event · Auto-clustered',
         byline: '2026 · Valletta · Sliema · Comino',
     }, () => openEvent());
+}
+
+/* ================================================================
+   Upscale + before/after compare-slider controller.
+   Simulates a Real-ESRGAN pass (3 stages, ~3s), then swaps the modal
+   into compare mode with a draggable wipe handle. Non-destructive:
+   the "save" action doesn't touch the mock library — real Rust side
+   writes to a new filename and offers restore.
+   ================================================================ */
+let _upSrc = null;
+let _upScale = 2;
+function openUpscale(imgSrc) {
+    _upSrc = imgSrc;
+    // Detect selected model
+    document.querySelectorAll('.up-model').forEach(b => b.classList.remove('on'));
+    const first = document.querySelector('.up-model[data-scale="2"]');
+    if (first) first.classList.add('on');
+    _upScale = 2;
+
+    // Reset visual state
+    document.getElementById('upProgress').hidden = false;
+    document.getElementById('compareWrap').hidden = true;
+    document.getElementById('upStats').hidden = true;
+    document.getElementById('upActions').hidden = true;
+    document.getElementById('upFill').style.width = '0%';
+    document.getElementById('upPct').textContent = '0%';
+    document.getElementById('upStep').textContent = 'Loading model';
+
+    document.getElementById('upscaleBackdrop').classList.add('on');
+    document.getElementById('upscaleModal').classList.add('on');
+
+    // Update dimension pill up top
+    const dims = _guessDims(imgSrc);
+    document.getElementById('upBefore').innerHTML = `<b>${dims.w}×${dims.h}</b>`;
+    document.getElementById('upAfter').innerHTML  = `<b>${dims.w * _upScale}×${dims.h * _upScale}</b>`;
+
+    // Wire model picker
+    document.querySelectorAll('.up-model').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.up-model').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on');
+            const s = btn.getAttribute('data-scale');
+            _upScale = (s === 'face') ? 1 : parseInt(s, 10);
+            document.getElementById('upAfter').innerHTML = `<b>${dims.w * (_upScale || 1)}×${dims.h * (_upScale || 1)}</b>`;
+        };
+    });
+
+    _runUpscaleSim();
+}
+
+function _guessDims(src) {
+    // Mock: infer from filename hints; real Rust side pulls exif dims
+    if (/portrait/i.test(src)) return { w: 896,  h: 1152 };
+    if (/story|tiktok/i.test(src)) return { w: 720, h: 1280 };
+    if (/square|starred|still/i.test(src)) return { w: 1024, h: 1024 };
+    return { w: 1344, h: 768 };
+}
+
+function _runUpscaleSim() {
+    const steps = [
+        { pct: 12,  label: 'Loading model'      },
+        { pct: 28,  label: 'Analysing scene'    },
+        { pct: 52,  label: 'Reconstructing detail' },
+        { pct: 78,  label: 'Restoring textures' },
+        { pct: 96,  label: 'Sharpening edges'   },
+        { pct: 100, label: 'Done'                },
+    ];
+    let i = 0;
+    const tick = () => {
+        if (i >= steps.length) {
+            _revealCompare();
+            return;
+        }
+        const s = steps[i++];
+        document.getElementById('upFill').style.width = s.pct + '%';
+        document.getElementById('upPct').textContent = s.pct + '%';
+        document.getElementById('upStep').textContent = s.label;
+        setTimeout(tick, i === 1 ? 350 : 500);
+    };
+    tick();
+}
+
+function _revealCompare() {
+    document.getElementById('upProgress').hidden = true;
+    const before = document.getElementById('cmpBefore');
+    const after  = document.getElementById('cmpAfter');
+    before.src = _upSrc;
+    after.src  = _upSrc;
+    // Update label pills to reflect scale
+    const dims = _guessDims(_upSrc);
+    const wrap = document.getElementById('compareWrap');
+    wrap.hidden = false;
+    wrap.querySelector('.cmp-label.before').textContent = `Before · ${dims.w}×${dims.h}`;
+    wrap.querySelector('.cmp-label.after').textContent  = `After · ${dims.w * (_upScale || 1)}×${dims.h * (_upScale || 1)}`;
+
+    document.getElementById('upStats').hidden = false;
+    document.getElementById('upActions').hidden = false;
+    _initCompareSlider();
+}
+
+let _cmpHandlers = null;
+function _initCompareSlider() {
+    const wrap = document.getElementById('compareWrap');
+    wrap.style.setProperty('--split', '50%');
+
+    // Detach previous run's window listeners so they don't accumulate
+    if (_cmpHandlers) {
+        window.removeEventListener('mousemove', _cmpHandlers.move);
+        window.removeEventListener('touchmove', _cmpHandlers.move);
+        window.removeEventListener('mouseup',   _cmpHandlers.up);
+        window.removeEventListener('touchend',  _cmpHandlers.up);
+    }
+
+    const set = (clientX) => {
+        const rect = wrap.getBoundingClientRect();
+        const raw = ((clientX - rect.left) / rect.width) * 100;
+        const pct = Math.max(4, Math.min(96, raw));
+        wrap.style.setProperty('--split', pct + '%');
+    };
+
+    let dragging = false;
+    const down = (e) => {
+        dragging = true;
+        const x = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        set(x);
+        e.preventDefault();
+    };
+    const move = (e) => {
+        if (!dragging) return;
+        const x = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+        set(x);
+    };
+    const up = () => { dragging = false; };
+
+    wrap.onmousedown  = down;
+    wrap.ontouchstart = down;
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move, { passive: true });
+    window.addEventListener('mouseup',   up);
+    window.addEventListener('touchend',  up);
+    _cmpHandlers = { move, up };
+}
+
+function closeUpscale() {
+    document.getElementById('upscaleModal').classList.remove('on');
+    document.getElementById('upscaleBackdrop').classList.remove('on');
 }
 
 /* ================================================================
