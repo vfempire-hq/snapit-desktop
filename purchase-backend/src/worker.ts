@@ -76,6 +76,12 @@ export default {
             if (url.pathname === '/reissue' && req.method === 'POST') {
                 return await handleReissue(req, env);
             }
+            if (url.pathname === '/reviews' && req.method === 'GET') {
+                return await handleReviewsGet(req, env);
+            }
+            if (url.pathname === '/reviews' && req.method === 'POST') {
+                return await handleReviewsPost(req, env);
+            }
             if (url.pathname.startsWith('/updates/')) {
                 // Keep serving update manifests so existing v0.1.6+ users can
                 // still receive future patches. Existing customers > website noise.
@@ -482,4 +488,79 @@ async function deliverLicenceEmail(
     //     ],
     //   }),
     // });
+}
+
+// ============================================================================
+// REVIEWS — user feedback that shows up both inside the app AND on the site.
+// Stored in the LICENCES KV under keys `review:<id>`, plus an index list at
+// `review:index` (JSON array of ids). Both endpoints CORS-open for the site.
+// ============================================================================
+interface Review {
+    id: string;
+    rating: number;    // 1..5
+    title: string;
+    body: string;
+    name: string;      // display name
+    platform: 'macos' | 'windows' | 'linux' | 'app';
+    tier?: string;
+    created_at: string;
+    verified: boolean; // set true if the client sent a licence key we can verify
+}
+
+async function handleReviewsGet(req: Request, env: Env): Promise<Response> {
+    const listRaw = await env.LICENCES.get('review:index');
+    const ids: string[] = listRaw ? JSON.parse(listRaw) : [];
+    // Return the most recent 50 in newest-first order
+    const recent = ids.slice(-50).reverse();
+    const reviews: Review[] = [];
+    for (const id of recent) {
+        const raw = await env.LICENCES.get(`review:${id}`);
+        if (raw) reviews.push(JSON.parse(raw));
+    }
+    const avg = reviews.length
+        ? +(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(2)
+        : null;
+    return json({ reviews, count: reviews.length, average: avg });
+}
+
+async function handleReviewsPost(req: Request, env: Env): Promise<Response> {
+    let payload: any;
+    try { payload = await req.json(); } catch { return json({ error: 'bad_json' }, 400); }
+    const rating = Number(payload.rating);
+    const title  = String(payload.title || '').trim().slice(0, 120);
+    const body   = String(payload.body  || '').trim().slice(0, 2000);
+    const name   = String(payload.name  || 'Anonymous').trim().slice(0, 60);
+    const platform = ['macos','windows','linux','app'].includes(payload.platform) ? payload.platform : 'app';
+    if (!(rating >= 1 && rating <= 5)) return json({ error: 'bad_rating' }, 400);
+    if (!body || body.length < 4) return json({ error: 'body_too_short' }, 400);
+
+    // Optional: try to verify the licence key so we can tag the review
+    let verified = false;
+    let tier: string | undefined;
+    if (payload.licence_key) {
+        const lk = await env.LICENCES.get(String(payload.licence_key));
+        if (lk) {
+            try {
+                const rec = JSON.parse(lk);
+                verified = true;
+                tier = rec.tier;
+            } catch { /* ignore */ }
+        }
+    }
+
+    const id = crypto.randomUUID().slice(0, 8);
+    const review: Review = {
+        id, rating, title, body, name, platform, tier,
+        created_at: new Date().toISOString(),
+        verified,
+    };
+    await env.LICENCES.put(`review:${id}`, JSON.stringify(review));
+
+    // Append to the index
+    const listRaw = await env.LICENCES.get('review:index');
+    const ids: string[] = listRaw ? JSON.parse(listRaw) : [];
+    ids.push(id);
+    await env.LICENCES.put('review:index', JSON.stringify(ids));
+
+    return json({ ok: true, review });
 }
