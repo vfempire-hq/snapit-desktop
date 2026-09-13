@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SnapIT — own your photo library. · VF Empire</title>
-<meta name="description" content="SnapIT is a photo library manager that keeps every photo on your own storage. On-device AI. No cloud. Try free for 14 days, then €69 forever.">
+<title>SnapIT — every photo, every video, one library. · VF Empire</title>
+<meta name="description" content="SnapIT scans your whole life — phone, laptop, drives — and files every photo and video into one Netflix-style library on your own storage. Coming soon.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5f5f7'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%231d1d1f' text-anchor='middle'%3EVF%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://checkout.stripe.com">
 <style>
 @font-face{font-family:'Hanken';src:url('/fonts/hanken.woff2') format('woff2');font-weight:100 900;font-display:swap}
 @font-face{font-family:'Instrument';src:url('/fonts/instrument-italic.woff2') format('woff2');font-style:italic;font-display:swap}
@@ -30,101 +29,78 @@ a{text-decoration:none;color:inherit}
 em.i{font-family:'Instrument',serif;font-style:italic;font-weight:400;letter-spacing:0;color:var(--core)}
 ::selection{background:var(--core);color:#fff}
 
-/* NAV */
 .nav{position:sticky;top:0;z-index:100;background:rgba(251,251,253,.86);backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .nav .in{max-width:1200px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:36px}
 .nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:13.5px;letter-spacing:.06em;color:var(--ink)}
-.nav .brand svg{display:block}
-.nav .cta{margin-left:auto;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:#fff;
-  background:var(--ink);padding:8px 18px;border-radius:99px;transition:background .25s,transform .25s}
-.nav .cta:hover{background:var(--core);transform:translateY(-1px)}
 .nav .parent{font-size:12.5px;color:var(--dove);letter-spacing:.02em}
 .nav .parent:hover{color:var(--core)}
+.nav .status{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--core);text-transform:uppercase}
 
-/* HERO */
 .wrap{max-width:1100px;margin:0 auto;padding:0 28px}
-.hero{padding:96px 0 40px;text-align:center}
-.eb{color:var(--core);font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:24px;font-weight:600}
-h1{font-size:78px;line-height:1.02;letter-spacing:-.028em;margin:0 0 24px;font-weight:600}
-.sub{color:var(--dove);font-size:20px;max-width:640px;margin:0 auto 42px}
-.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 30px;border-radius:99px;
-  font-size:14.5px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:inherit;
-  transition:transform .18s,background .2s,color .2s,border-color .2s;text-decoration:none}
-.btn.pri{background:var(--ink);color:#fff}
-.btn.pri:hover{background:var(--core);transform:translateY(-1px)}
-.btn.sec{background:transparent;color:var(--ink);border-color:var(--line)}
-.btn.sec:hover{border-color:var(--ink);transform:translateY(-1px)}
 
-.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:36px 0 0}
+.hero{padding:96px 0 48px;text-align:center}
+.eb{color:var(--core);font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:24px;font-weight:600}
+h1{font-size:78px;line-height:1.02;letter-spacing:-.028em;margin:0 0 22px;font-weight:600}
+h1 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
+.sub{color:var(--dove);font-size:20px;max-width:700px;margin:0 auto 40px}
+
+.waitlist{max-width:520px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:20px;
+  padding:30px 34px;box-shadow:0 20px 60px -40px rgba(29,29,31,.2)}
+.waitlist .k{color:var(--core);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.waitlist h3{font-size:22px;letter-spacing:-.015em;margin:0 0 12px;font-weight:600}
+.waitlist p{color:var(--dove);font-size:14px;margin:0 0 20px}
+.waitlist form{display:flex;gap:8px;flex-wrap:wrap}
+.waitlist input{flex:1;min-width:0;padding:14px 18px;border-radius:99px;border:1px solid var(--line);
+  font-family:inherit;font-size:14px;background:var(--silver);color:var(--ink);outline:none;
+  transition:border-color .2s,background .2s}
+.waitlist input:focus{border-color:var(--core);background:#fff}
+.waitlist button{padding:14px 26px;border-radius:99px;border:none;background:var(--ink);color:#fff;
+  font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;transition:background .2s,transform .18s}
+.waitlist button:hover{background:var(--core);transform:translateY(-1px)}
+.waitlist button:disabled{opacity:.5;cursor:default;transform:none}
+.waitlist .thanks{color:var(--core);font-weight:600;font-size:14px;margin-top:6px}
+.waitlist .err{color:#b02a2a;font-size:13px;margin-top:6px}
+.waitlist .fine{color:var(--dove);font-size:11.5px;margin-top:14px}
+
+.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:40px 0 0}
 .chip{border:1px solid var(--line);padding:8px 16px;border-radius:99px;font-size:11.5px;
   color:var(--dove);letter-spacing:.02em;background:#fff}
 
-/* THREE-UP TILES */
 .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:88px 0 0}
 .tile{background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px;transition:transform .22s,box-shadow .22s}
 .tile:hover{transform:translateY(-2px);box-shadow:0 24px 60px -30px rgba(29,29,31,.15)}
 .tile h3{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:0 0 10px}
 .tile p{color:var(--dove);margin:0;font-size:14.5px}
+.tile .n{color:var(--core);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:block}
 
-/* FEATURES */
-.feats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:36px auto 0;max-width:860px}
-.ft{display:flex;gap:12px;padding:14px 18px;background:#fff;border:1px solid var(--line);border-radius:14px;align-items:flex-start}
-.ft .dot{color:var(--core);font-size:14px;line-height:1.55;flex-shrink:0}
-.ft .txt{color:var(--ink);font-size:14px}
-.ft .txt b{color:var(--core);font-weight:600}
+.build{margin:56px auto 0;max-width:900px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px 36px}
+.build h3{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:0 0 22px}
+.wave{display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--mist)}
+.wave:first-of-type{border-top:none;padding-top:2px}
+.wave .badge{flex-shrink:0;width:120px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--dove)}
+.wave .badge.now{color:var(--core)}
+.wave .badge.next{color:var(--ink)}
+.wave .txt{flex:1;font-size:14.5px;color:var(--ink)}
+.wave .txt b{font-weight:600}
 
-/* DOWNLOAD */
-.dl{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px auto 0;max-width:860px}
-.dc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;transition:border-color .18s}
-.dc:hover{border-color:var(--core)}
-.dc .os{color:var(--core);font-size:11px;letter-spacing:.24em;text-transform:uppercase;margin-bottom:10px;font-weight:700}
-.dc .file{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11.5px;color:var(--dove);margin-top:10px}
-.dc a{display:inline-block;margin-top:6px;padding:10px 20px;border-radius:99px;background:var(--ink);color:#fff;font-weight:600;font-size:13px;transition:background .2s}
-.dc a:hover{background:var(--core);text-decoration:none}
-.dc .alt{display:block;font-size:11.5px;color:var(--dove);margin-top:8px}
-.dc .alt a{background:transparent;color:var(--core);padding:2px 4px;font-size:11.5px;text-decoration:underline;font-weight:500}
-.dc .alt a:hover{background:transparent}
-
-/* PRICING */
-.pricing{margin:40px auto 0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:860px}
-.plan{background:#fff;border:1px solid var(--line);border-radius:20px;padding:34px}
-.plan.featured{border-color:var(--core);box-shadow:0 0 0 3px var(--glow)}
-.plan .name{font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--core);font-weight:700}
-.plan .price{font-size:56px;line-height:1;margin:14px 0 6px;font-weight:600;letter-spacing:-.02em}
-.plan .price small{font-size:14px;color:var(--dove);font-weight:500;margin-left:6px;letter-spacing:0}
-.plan .planSub{color:var(--dove);font-size:14px;margin:0 0 20px}
-.plan ul{margin:0 0 26px;padding:0;list-style:none;font-size:14.5px}
-.plan li{margin:8px 0;color:var(--ink);position:relative;padding-left:20px}
-.plan li::before{content:"";width:6px;height:6px;background:var(--core);border-radius:50%;position:absolute;left:2px;top:9px}
-.plan .buy{width:100%}
-
-/* SECTION HEADS */
-h2{font-size:44px;letter-spacing:-.025em;text-align:center;margin:88px 0 20px;font-weight:600}
-h2 span.mute{color:var(--dove);font-weight:500}
+h2{font-size:44px;letter-spacing:-.025em;text-align:center;margin:96px 0 20px;font-weight:600}
+h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 .lead{color:var(--dove);font-size:16px;text-align:center;max-width:640px;margin:0 auto 40px}
 .lead b{color:var(--ink);font-weight:600}
 
-/* INLINE CODE */
-code{background:var(--silver);border:1px solid var(--line);border-radius:6px;padding:3px 8px;
-  font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:12.5px;color:var(--ink)}
-
-/* WINDOWS SMARTSCREEN NOTE */
-.note{max-width:860px;margin:20px auto 0;background:#fff8e6;border:1px solid #f0d78a;border-radius:14px;padding:18px 22px;font-size:13.5px;color:#5a4c1e}
-.note b{color:#3d3410}
-
-/* FOOTER */
 .foot{border-top:1px solid var(--line);margin-top:96px;padding:32px 0;color:var(--dove);
   font-size:12.5px;text-align:center;background:var(--silver)}
 .foot a{color:var(--dove)}
 .foot a:hover{color:var(--core)}
 
 @media (max-width:760px){
-  h1{font-size:48px}
-  .tri,.pricing,.dl,.feats{grid-template-columns:1fr}
+  h1{font-size:44px}
+  .tri{grid-template-columns:1fr}
   .hero{padding:60px 0 20px}
   h2{font-size:32px;margin:60px 0 16px}
+  .wave{flex-direction:column;gap:6px}
+  .wave .badge{width:auto}
 }
 </style>
 </head>
@@ -137,136 +113,94 @@ code{background:var(--silver);border:1px solid var(--line);border-radius:6px;pad
       VF EMPIRE
     </a>
     <a class="parent" href="https://vfempire.com/systems/snapit">P·20 · SnapIT</a>
-    <a class="cta" href="#download">Try free</a>
+    <span class="status">In build</span>
   </div>
 </nav>
 
 <div class="wrap">
 
   <section class="hero">
-    <div class="eb">P·20 · Media · Public beta</div>
-    <h1>Own your photo <em class="i">library.</em></h1>
+    <div class="eb">P·20 · Media · In build</div>
+    <h1>Every photo, every video,<br><em>one library.</em></h1>
     <p class="sub">
-      Your photos live on your own storage. On-device AI does the searching and the faces.
-      No cloud to lose them to, no subscription to trap you, no training on your library. One price. Forever.
+      SnapIT looks at every drive you own — phone, laptop, PC, NAS, backups — finds every photo and every video,
+      and files the whole thing into one place. Netflix-style rows by year, event and person. On your storage. Read by no one else.
     </p>
-    <div class="cta-row">
-      <a href="#download" class="btn pri">Try free for 14 days</a>
-      <a href="#buy" class="btn sec">Buy — €69</a>
-    </div>
+
+    <form class="waitlist" id="waitform">
+      <div class="k">Early access</div>
+      <h3>Get an invite when we open the beta.</h3>
+      <p>We're finishing the full-system scan, video support, event clustering and the Netflix-style browser. When it's ready, you'll be first in the door.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="email" type="email" required placeholder="you@wherever.com">
+        <button type="submit">Join the list</button>
+      </div>
+      <p class="fine">One email, no marketing junk. You'll hear from us the day the private beta opens. Unsubscribe with one click.</p>
+    </form>
+
     <div class="chips">
-      <span class="chip">macOS 11+ · Windows 10+ · Linux</span>
-      <span class="chip">One-off €69 · No subscription</span>
+      <span class="chip">macOS · Windows · Linux</span>
+      <span class="chip">Founding price €59 · One-off · No subscription</span>
       <span class="chip">No cloud · No telemetry</span>
       <span class="chip">Portable library format</span>
     </div>
   </section>
 
-  <section class="tri">
-    <div class="tile">
-      <h3>Point at a folder.</h3>
-      <p>Existing folders on local disk or NAS become your library. Nothing moves. Nothing is renamed. The catalog lives inside the folder itself — take the drive, take the library.</p>
+  <section>
+    <h2>What SnapIT does <em>differently.</em></h2>
+    <div class="tri">
+      <div class="tile">
+        <span class="n">Whole-system scan</span>
+        <h3>Every drive you own.</h3>
+        <p>Point SnapIT at your phone, your laptop, the NAS in the cupboard, the external drive in the drawer. It reads every image and every video on every one of them and files them together — deduplicated, dated, organised — in a single library on the storage you pick.</p>
+      </div>
+      <div class="tile">
+        <span class="n">Events, not folders</span>
+        <h3>Sorted by story.</h3>
+        <p>Photos already know when they were taken, where, on what camera. SnapIT clusters them into events the way you'd remember them — the weekend away, the kitchen renovation, the birthday — and gives you a browser that reads like a story of the year, not a filesystem tree.</p>
+      </div>
+      <div class="tile">
+        <span class="n">Netflix-style library</span>
+        <h3>Built for the pile.</h3>
+        <p>Ten years of camera roll, one wall of tiles: rows for years, rows for people, rows for places, rows for events. Photos and videos in the same grid. Duplicates folded automatically. Nothing to name, nothing to file by hand.</p>
+      </div>
     </div>
-    <div class="tile">
-      <h3>On-device AI.</h3>
-      <p>Face clustering and semantic search run here — on your CPU and GPU. No photo leaves the device. Ever.</p>
+  </section>
+
+  <section class="build">
+    <h3>What we're building right now.</h3>
+    <div class="wave">
+      <span class="badge now">Now</span>
+      <span class="txt"><b>Whole-system source graph.</b> Reading every drive, phone backup and cloud-takeout dump you point at, resolving the same file across all of them so nothing gets duplicated when it's actually the same photo on three devices.</span>
     </div>
-    <div class="tile">
-      <h3>Non-destructive edits.</h3>
-      <p>Every edit lives as an ordered stack in our SQLite catalog and XMP sidecars Lightroom and Bridge understand. Originals stay untouched.</p>
+    <div class="wave">
+      <span class="badge now">Now</span>
+      <span class="txt"><b>Video support.</b> Every format phones and cameras write, thumbnails from the first real frame, filed side-by-side with photos in the same library. Playback in the app, no external player required.</span>
+    </div>
+    <div class="wave">
+      <span class="badge now">Now</span>
+      <span class="txt"><b>Metadata repair.</b> WhatsApp and most messengers strip the story out of every photo they send. SnapIT reads the filename patterns, folder context and temporal neighbours to put the date, place and event back — and always says when a field was inferred vs. read.</span>
+    </div>
+    <div class="wave">
+      <span class="badge next">Next</span>
+      <span class="txt"><b>Event clustering.</b> Break the timeline into the events a human would remember — the trip, the birthday, the site visit — using time, place, camera and burst structure. Every event gets its own row in the browser.</span>
+    </div>
+    <div class="wave">
+      <span class="badge next">Next</span>
+      <span class="txt"><b>Netflix-style browser.</b> The R·01 grid becomes rows: Year, People, Places, Events, Recent, Highlights. Every row scrolls independently, big posters, keyboard-only navigable, same visual language as our video studio.</span>
+    </div>
+    <div class="wave">
+      <span class="badge next">Next</span>
+      <span class="txt"><b>Face grouping.</b> On-device face embeddings, cluster the same person across a decade of photos. Nothing leaves the machine. Fully opt-in — off by default, one toggle to enable, one to erase the whole face index.</span>
     </div>
   </section>
 
   <section>
-    <h2>What's in the box today.</h2>
-    <p class="lead">
-      SnapIT ships in <b>waves</b>, not <b>promises</b>. Everything below works right now on Linux, Windows and macOS.
-      Face clustering, semantic search and RAW dev are the next wave.
-    </p>
-    <div class="feats">
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Fast library scan</b> — parallel walk, blake3 hashes, EXIF and XMP sidecars, live progress</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Folder watch</b> — new photos appear as your camera dumps them</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Text search</b> — filename, camera, date, XMP caption, keywords</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Star rating</b> — clickable stars with two-way XMP sync to Lightroom, Bridge, Darktable</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Filter by rating</b> — one click, only 4-5 stars</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Duplicate cleanup</b> — content-hash groups sorted by wasted space</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Export</b> — bake edit stack into JPEG (quality plus optional resize)</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Reveal in Finder / Explorer / Files</b> — one-click jump to the OS file manager</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Signed auto-updater</b> — minisign verified, opt-in dialog</span></div>
-      <div class="ft"><span class="dot">●</span><span class="txt"><b>Remembers your library</b> — reopens straight into your grid on launch</span></div>
-    </div>
-  </section>
-
-  <section id="download">
-    <h2>Download the trial.</h2>
-    <p class="lead">
-      14 days, everything unlocked. No card. When you buy, drop the licence file into SnapIT and the trial nag disappears.
-    </p>
-    <div class="dl">
-      <div class="dc">
-        <div class="os">macOS</div>
-        <a href="/downloads/mac-arm64">Apple Silicon</a>
-        <span class="alt"><a href="/downloads/mac-intel">Intel Mac</a></span>
-        <div class="file">.dmg · macOS 11+</div>
-      </div>
-      <div class="dc">
-        <div class="os">Windows</div>
-        <a href="/downloads/win-setup">Installer</a>
-        <span class="alt"><a href="/downloads/win-msi">MSI (admins)</a></span>
-        <div class="file">.exe · Windows 10+</div>
-      </div>
-      <div class="dc">
-        <div class="os">Linux</div>
-        <a href="/downloads/linux-appimage">AppImage</a>
-        <span class="alt"><a href="/downloads/linux-deb">.deb (Debian / Ubuntu)</a></span>
-        <div class="file">portable · x86_64</div>
-      </div>
-    </div>
-    <div class="note">
-      <b>Windows SmartScreen warning:</b> Windows will flag the installer as "unrecognised" the first time you run it — expected on any small publisher's app until we pay Microsoft's reputation tax. Click <b>More info</b> then <b>Run anyway</b>. The installer's minisign signature is verifiable at <a href="https://github.com/vfempire-hq/snapit-desktop/releases/latest">the release page</a>.
-    </div>
-  </section>
-
-  <section id="buy">
-    <h2>One price. <span class="mute">Forever.</span></h2>
-    <p class="lead">
-      No subscription. No pixel-storage-tier upsell. If a major version earns it, you can buy it for €29 —
-      but v1 stays v1. Your existing licence never expires.
-    </p>
-    <div class="pricing">
-      <div class="plan featured">
-        <div class="name">Personal</div>
-        <div class="price">€69<small>one-off</small></div>
-        <div class="planSub">One user, unlimited devices you own.</div>
-        <ul>
-          <li>Full library on your storage</li>
-          <li>On-device AI (faces, scenes, semantic search — R·02)</li>
-          <li>Non-destructive edits + XMP sidecars</li>
-          <li>Free minor updates forever within v1</li>
-        </ul>
-        <button class="btn pri buy" data-tier="personal">Buy SnapIT Personal — €69</button>
-      </div>
-      <div class="plan">
-        <div class="name">Family / Pro</div>
-        <div class="price">€129<small>one-off</small></div>
-        <div class="planSub">Up to 5 members in a household, or a freelance / small studio.</div>
-        <ul>
-          <li>Everything in Personal</li>
-          <li>Shared clusters across household members</li>
-          <li>LAN peer sync (R·02) between devices you own</li>
-          <li>Priority security response</li>
-        </ul>
-        <button class="btn sec buy" data-tier="family">Buy SnapIT Family / Pro — €129</button>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <h2>What SnapIT <em class="i">does not</em> do.</h2>
+    <h2>What SnapIT <em>does not</em> do.</h2>
     <div class="tri">
       <div class="tile"><h3>No cloud storage.</h3><p>We do not run a photo cloud. That is the exact model we exist to refuse.</p></div>
       <div class="tile"><h3>No telemetry.</h3><p>No analytics. No crash reports. No "usage reporting" toggle.</p></div>
-      <div class="tile"><h3>No training.</h3><p>Your library is never used to train any model — ours or anyone else's.</p></div>
+      <div class="tile"><h3>No training.</h3><p>Your library is never used to train any model — ours or anyone else's. Read the <a href="/permanence">permanence guarantee</a>.</p></div>
     </div>
   </section>
 
@@ -274,34 +208,39 @@ code{background:var(--silver);border:1px solid var(--line);border-radius:6px;pad
 
 <div class="foot">
   <div class="wrap">
-    SnapIT v0.1.7 · A VF Empire product · © 2026 VF Empire Corp Ltd · Malta C 94160 ·
-    <a href="mailto:support@vfempire.com">support@vfempire.com</a>
-    · <a href="https://github.com/vfempire-hq/snapit-desktop">source</a>
-    · <a href="/permanence">permanence guarantee</a>
-    · <a href="https://vfempire.com">vfempire.com</a>
+    SnapIT · A VF Empire product · © 2026 VF Empire Corp Ltd · Malta C 94160 ·
+    <a href="mailto:support@vfempire.com">support@vfempire.com</a> ·
+    <a href="/permanence">permanence guarantee</a> ·
+    <a href="https://vfempire.com">vfempire.com</a>
   </div>
 </div>
 
 <script>
-document.querySelectorAll(".buy").forEach(b => b.addEventListener("click", async () => {
-  const tier = b.dataset.tier;
-  const original = b.textContent;
-  b.disabled = true; b.textContent = "Opening Stripe…";
+document.getElementById('waitform').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const btn = ev.target.querySelector('button');
+  const email = document.getElementById('email').value.trim();
+  if (!email) return;
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'Saving…';
   try {
-    const r = await fetch("/checkout", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ tier }),
+    const r = await fetch('/waitlist', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email, product: 'snapit' }),
     });
-    if (!r.ok) throw new Error("checkout failed");
-    const { url } = await r.json();
-    window.location.href = url;
+    if (!r.ok) throw new Error('signup failed');
+    ev.target.innerHTML = '<div class="k">Early access</div><div class="thanks">You\'re on the list. We\'ll email you the moment the private beta opens.</div>';
   } catch (e) {
-    b.disabled = false;
-    b.textContent = original;
-    alert("Purchase temporarily unavailable — email support@vfempire.com and we'll invoice you directly.");
+    btn.disabled = false;
+    btn.textContent = orig;
+    const div = document.createElement('div');
+    div.className = 'err';
+    div.textContent = 'Could not save just now. Email support@vfempire.com and we\'ll add you by hand.';
+    ev.target.appendChild(div);
   }
-}));
+});
 </script>
 </body>
 </html>

@@ -36,11 +36,16 @@ type Env = {
     LICENCE_ISSUER: string;
 };
 
-type Tier = 'personal' | 'family' | 'pro';
+type Tier = 'personal' | 'family' | 'pro' | 'personal_founding' | 'family_founding' | 'pro_founding';
 const TIER_PRICES: Record<Tier, { amount_cents: number; label: string }> = {
-    personal: { amount_cents: 6900, label: 'SnapIT Personal — one photographer, perpetual licence' },
-    family:   { amount_cents: 12900, label: 'SnapIT Family — up to 5 devices in one household, perpetual licence' },
-    pro:      { amount_cents: 12900, label: 'SnapIT Pro — freelance / small studio, perpetual licence' },
+    // Standard tiers — active from launch day onward.
+    personal:          { amount_cents:  8900, label: 'SnapIT Personal — one owner, unlimited devices they own, perpetual licence'                          },
+    family:            { amount_cents: 14900, label: 'SnapIT Family Pack — up to 5 profiles in one household, perpetual licence'                            },
+    pro:               { amount_cents: 24900, label: 'SnapIT Pro / Studio — freelance and small studio, extended commercial licence, perpetual'            },
+    // Founding-customer offer — first 500 buyers of each tier, then removed from the checkout page.
+    personal_founding: { amount_cents:  5900, label: 'SnapIT Personal · Founding customer — one owner, unlimited devices, perpetual licence'                },
+    family_founding:   { amount_cents:  9900, label: 'SnapIT Family Pack · Founding customer — 5 profiles per household, perpetual licence'                 },
+    pro_founding:      { amount_cents: 19900, label: 'SnapIT Pro / Studio · Founding customer — extended commercial licence, perpetual'                     },
 };
 
 const CORS: Record<string, string> = {
@@ -58,8 +63,12 @@ export default {
         }
 
         try {
+            if (url.pathname === '/waitlist' && req.method === 'POST') {
+                return await handleWaitlist(req, env);
+            }
             if (url.pathname === '/checkout' && req.method === 'POST') {
-                return await handleCheckout(req, env);
+                // Sales are paused until the R·02 scope ships. Return a friendly 503.
+                return json({ error: 'sales_paused', message: 'SnapIT is in build. Join the waitlist at snapit.vfempire.com.' }, 503);
             }
             if (url.pathname === '/webhook/stripe' && req.method === 'POST') {
                 return await handleStripeWebhook(req, env, ctx);
@@ -68,10 +77,22 @@ export default {
                 return await handleReissue(req, env);
             }
             if (url.pathname.startsWith('/updates/')) {
+                // Keep serving update manifests so existing v0.1.6+ users can
+                // still receive future patches. Existing customers > website noise.
                 return await handleUpdateCheck(req, env, url);
             }
             if (url.pathname.startsWith('/downloads/')) {
-                return await handleDownload(req, env, url);
+                // Downloads paused until R·02 is complete. Redirect to the
+                // waitlist landing so anyone hitting a bookmarked link lands
+                // somewhere useful instead of a dead URL.
+                return new Response(null, {
+                    status: 302,
+                    headers: {
+                        location: 'https://snapit.vfempire.com/#waitform',
+                        'cache-control': 'no-store',
+                        ...CORS,
+                    },
+                });
             }
             // Fall through to static assets (product landing page for snapit.vfempire.com)
             return env.ASSETS.fetch(req);
@@ -81,6 +102,28 @@ export default {
         }
     },
 };
+
+// -------------------------------------------------------------------------
+// /waitlist — early-access email capture. Stored in KV keyed by email
+// so re-submits are idempotent. R·02 open-day: dump the list, mail
+// everyone a real download link.
+// -------------------------------------------------------------------------
+
+async function handleWaitlist(req: Request, env: Env): Promise<Response> {
+    const body = await req.json<{ email?: string; product?: string }>().catch(() => ({}));
+    const email = (body.email || '').trim().toLowerCase();
+    const product = (body.product || 'snapit').slice(0, 32);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+        return json({ error: 'invalid_email' }, 400);
+    }
+    // Store keyed by email so duplicates collapse. Also stamp signed_up_at
+    // for the eventual export.
+    await env.LICENCES.put(
+        `waitlist:${product}:${email}`,
+        JSON.stringify({ email, product, signed_up_at: new Date().toISOString() }),
+    );
+    return json({ ok: true });
+}
 
 // -------------------------------------------------------------------------
 // /checkout
