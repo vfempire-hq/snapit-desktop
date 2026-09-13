@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use serde::Serialize;
-use tauri::State;
+use tauri::{Emitter, State};
 
 mod ai;
 mod catalog;
@@ -66,9 +66,20 @@ async fn catalog_open(path: String, state: State<'_, AppState>) -> Result<Catalo
 }
 
 #[tauri::command]
-async fn library_scan(path: String, state: State<'_, AppState>) -> Result<u64, String> {
+async fn library_scan(
+    path: String,
+    state: State<'_, AppState>,
+    app: tauri::AppHandle,
+) -> Result<u64, String> {
+    use std::sync::Arc;
     let root = PathBuf::from(&path);
-    let ingested = storage::local::scan(&root).map_err(|e| e.to_string())?;
+    let app_for_cb = app.clone();
+    let cb: storage::local::ScanProgress = Arc::new(move |ev| {
+        // Best-effort emit — if the window is gone, ignore.
+        let _ = app_for_cb.emit("snapit://scan/progress", ev);
+    });
+    let ingested =
+        storage::local::scan_with_progress(&root, Some(cb)).map_err(|e| e.to_string())?;
     *state.last_scan_at.lock().unwrap() = Some(chrono::Utc::now());
     tracing::info!("scan finished: {} photos indexed under {}", ingested, path);
     Ok(ingested)

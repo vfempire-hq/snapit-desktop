@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { LibraryView } from "./pages/LibraryView";
 
@@ -10,9 +11,12 @@ type CatalogState = {
   last_scan_at: string | null;
 };
 
+type ScanProgress = { kind: string; total: number; done: number };
+
 export function App() {
   const [state, setState] = useState<CatalogState | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [progress, setProgress] = useState<ScanProgress | null>(null);
 
   const refresh = async () => {
     try {
@@ -25,6 +29,19 @@ export function App() {
 
   useEffect(() => {
     refresh();
+    const unlisten = listen<ScanProgress>("snapit://scan/progress", (ev) => {
+      setProgress(ev.payload);
+      if (ev.payload.kind === "finish") {
+        // Refresh catalog stats when scan actually settles.
+        setTimeout(() => {
+          refresh();
+          setProgress(null);
+        }, 400);
+      }
+    });
+    return () => {
+      unlisten.then((u) => u()).catch(() => {});
+    };
   }, []);
 
   const pickLibrary = async () => {
@@ -47,10 +64,30 @@ export function App() {
   if (!state) return <BootScreen />;
 
   if (!state.library_path) {
-    return <EmptyState onPick={pickLibrary} scanning={scanning} />;
+    return <EmptyState onPick={pickLibrary} scanning={scanning} progress={progress} />;
   }
 
-  return <LibraryView state={state} onRefresh={refresh} onRescan={pickLibrary} />;
+  return (
+    <>
+      <LibraryView state={state} onRefresh={refresh} onRescan={pickLibrary} />
+      {progress && progress.kind !== "finish" && <ProgressBar p={progress} />}
+    </>
+  );
+}
+
+function ProgressBar({ p }: { p: ScanProgress }) {
+  const pct = p.total > 0 ? Math.min(100, Math.round((p.done / p.total) * 100)) : 0;
+  return (
+    <div className="scan-toast">
+      <div className="scan-title">Scanning library…</div>
+      <div className="scan-track">
+        <div className="scan-fill" style={{ width: pct + "%" }} />
+      </div>
+      <div className="scan-meta">
+        {p.done.toLocaleString()} / {p.total.toLocaleString()} · {pct}%
+      </div>
+    </div>
+  );
 }
 
 function BootScreen() {
@@ -62,7 +99,15 @@ function BootScreen() {
   );
 }
 
-function EmptyState({ onPick, scanning }: { onPick: () => void; scanning: boolean }) {
+function EmptyState({
+  onPick,
+  scanning,
+  progress,
+}: {
+  onPick: () => void;
+  scanning: boolean;
+  progress: ScanProgress | null;
+}) {
   return (
     <div className="empty">
       <div className="empty-card">
@@ -79,6 +124,24 @@ function EmptyState({ onPick, scanning }: { onPick: () => void; scanning: boolea
         <button className="pri" onClick={onPick} disabled={scanning}>
           {scanning ? "Scanning…" : "Pick a folder to start your library"}
         </button>
+        {progress && progress.kind !== "finish" && (
+          <div className="scan-inline">
+            <div className="scan-track" style={{ margin: "18px 0 8px" }}>
+              <div
+                className="scan-fill"
+                style={{
+                  width:
+                    progress.total > 0
+                      ? Math.min(100, (progress.done / progress.total) * 100) + "%"
+                      : "0%",
+                }}
+              />
+            </div>
+            <div className="muted">
+              {progress.done.toLocaleString()} / {progress.total.toLocaleString()} photos indexed
+            </div>
+          </div>
+        )}
         <p className="fine">
           Your library never leaves this device unless you export it. On-device AI. No cloud.
         </p>

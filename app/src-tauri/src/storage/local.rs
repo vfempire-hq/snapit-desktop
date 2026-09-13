@@ -8,9 +8,12 @@ use anyhow::{Context, Result};
 use blake3::Hasher;
 use chrono::Utc;
 use rayon::prelude::*;
+use serde::Serialize;
 use std::fs;
 use std::io::Read;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use walkdir::WalkDir;
 
 use crate::catalog;
@@ -20,7 +23,21 @@ const IMAGE_EXTS: &[&str] = &[
     "cr2", "cr3", "nef", "arw", "dng", "rw2", "raf", "orf", "pef", "srw",
 ];
 
+/// Callback signature for progress reporting during a scan.
+pub type ScanProgress = Arc<dyn Fn(ScanProgressEvent) + Send + Sync>;
+
+#[derive(Clone, Serialize)]
+pub struct ScanProgressEvent {
+    pub kind: String, // "start" | "enumerated" | "progress" | "finish"
+    pub total: u64,
+    pub done: u64,
+}
+
 pub fn scan(library_root: &Path) -> Result<u64> {
+    scan_with_progress(library_root, None)
+}
+
+pub fn scan_with_progress(library_root: &Path, on_progress: Option<ScanProgress>) -> Result<u64> {
     // Ensure catalog is initialised
     catalog::open_or_init(library_root)?;
 
@@ -46,6 +63,11 @@ pub fn scan(library_root: &Path) -> Result<u64> {
     }
 
     tracing::info!("scan: {} candidate files under {:?}", candidates.len(), library_root);
+    let total = candidates.len() as u64;
+    if let Some(cb) = &on_progress {
+        cb(ScanProgressEvent { kind: "enumerated".into(), total, done: 0 });
+    }
+    let done_counter = Arc::new(AtomicU64::new(0));
 
     // Content-hash + EXIF in parallel; feed rows back to a serial writer.
     let (tx, rx) = crossbeam_channel::bounded::<catalog::UpsertPhoto<'static>>(0);
@@ -66,17 +88,26 @@ pub fn scan(library_root: &Path) -> Result<u64> {
     });
 
     // Producer side.
+    let done_for_workers = done_counter.clone();
+    let progress_for_workers = on_progress.clone();
     candidates.par_iter().for_each_with(tx, |tx, path| {
         if let Ok(row) = process_file(library_root, path) {
-            // We have to leak the strings for the channel type, but since the writer
-            // consumes them synchronously and drops them, this is a bounded leak
-            // scoped to a single scan pass. Simpler than lifetimes across threads.
             let leaked = leak_upsert(row);
             let _ = tx.send(leaked);
+        }
+        let done = done_for_workers.fetch_add(1, Ordering::Relaxed) + 1;
+        // Report every 10 files or on the last file.
+        if let Some(cb) = &progress_for_workers {
+            if done % 10 == 0 || done == total {
+                cb(ScanProgressEvent { kind: "progress".into(), total, done });
+            }
         }
     });
 
     let n = writer.join().unwrap()?;
+    if let Some(cb) = &on_progress {
+        cb(ScanProgressEvent { kind: "finish".into(), total, done: n });
+    }
     Ok(n)
 }
 
