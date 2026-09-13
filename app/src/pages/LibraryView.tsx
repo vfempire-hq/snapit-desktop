@@ -16,6 +16,7 @@ type Thumb = {
   taken_at: string | null;
   width: number;
   height: number;
+  xmp_rating: number | null;
 };
 
 export function LibraryView({
@@ -164,6 +165,11 @@ function PhotoCell({ t, onOpen }: { t: Thumb; onOpen: () => void }) {
           <div className="cell-err">×</div>
         ) : (
           <div className="cell-skel" />
+        )}
+        {t.xmp_rating != null && t.xmp_rating > 0 && (
+          <div className="cell-rating" title={`${t.xmp_rating}★`}>
+            {"★".repeat(t.xmp_rating)}
+          </div>
         )}
       </div>
       <div className="cell-caption">

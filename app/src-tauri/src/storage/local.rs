@@ -105,6 +105,17 @@ pub fn scan_with_progress(library_root: &Path, on_progress: Option<ScanProgress>
     });
 
     let n = writer.join().unwrap()?;
+
+    // Delete-sweep: anything in the catalog whose rel_path is NOT in this
+    // scan's `seen` list gets soft-deleted so it disappears from views.
+    let seen: Vec<String> = candidates
+        .iter()
+        .map(|p| rel_path_str(library_root, p))
+        .collect();
+    if let Ok(conn) = catalog::open(library_root) {
+        let _ = catalog::mark_deleted_except(&conn, &seen);
+    }
+
     if let Some(cb) = &on_progress {
         cb(ScanProgressEvent { kind: "finish".into(), total, done: n });
     }
@@ -132,6 +143,10 @@ struct RowOwned {
     orientation: Option<u32>,
     lat: Option<f64>,
     lon: Option<f64>,
+    xmp_rating: Option<i32>,
+    xmp_label: Option<String>,
+    xmp_caption: Option<String>,
+    xmp_keywords: Option<String>,
     imported_at: String,
 }
 
@@ -162,6 +177,9 @@ fn process_file(library_root: &Path, path: &Path) -> Result<RowOwned> {
     // EXIF (best-effort — fine for many jpeg/tiff/heif files).
     let (taken_at, camera_make, camera_model, orientation, lat, lon) = read_exif(path).unwrap_or_default();
 
+    // XMP sidecar (Lightroom/Darktable/Bridge)
+    let xmp = crate::storage::xmp::read(path);
+
     Ok(RowOwned {
         id: uuid::Uuid::now_v7().to_string(),
         rel_path: rel_path_str(library_root, path),
@@ -176,6 +194,10 @@ fn process_file(library_root: &Path, path: &Path) -> Result<RowOwned> {
         orientation,
         lat,
         lon,
+        xmp_rating: xmp.rating,
+        xmp_label: xmp.label,
+        xmp_caption: xmp.caption,
+        xmp_keywords: xmp.keywords,
         imported_at: Utc::now().to_rfc3339(),
     })
 }
@@ -251,6 +273,10 @@ fn leak_upsert(r: RowOwned) -> catalog::UpsertPhoto<'static> {
         orientation: r.orientation,
         lat: r.lat,
         lon: r.lon,
+        xmp_rating: r.xmp_rating,
+        xmp_label: r.xmp_label,
+        xmp_caption: r.xmp_caption,
+        xmp_keywords: r.xmp_keywords,
         imported_at: r.imported_at,
     }
 }

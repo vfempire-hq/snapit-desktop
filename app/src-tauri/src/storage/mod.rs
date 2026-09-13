@@ -6,3 +6,4 @@
 pub mod local;
 pub mod thumbs;
 pub mod watch;
+pub mod xmp;

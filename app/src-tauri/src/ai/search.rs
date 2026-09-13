@@ -18,6 +18,7 @@ pub struct SearchHit {
     pub taken_at: Option<String>,
     pub width: i64,
     pub height: i64,
+    pub xmp_rating: Option<i32>,
     pub score: f32,
 }
 
@@ -29,13 +30,16 @@ pub fn text_search(library_root: &Path, q: &str, limit: u32) -> Result<Vec<Searc
     }
     let like = format!("%{}%", q.to_lowercase());
     let mut stmt = conn.prepare(
-        "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0)
+        "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0),
+                xmp_rating
          FROM photos
          WHERE deleted_at IS NULL AND (
               LOWER(rel_path)    LIKE ?1
            OR LOWER(camera_make) LIKE ?1
            OR LOWER(camera_model) LIKE ?1
            OR LOWER(COALESCE(taken_at,'')) LIKE ?1
+           OR LOWER(COALESCE(xmp_caption,'')) LIKE ?1
+           OR LOWER(COALESCE(xmp_keywords,'')) LIKE ?1
          )
          ORDER BY COALESCE(taken_at, imported_at) DESC
          LIMIT ?2",
@@ -48,6 +52,7 @@ pub fn text_search(library_root: &Path, q: &str, limit: u32) -> Result<Vec<Searc
                 taken_at: r.get(2)?,
                 width: r.get(3)?,
                 height: r.get(4)?,
+                xmp_rating: r.get(5)?,
                 score: 1.0,
             })
         })?

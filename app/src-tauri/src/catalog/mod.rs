@@ -10,7 +10,7 @@ use rusqlite::{params, Connection};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
-pub const SCHEMA_VERSION: u32 = 1;
+pub const SCHEMA_VERSION: u32 = 2;
 pub const CATALOG_DIR: &str = "_snapit";
 pub const CATALOG_FILE: &str = "catalog.sqlite";
 
@@ -33,6 +33,29 @@ pub fn open_or_init(library_root: &Path) -> Result<()> {
     let conn = open(library_root)?;
     init_schema(&conn)?;
     Ok(())
+}
+
+fn migrate_1_to_2(conn: &Connection) -> Result<()> {
+    // v2 adds XMP columns. Use ALTER TABLE ADD COLUMN; SQLite doesn't have
+    // IF NOT EXISTS on ADD COLUMN so we swallow the "duplicate column" error.
+    let alters = &[
+        "ALTER TABLE photos ADD COLUMN xmp_rating INTEGER",
+        "ALTER TABLE photos ADD COLUMN xmp_label TEXT",
+        "ALTER TABLE photos ADD COLUMN xmp_caption TEXT",
+        "ALTER TABLE photos ADD COLUMN xmp_keywords TEXT",
+        "CREATE INDEX IF NOT EXISTS idx_photos_rating ON photos (xmp_rating)",
+    ];
+    for sql in alters {
+        let _ = conn.execute_batch(sql);
+    }
+    Ok(())
+}
+
+fn current_version(conn: &Connection) -> Result<u32> {
+    let v: Option<String> = conn
+        .query_row("SELECT value FROM meta WHERE key = 'schema_version'", [], |r| r.get(0))
+        .ok();
+    Ok(v.and_then(|s| s.parse().ok()).unwrap_or(0))
 }
 
 fn init_schema(conn: &Connection) -> Result<()> {
@@ -58,9 +81,14 @@ fn init_schema(conn: &Connection) -> Result<()> {
             orientation   INTEGER,                    -- EXIF orientation 1..8
             lat           REAL,
             lon           REAL,
+            xmp_rating    INTEGER,                    -- 0..5 stars from XMP sidecar
+            xmp_label     TEXT,                       -- color label (Red/Blue/…)
+            xmp_caption   TEXT,                       -- caption / description
+            xmp_keywords  TEXT,                       -- CSV of hierarchical keywords
             imported_at   TEXT NOT NULL,
             deleted_at    TEXT
         );
+        CREATE INDEX IF NOT EXISTS idx_photos_rating ON photos (xmp_rating);
         CREATE INDEX IF NOT EXISTS idx_photos_taken_at ON photos (taken_at);
         CREATE INDEX IF NOT EXISTS idx_photos_hash    ON photos (content_hash);
         CREATE INDEX IF NOT EXISTS idx_photos_perceptual ON photos (perceptual);
@@ -112,6 +140,11 @@ fn init_schema(conn: &Connection) -> Result<()> {
         );
         "#,
     )?;
+    // Idempotent forward migrations for pre-existing catalogs.
+    let cur = current_version(conn).unwrap_or(0);
+    if cur < 2 {
+        migrate_1_to_2(conn)?;
+    }
     conn.execute(
         "INSERT OR REPLACE INTO meta (key, value) VALUES ('schema_version', ?1)",
         params![SCHEMA_VERSION.to_string()],
@@ -136,6 +169,7 @@ pub struct PhotoRow {
     pub taken_at: Option<String>,
     pub width: i64,
     pub height: i64,
+    pub xmp_rating: Option<i32>,
 }
 
 pub fn path_and_hash_by_id(library_root: &Path, photo_id: &str) -> Result<(String, String)> {
@@ -151,7 +185,7 @@ pub fn path_and_hash_by_id(library_root: &Path, photo_id: &str) -> Result<(Strin
 pub fn recent(library_root: &Path, limit: u32) -> Result<Vec<PhotoRow>> {
     let conn = open(library_root)?;
     let mut stmt = conn.prepare(
-        "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0)
+        "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0), xmp_rating
          FROM photos
          WHERE deleted_at IS NULL
          ORDER BY COALESCE(taken_at, imported_at) DESC
@@ -165,6 +199,7 @@ pub fn recent(library_root: &Path, limit: u32) -> Result<Vec<PhotoRow>> {
                 taken_at: r.get(2)?,
                 width: r.get(3)?,
                 height: r.get(4)?,
+                xmp_rating: r.get(5)?,
             })
         })?
         .filter_map(|r| r.ok())
@@ -186,6 +221,10 @@ pub struct UpsertPhoto<'a> {
     pub orientation: Option<u32>,
     pub lat: Option<f64>,
     pub lon: Option<f64>,
+    pub xmp_rating: Option<i32>,
+    pub xmp_label: Option<String>,
+    pub xmp_caption: Option<String>,
+    pub xmp_keywords: Option<String>,
     pub imported_at: String,
 }
 
@@ -195,9 +234,10 @@ pub fn upsert(conn: &Connection, p: &UpsertPhoto<'_>) -> Result<()> {
         INSERT INTO photos (
             id, rel_path, content_hash, width, height, byte_size, mtime,
             taken_at, camera_make, camera_model, orientation, lat, lon,
+            xmp_rating, xmp_label, xmp_caption, xmp_keywords,
             imported_at
         )
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)
         ON CONFLICT(rel_path) DO UPDATE SET
             content_hash = excluded.content_hash,
             width        = excluded.width,
@@ -209,7 +249,12 @@ pub fn upsert(conn: &Connection, p: &UpsertPhoto<'_>) -> Result<()> {
             camera_model = excluded.camera_model,
             orientation  = excluded.orientation,
             lat          = excluded.lat,
-            lon          = excluded.lon
+            lon          = excluded.lon,
+            xmp_rating   = excluded.xmp_rating,
+            xmp_label    = excluded.xmp_label,
+            xmp_caption  = excluded.xmp_caption,
+            xmp_keywords = excluded.xmp_keywords,
+            deleted_at   = NULL
         "#,
         params![
             p.id,
@@ -225,8 +270,35 @@ pub fn upsert(conn: &Connection, p: &UpsertPhoto<'_>) -> Result<()> {
             p.orientation,
             p.lat,
             p.lon,
+            p.xmp_rating,
+            p.xmp_label,
+            p.xmp_caption,
+            p.xmp_keywords,
             p.imported_at,
         ],
     )?;
     Ok(())
+}
+
+/// Mark rel_paths that WERE in the catalog but are no longer on disk as
+/// soft-deleted. Called at the end of a scan pass.
+pub fn mark_deleted_except(conn: &Connection, seen: &[String]) -> Result<usize> {
+    // SQLite doesn't take arrays; build an ephemeral in-memory table.
+    conn.execute("CREATE TEMP TABLE IF NOT EXISTS seen_paths (rel_path TEXT PRIMARY KEY)", [])?;
+    conn.execute("DELETE FROM seen_paths", [])?;
+    let now = chrono::Utc::now().to_rfc3339();
+    let tx_conn = conn;
+    {
+        let mut stmt = tx_conn.prepare("INSERT OR IGNORE INTO seen_paths (rel_path) VALUES (?1)")?;
+        for p in seen {
+            let _ = stmt.execute(params![p]);
+        }
+    }
+    let n = tx_conn.execute(
+        "UPDATE photos SET deleted_at = ?1
+         WHERE deleted_at IS NULL
+           AND rel_path NOT IN (SELECT rel_path FROM seen_paths)",
+        params![now],
+    )?;
+    Ok(n)
 }
