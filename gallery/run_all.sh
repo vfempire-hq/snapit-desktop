@@ -21,7 +21,11 @@ regen_and_deploy() {
 for f in prompts/batch-03-landscape-volume.json \
          prompts/batch-04-portrait-volume.json \
          prompts/batch-05-square-volume.json \
-         prompts/batch-06-story-volume.json; do
+         prompts/batch-06-story-volume.json \
+         prompts/batch-07-locations.json \
+         prompts/batch-08-food-travel.json \
+         prompts/batch-09-fine-dining-business.json \
+         prompts/batch-10-adrenaline-stills.json; do
     log "== running $f =="
     python3 -u gen.py "$f"
     log "== batch done: $f =="

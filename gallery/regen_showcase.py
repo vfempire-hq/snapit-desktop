@@ -76,14 +76,17 @@ def scan_sections():
 
 def render_tile(section_id, name, url):
     """Single tile. Social tiles carry chrome markup that shows/hides via
-    the global 'Show platform chrome' toggle."""
+    the global 'Show platform chrome' toggle. Chrome pulls the per-image
+    metadata bank so the caption/handle/likes actually match the picture —
+    exactly what the real app does when it reads metadata from the catalog."""
     aspect = ASPECTS_BY_SECTION.get(section_id, "landscape")
     if section_id.startswith("social-"):
         brand = section_id.split("-", 1)[1]
+        meta = SOCIAL_META.get(name, SOCIAL_META_DEFAULT[brand])
         return f'''
         <div class="tile {aspect} social {brand}" onclick="lb(this)">
           <img src="{url}" alt="" loading="lazy">
-          {chrome_overlay(brand)}
+          {chrome_overlay(brand, meta)}
           <div class="tile-cap"><div class="name">{escape(name.replace("-"," "))}</div></div>
         </div>'''
     return f'''
@@ -92,14 +95,63 @@ def render_tile(section_id, name, url):
           <div class="tile-cap"><div class="name">{escape(name.replace("-"," "))}</div></div>
         </div>'''
 
-def chrome_overlay(brand):
-    """Return HTML for the platform UI chrome that would be baked into a screenshot."""
+# Per-image metadata bank — real app will read these from catalog columns
+# (xmp_caption / social_handle / social_likes / social_music / video_title).
+# For the mock we hand-curate a caption per image so the chrome matches.
+SOCIAL_META_DEFAULT = {
+    "instagram": {"handle":"vincent.f", "caption":"", "hashtag":"", "likes":"1 284"},
+    "tiktok":    {"handle":"vincent",   "caption":"", "hashtag":"", "likes":"128K",
+                  "comments":"2.8K", "saves":"12K", "music":"original sound — @vincent"},
+    "youtube":   {"title":"", "time":"4:12 / 12:38"},
+}
+SOCIAL_META = {
+    # Instagram
+    "ig-brunch":         {"handle":"vincent.f", "caption":"Sunday brunch, Maltese-style",   "hashtag":"#brunch #malta #ftira",       "likes":"2 143"},
+    "ig-latte-art":      {"handle":"elena.f",   "caption":"morning ritual",                  "hashtag":"#coffee #latteart #slowmornings", "likes":"1 892"},
+    "ig-outfit-flatlay": {"handle":"elena.f",   "caption":"summer packing done",             "hashtag":"#flatlay #ootd #summer",       "likes":"3 401"},
+    "ig-travel-selfie":  {"handle":"vincent.f", "caption":"favourite people, favourite place","hashtag":"#malta #couplegoals",         "likes":"5 218"},
+    "ig-yoga-beach":     {"handle":"elena.f",   "caption":"sunrise flow at Comino",          "hashtag":"#yoga #malta #wellness",       "likes":"4 129"},
+    "ig-book-shelf":     {"handle":"elena.f",   "caption":"stack for the week",              "hashtag":"#booklover #reading",          "likes":"1 072"},
+    "ig-flower-market":  {"handle":"elena.f",   "caption":"Saturday finds",                  "hashtag":"#flowers #market #slowmornings", "likes":"2 456"},
+
+    # TikTok
+    "tt-dance-clip":       {"handle":"sofia.f",  "caption":"trend attempt no 4 😅",           "hashtag":"#fyp #dance",        "likes":"48K",  "comments":"1.2K", "saves":"3.4K", "music":"trending sound"},
+    "tt-cooking-mama":     {"handle":"nanna",    "caption":"stuffat tal-fenek is grandma's",   "hashtag":"#malta #cooking",    "likes":"212K", "comments":"5.1K", "saves":"18K",  "music":"original sound — @nanna"},
+    "tt-outfit-mirror":    {"handle":"elena.f",  "caption":"outfit for the day",              "hashtag":"#ootd #fashion",     "likes":"31K",  "comments":"890",  "saves":"2.1K", "music":"trending sound"},
+    "tt-street-food-eat":  {"handle":"vincent",  "caption":"first pastizzi review 🥐",         "hashtag":"#malta #foodie",     "likes":"89K",  "comments":"2.4K", "saves":"7.2K", "music":"original sound — @vincent"},
+    "tt-travel-walking":   {"handle":"vincent",  "caption":"POV Valletta at golden hour",     "hashtag":"#travel #malta",     "likes":"156K", "comments":"3.2K", "saves":"12K",  "music":"lofi beats"},
+    "tt-workout-gym":      {"handle":"liam.f",   "caption":"day 47/90 cut",                   "hashtag":"#gym #fitness",      "likes":"22K",  "comments":"612",  "saves":"1.4K", "music":"phonk mix"},
+    "tt-diy-craft":        {"handle":"elena.f",  "caption":"weekend pottery project",         "hashtag":"#pottery #diy",      "likes":"18K",  "comments":"430",  "saves":"890",  "music":"chill acoustic"},
+    "tt-pet-cat":          {"handle":"sofia.f",  "caption":"pixel's yarn obsession",          "hashtag":"#cat #catsoftiktok", "likes":"342K", "comments":"6.8K", "saves":"24K",  "music":"cute sound"},
+    "tt-morning-routine":  {"handle":"elena.f",  "caption":"6am skincare routine",            "hashtag":"#morning #skincare", "likes":"41K",  "comments":"1.1K", "saves":"5.3K", "music":"soft piano"},
+    "tt-cafe-review":      {"handle":"vincent",  "caption":"best flat white in Valletta",    "hashtag":"#coffee #malta",     "likes":"29K",  "comments":"720",  "saves":"2.8K", "music":"cafe jazz"},
+    "tt-outdoor-hike":     {"handle":"vincent",  "caption":"view from Dingli cliffs",         "hashtag":"#hike #malta",       "likes":"67K",  "comments":"1.5K", "saves":"4.2K", "music":"acoustic guitar"},
+
+    # YouTube
+    "yt-thumbnail-cook":   {"title":"MY NONNA'S secret ragù (never told anyone)", "time":"8:24 / 14:12"},
+    "yt-tech-review":      {"title":"The iPhone 16 Pro — 30 days later. Honest.", "time":"12:04 / 18:47"},
+    "yt-travel-vlog":      {"title":"Sicily on a budget — 5 days, 350 euros",     "time":"6:18 / 22:11"},
+    "yt-fitness-outdoor":  {"title":"BEACH WORKOUT that changed my abs (no gym)", "time":"3:42 / 11:29"},
+    "yt-diy-workshop":     {"title":"I built a bookshelf without power tools",    "time":"9:56 / 24:03"},
+}
+
+def chrome_overlay(brand, meta=None):
+    """Return HTML for the platform UI chrome, with per-image metadata baked in
+    (handle, caption, likes, etc). In the real app these come from the catalog's
+    metadata fields (xmp_caption + new socials columns) — here we hand-curate
+    per image so the mock matches what a shipped app would show."""
+    if meta is None:
+        meta = SOCIAL_META_DEFAULT.get(brand, {})
     if brand == "instagram":
-        return '''
+        handle  = meta.get("handle", "vincent.f")
+        caption = meta.get("caption", "")
+        hashtag = meta.get("hashtag", "")
+        likes   = meta.get("likes", "0")
+        return f'''
           <div class="chrome ig-chrome">
             <div class="ig-top">
-              <div class="ig-avatar">V</div>
-              <div class="ig-handle">@vincent.f</div>
+              <div class="ig-avatar">{handle[0].upper()}</div>
+              <div class="ig-handle">{handle}</div>
               <div class="ig-dots">···</div>
             </div>
             <div class="ig-bot">
@@ -109,33 +161,47 @@ def chrome_overlay(brand):
                 <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
               </div>
-              <div class="ig-likes">1 284 likes</div>
-              <div class="ig-caption"><b>vincent.f</b> Malta trip · June. <span>#malta #summer26</span></div>
+              <div class="ig-likes">{likes} likes</div>
+              <div class="ig-caption"><b>{handle}</b> {escape(caption)} <span>{escape(hashtag)}</span></div>
             </div>
           </div>'''
     if brand == "tiktok":
-        return '''
+        handle   = meta.get("handle", "vincent")
+        caption  = meta.get("caption", "")
+        hashtag  = meta.get("hashtag", "")
+        likes    = meta.get("likes", "128K")
+        comments = meta.get("comments", "2.8K")
+        saves    = meta.get("saves", "12K")
+        music    = meta.get("music", "original sound")
+        return f'''
           <div class="chrome tt-chrome">
             <div class="tt-side">
-              <div class="tt-avatar">V</div>
-              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="#fff" width="32" height="32"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>128K</span></div>
-              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="#fff" width="30" height="30"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>2 890</span></div>
-              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="30" height="30"><path d="M9 17l6-5-6-5v10z" fill="#fff"/><circle cx="12" cy="12" r="10"/></svg><span>Share</span></div>
+              <div class="tt-avatar-wrap">
+                <div class="tt-avatar">{handle[0].upper()}</div>
+                <div class="tt-follow">+</div>
+              </div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="#fff"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>{likes}</span></div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>{comments}</span></div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="#fff"><path d="M6 3a1 1 0 0 0-1 1v17l7-5 7 5V4a1 1 0 0 0-1-1H6z"/></svg><span>{saves}</span></div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M4 12c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8"/><path d="M12 8v4l3 2"/></svg><span>Share</span></div>
+              <div class="tt-disc"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="11" fill="#333"/><circle cx="12" cy="12" r="3" fill="#fff"/><path d="M12 3a9 9 0 0 1 9 9" stroke="#fff" stroke-width="1" fill="none"/></svg></div>
             </div>
             <div class="tt-bot">
-              <div class="tt-handle">@vincent</div>
-              <div class="tt-cap">Sunset over Valletta — first time we tried the DJI 🎥 #malta #summer26 #dji</div>
-              <div class="tt-music"><svg viewBox="0 0 24 24" width="12" height="12" fill="#fff"><path d="M9 3v13.5a3.5 3.5 0 1 1-3.5-3.5H6V6h5V3z"/></svg> original sound · @vincent</div>
+              <div class="tt-handle">@{handle}</div>
+              <div class="tt-cap">{escape(caption)} <span>{escape(hashtag)}</span></div>
+              <div class="tt-sound">♪ {escape(music)}</div>
             </div>
           </div>'''
     if brand == "youtube":
-        return '''
+        title = meta.get("title", "Untitled video")
+        time  = meta.get("time",  "0:00 / 0:00")
+        return f'''
           <div class="chrome yt-chrome">
-            <div class="yt-title">Renovating our Rostock office — week 8 · full walkthrough in 4K</div>
+            <div class="yt-title">{escape(title)}</div>
             <div class="yt-bar">
               <div class="yt-prog"><div class="yt-prog-fill"></div></div>
               <div class="yt-row">
-                <span class="yt-time">4:12 / 12:38</span>
+                <span class="yt-time">{escape(time)}</span>
                 <span class="yt-badges">
                   <span class="yt-badge">CC</span>
                   <span class="yt-badge">HD</span>
@@ -261,15 +327,32 @@ body.chrome-on .chrome{opacity:1}
 .ig-likes{font-size:12px;font-weight:700}
 .ig-caption{font-size:11.5px;margin-top:2px;opacity:.95}
 .ig-caption span{color:#7cd0ff}
-/* TikTok */
+/* TikTok — sized to real-app proportions: rail hugs the right, starts about
+   midway down the video (not bottom-glued), icons ~9% of tile width, video
+   is always the hero. */
 .tt-chrome{display:flex}
-.tt-side{margin-left:auto;padding:0 10px 28px;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;align-items:center;color:#fff}
-.tt-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff0050,#00f2ea);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;border:2px solid #fff}
-.tt-icon{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6)}
-.tt-bot{position:absolute;bottom:14px;left:12px;right:80px;color:#fff}
-.tt-handle{font-weight:700;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
-.tt-cap{font-size:11.5px;line-height:1.4;margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
-.tt-music{font-size:10.5px;margin-top:5px;opacity:.9;display:flex;align-items:center;gap:4px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.tt-side{margin-left:auto;width:20%;max-width:36px;padding:0 3px 6px;display:flex;flex-direction:column;
+  justify-content:flex-end;gap:7px;align-items:center;color:#fff}
+.tt-avatar-wrap{position:relative;margin-bottom:8px}
+.tt-avatar{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#ff0050,#00f2ea);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:9px;
+  border:1.5px solid #fff}
+.tt-follow{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:11px;height:11px;
+  border-radius:50%;background:#fe2c55;color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;line-height:1;border:1px solid rgba(0,0,0,.14)}
+.tt-icon{display:flex;flex-direction:column;align-items:center;gap:0;font-size:8px;font-weight:600;
+  text-shadow:0 1px 2px rgba(0,0,0,.7);line-height:1.2}
+.tt-icon svg{width:17px;height:17px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
+.tt-disc{margin-top:2px}
+.tt-disc svg{width:20px;height:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));animation:tt-spin 4s linear infinite}
+@keyframes tt-spin{to{transform:rotate(360deg)}}
+.tt-bot{position:absolute;bottom:8px;left:8px;right:36px;color:#fff}
+.tt-handle{font-weight:800;font-size:10.5px;text-shadow:0 1px 2px rgba(0,0,0,.8);letter-spacing:.01em}
+.tt-cap{font-size:9px;line-height:1.35;margin-top:2px;text-shadow:0 1px 2px rgba(0,0,0,.75);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tt-cap span{color:#dceaff}
+.tt-sound{font-size:8.5px;margin-top:4px;padding:2px 5px;background:rgba(0,0,0,.35);border-radius:99px;
+  display:inline-block;backdrop-filter:blur(3px);text-shadow:0 1px 1px rgba(0,0,0,.6)}
 /* YouTube */
 .yt-chrome{}
 .yt-title{position:absolute;top:12px;left:14px;right:14px;color:#fff;font-size:13px;font-weight:600;line-height:1.35;text-shadow:0 1px 3px rgba(0,0,0,.75);opacity:.95}
