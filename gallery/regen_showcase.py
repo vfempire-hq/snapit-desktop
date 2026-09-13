@@ -63,6 +63,14 @@ CAMERA_BY_SECTION = {
     "social-instagram":"iPhone 15 Pro",
     "social-tiktok":   "iPhone 15 Pro",
     "social-youtube":  "Sony A7 IV",
+    "pets":            "iPhone 15 Pro",
+    "action-sports":   "Sony A7 IV",
+    "concert-festival":"iPhone 15 Pro",
+    "hobby-diy":       "Fujifilm X-T5",
+    "milestone":       "iPhone 15 Pro",
+    "season-weather":  "Sony A7 IV",
+    "nature-wildlife": "Nikon Z8",
+    "selfies":         "iPhone 15 Pro",
 }
 
 # Aspect classification by filename convention — set from prompt files
@@ -74,7 +82,15 @@ ASPECTS_BY_SECTION = {
     "kids-row":        "landscape",
     "raw-technical":   "landscape",
     "social-youtube":  "landscape",
+    "pets":            "landscape",
+    "action-sports":   "landscape",
+    "concert-festival":"landscape",
+    "hobby-diy":       "landscape",
+    "milestone":       "landscape",
+    "season-weather":  "landscape",
+    "nature-wildlife": "landscape",
     "portrait":        "portrait",   # 896x1152
+    "selfies":         "portrait",
     "starred":         "square",     # 1024x1024
     "social-instagram":"square",
     "still-life":      "square",
@@ -94,6 +110,14 @@ SECTIONS = [
     ("place",            "Places",             "Architectural + landscape, no people. Places-row content."),
     ("still-life",       "Still-life",         "Object detail photography. Detail-shots row."),
     ("kids-row",         "Kids row",           "Kid-safe archetype content — auto-hidden mature clusters for Kids profiles."),
+    ("pets",             "Pets",               "Every phone has hundreds of these — dogs, cats, and family with pets."),
+    ("action-sports",    "Sport & action",     "Kids' football, cycling, gym, yoga, running — auto-clustered as activity events."),
+    ("concert-festival", "Concerts & gigs",    "Stage lights, crowds, wristbands, festival food — event-detected via time + venue GPS."),
+    ("hobby-diy",        "Hobbies & DIY",      "Workshop, gardening, pottery, painting — long-running hobby clusters."),
+    ("milestone",        "Milestones",         "First-day-of-school, moving day, new car, engagement — auto-tagged as milestones."),
+    ("season-weather",   "Seasons & weather",  "Autumn colour, first snow, storms, fog, sunrise, sunset — seasonal auto-albums."),
+    ("nature-wildlife",  "Nature & wildlife",  "Birds, deer, macro flowers, mushrooms — content-tagged wildlife bucket."),
+    ("selfies",          "Selfies",            "Mirror selfies, group selfies, travel selfies — big share of phone rolls."),
     ("raw-technical",    "RAW technical",      "Long-lens, wildlife, sport, macro, astro. Pro / Studio archetype."),
 ]
 

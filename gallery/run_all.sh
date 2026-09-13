@@ -25,7 +25,8 @@ for f in prompts/batch-03-landscape-volume.json \
          prompts/batch-07-locations.json \
          prompts/batch-08-food-travel.json \
          prompts/batch-09-fine-dining-business.json \
-         prompts/batch-10-adrenaline-stills.json; do
+         prompts/batch-10-adrenaline-stills.json \
+         prompts/batch-11-widen-categories.json; do
     log "== running $f =="
     python3 -u gen.py "$f"
     log "== batch done: $f =="
