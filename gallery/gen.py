@@ -101,14 +101,30 @@ def queue_prompt(workflow: dict) -> str:
     resp = http_json("POST", "/prompt", {"prompt": workflow, "client_id": CLIENT_ID})
     return resp["prompt_id"]
 
-def poll_history(prompt_id: str, timeout_s: int = 300) -> dict | None:
-    """Poll /history/<id> until the prompt appears. Returns the entry or None."""
+def poll_history(prompt_id: str, timeout_s: int = 180) -> dict | None:
+    """Poll /history/<id> until the prompt appears. Returns the entry or None
+    after timeout_s. 180s is plenty for a Flux dev 20-step 1344x768 on the
+    4080 — if it hasn't landed by then, something's wedged and we should
+    give up on this prompt rather than block the whole batch."""
     started = time.time()
     while time.time() - started < timeout_s:
         try:
             hist = http_json("GET", f"/history/{prompt_id}")
             if prompt_id in hist:
                 return hist[prompt_id]
+        except Exception:
+            pass
+        # Also give up early if the queue no longer knows about this prompt
+        # (someone cleared the queue or the prompt was auto-purged)
+        try:
+            q = http_json("GET", "/queue")
+            in_queue = any(
+                (r[1] if len(r) > 1 else "") == prompt_id
+                for r in (q.get("queue_running", []) + q.get("queue_pending", []))
+            )
+            if not in_queue and time.time() - started > 20:
+                # Not queued and not in history — the prompt died silently.
+                return None
         except Exception:
             pass
         time.sleep(2)
@@ -182,7 +198,27 @@ def main():
         print(f"\n[{i}/{len(prompts)}] {entry['section']}/{entry['name']}")
         if run_prompt(entry):
             written += 1
+        # Regen the showcase every 4 shots so the site grows LIVE during batches
+        if written > 0 and written % 4 == 0:
+            _mid_batch_regen()
     print(f"\n== batch complete: {written}/{len(prompts)} images written ==")
+
+def _mid_batch_regen():
+    """Fire-and-forget regen + deploy so the showcase grows mid-batch."""
+    import subprocess
+    try:
+        subprocess.Popen(
+            ["bash", "-c",
+             "cd /home/guardiansoftiktok/snapit-desktop/gallery && "
+             "python3 regen_showcase.py > /tmp/mid-regen.log 2>&1 && "
+             "export CLOUDFLARE_API_TOKEN=$(grep '^CLOUDFLARE_API_TOKEN=' /home/guardiansoftiktok/sovereign-os/.env | cut -d= -f2 | awk '{print $1}') && "
+             "cd /home/guardiansoftiktok/snapit-desktop/purchase-backend && "
+             "npx wrangler deploy >> /tmp/mid-regen.log 2>&1"],
+            start_new_session=True,
+        )
+        print("[regen] mid-batch regen + deploy fired in background")
+    except Exception as e:
+        print(f"[regen] mid-batch trigger failed: {e}")
 
 if __name__ == "__main__":
     main()
