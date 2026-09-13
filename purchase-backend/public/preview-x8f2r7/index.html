@@ -1450,35 +1450,84 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .onboard-index-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent);animation:iqShine 1.8s linear infinite}
 
 /* ================================================================
-   COACHING TIPS — dismissable pointers that fire the first time a
-   user sees a feature. Position anchored to a data-coach element.
+   IN-APP TOUR — full guided walkthrough with dim + spotlight + big
+   card. Cards auto-position so they never clip. Steps can trigger
+   actions (open menus, switch tabs) so the tour walks the whole app.
    ================================================================ */
-.coach{position:fixed;z-index:9400;max-width:340px;padding:18px 20px 16px;border-radius:14px;
+.tour-veil{position:fixed;inset:0;z-index:9350;pointer-events:none;
+  opacity:0;transition:opacity .3s ease}
+.tour-veil.on{opacity:1;pointer-events:all}
+/* Dimming — uses radial gradient centered on the spotlight so the
+   target stays lit while everything else dims. Set --sx / --sy / --sr
+   via JS to move the light. */
+.tour-veil::before{content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at var(--sx,50%) var(--sy,50%),
+             transparent 0,transparent var(--sr,80px),
+             rgba(2,3,5,.72) calc(var(--sr,80px) + 20px),
+             rgba(2,3,5,.86) 100%);
+  transition:background .28s ease}
+/* Halo ring around the spotlight — pulses so the eye lands there */
+.tour-spot{position:fixed;z-index:9360;pointer-events:none;border-radius:14px;
+  box-shadow:0 0 0 3px rgba(31,111,242,.6),0 0 40px 6px rgba(31,111,242,.35);
+  opacity:0;transition:all .32s cubic-bezier(.4,.2,.2,1)}
+.tour-veil.on ~ .tour-spot{opacity:1}
+.tour-spot.on{opacity:1;animation:tourPulse 2.4s ease-in-out infinite}
+@keyframes tourPulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(31,111,242,.55),0 0 32px 6px rgba(31,111,242,.28)}
+  50%    {box-shadow:0 0 0 4px rgba(31,111,242,.75),0 0 48px 12px rgba(31,111,242,.5)}
+}
+
+.tour-card{position:fixed;z-index:9370;width:min(420px,calc(100vw - 32px));
+  padding:22px 24px 20px;border-radius:16px;
   background:linear-gradient(135deg,#1f6ff2 0%,#4a94ff 55%,#7c3aed 100%);
-  background-size:180% 180%;animation:coachShift 8s ease-in-out infinite;
+  background-size:180% 180%;animation:coachShift 10s ease-in-out infinite;
   color:#fff;
-  box-shadow:0 24px 72px rgba(31,111,242,.5),0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.24);
-  opacity:0;pointer-events:none;transform:translateY(6px) scale(.96);
-  transition:opacity .28s cubic-bezier(.4,.2,.2,1),transform .28s cubic-bezier(.4,.2,.2,1)}
+  box-shadow:0 32px 90px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.24);
+  opacity:0;pointer-events:none;transform:translateY(8px) scale(.96);
+  transition:opacity .3s cubic-bezier(.4,.2,.2,1),transform .3s cubic-bezier(.4,.2,.2,1),left .3s ease,top .3s ease}
 @keyframes coachShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.coach.on{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
-.coach-t{font-size:15px;font-weight:700;letter-spacing:-.008em;margin-bottom:6px;
-  text-shadow:0 1px 2px rgba(0,0,0,.24)}
-.coach-s{font-size:13px;line-height:1.55;opacity:.94}
-.coach-s b{font-weight:700;opacity:1}
-.coach-bar{display:flex;gap:8px;margin-top:14px;align-items:center}
-.coach-count{flex:1;font-size:10.5px;opacity:.75;letter-spacing:.08em;font-weight:700;text-transform:uppercase}
-.coach-btn{padding:8px 14px;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.2);
-  border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.005em;
-  transition:all .18s cubic-bezier(.4,.2,.2,1);backdrop-filter:blur(6px)}
-.coach-btn:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.34);transform:translateY(-1px)}
-.coach-btn.pri{background:#fff;color:#1f6ff2;border-color:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,.24)}
-.coach-btn.pri:hover{background:#f4f7ff;transform:translateY(-1px)}
-.coach::before{content:"";position:absolute;width:14px;height:14px;background:inherit;background-size:inherit;
-  transform:rotate(45deg);border-left:1px solid rgba(255,255,255,.12);border-top:1px solid rgba(255,255,255,.12)}
-.coach.above::before{bottom:-7px;left:28px;transform:rotate(225deg)}
-.coach.below::before{top:-7px;left:28px}
+.tour-card.on{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.tour-card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tour-card-step{padding:3px 10px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);
+  border-radius:99px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  backdrop-filter:blur(4px)}
+.tour-card-title{font-size:20px;font-weight:700;letter-spacing:-.014em;line-height:1.15;margin-bottom:8px;
+  text-shadow:0 1px 3px rgba(0,0,0,.24)}
+.tour-card-body{font-size:14px;line-height:1.6;opacity:.94}
+.tour-card-body b{font-weight:700;opacity:1}
+.tour-card-body em{font-style:italic;opacity:1}
+.tour-card-tips{margin-top:12px;padding:12px 14px;background:rgba(0,0,0,.18);border-radius:10px;
+  border:1px solid rgba(255,255,255,.08);font-size:12.5px;line-height:1.55}
+.tour-card-tips-h{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;
+  opacity:.75;margin-bottom:6px}
+.tour-card-tips ul{list-style:none;padding:0;margin:0}
+.tour-card-tips li{padding:3px 0;padding-left:18px;position:relative}
+.tour-card-tips li::before{content:"→";position:absolute;left:0;font-weight:800;opacity:.7}
+.tour-card-nav{display:flex;gap:8px;margin-top:16px;align-items:center}
+.tour-progress{flex:1;height:3px;background:rgba(255,255,255,.16);border-radius:99px;overflow:hidden;
+  margin-right:12px;min-width:80px}
+.tour-progress-fill{height:100%;background:#fff;transition:width .32s ease;box-shadow:0 0 8px rgba(255,255,255,.5)}
+.tour-btn{padding:9px 16px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;
+  transition:all .18s cubic-bezier(.4,.2,.2,1);letter-spacing:.005em;
+  background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
+.tour-btn:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.36);transform:translateY(-1px)}
+.tour-btn.pri{background:#fff;color:#1f6ff2;border-color:#fff;font-weight:700;
+  box-shadow:0 8px 22px rgba(0,0,0,.28)}
+.tour-btn.pri:hover{background:#f4f7ff}
+.tour-btn.ghost{background:transparent;border-color:transparent;color:rgba(255,255,255,.72);padding:9px 10px}
+.tour-btn.ghost:hover{color:#fff;background:rgba(255,255,255,.08)}
+/* Card fin — anchors the card to the spotlight */
+.tour-card::before{content:"";position:absolute;width:16px;height:16px;background:inherit;background-size:inherit;
+  border:1px solid rgba(255,255,255,.14)}
+.tour-card.point-left::before{left:-8px;top:32px;transform:rotate(-45deg);border-right:none;border-top:none}
+.tour-card.point-right::before{right:-8px;top:32px;transform:rotate(135deg);border-right:none;border-top:none}
+.tour-card.point-above::before{bottom:-8px;left:32px;transform:rotate(-135deg);border-right:none;border-top:none}
+.tour-card.point-below::before{top:-8px;left:32px;transform:rotate(45deg);border-right:none;border-top:none}
+.tour-card.point-none::before{display:none}
+@media (max-width:600px){
+  .tour-card{width:calc(100vw - 24px);left:12px !important;right:12px}
+  .tour-card::before{display:none}
+}
 
 /* ================================================================
    FEATURE WALL — full-screen picker for the home billboard.
@@ -2766,14 +2815,24 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   </div>
 </div>
 
-<!-- Coach tip -->
-<div class="coach" id="coach">
-  <div class="coach-t" id="coachT"></div>
-  <div class="coach-s" id="coachS"></div>
-  <div class="coach-bar">
-    <div class="coach-count" id="coachCount"></div>
-    <button class="coach-btn" onclick="coachDismiss(true)">Skip all</button>
-    <button class="coach-btn pri" onclick="coachNext()" id="coachBtn">Got it</button>
+<!-- In-app guided tour -->
+<div class="tour-veil" id="tourVeil"></div>
+<div class="tour-spot" id="tourSpot"></div>
+<div class="tour-card point-none" id="tourCard">
+  <div class="tour-card-head">
+    <div class="tour-card-step" id="tourStepLabel">STEP 1 · OF 24</div>
+  </div>
+  <div class="tour-card-title" id="tourCardTitle"></div>
+  <div class="tour-card-body" id="tourCardBody"></div>
+  <div class="tour-card-tips" id="tourCardTips" hidden>
+    <div class="tour-card-tips-h">Tips</div>
+    <ul id="tourTipsList"></ul>
+  </div>
+  <div class="tour-card-nav">
+    <div class="tour-progress"><div class="tour-progress-fill" id="tourProgress" style="width:0%"></div></div>
+    <button class="tour-btn ghost" onclick="tourEnd(true)">Skip tour</button>
+    <button class="tour-btn" onclick="tourStep(-1)" id="tourBack">Back</button>
+    <button class="tour-btn pri" onclick="tourStep(1)" id="tourNext">Next →</button>
   </div>
 </div>
 
@@ -4341,9 +4400,9 @@ function renderSettingsSection(id) {
       <p class="st-lead">These actions can't be undone. Photos on disk are never touched — only SnapIT's index / preferences.</p>
       <div class="st-danger" style="border-color:rgba(31,111,242,.22);background:rgba(31,111,242,.03)">
         <div class="st-danger-h" style="color:var(--core)">Take the tour again</div>
-        <div class="st-danger-s">Replays the first-launch walkthrough, then re-shows every coach tip as you browse.</div>
-        <button class="st-btn" onclick="closeSettings();try{localStorage.removeItem('${ONBOARD_KEY}');localStorage.removeItem('${COACH_SEEN_KEY}');}catch{}location.reload()">Replay walkthrough</button>
-        <button class="st-btn" onclick="coachResetAll()" style="margin-left:8px">Reset coach tips only</button>
+        <div class="st-danger-s">Replays the first-launch onboarding + the full in-app guided walkthrough (24 steps across every section).</div>
+        <button class="st-btn" onclick="closeSettings();try{localStorage.removeItem('${ONBOARD_KEY}');localStorage.removeItem('${TOUR_KEY}');}catch{}location.reload()">Replay full walkthrough</button>
+        <button class="st-btn" onclick="closeSettings();try{localStorage.removeItem('${TOUR_KEY}');}catch{}_tourStart()" style="margin-left:8px">Just the app tour</button>
       </div>
       <div class="st-danger" style="margin-top:14px">
         <div class="st-danger-h">Rebuild index</div>
@@ -4943,92 +5002,306 @@ function _onbStartIndexSim() {
 }
 
 /* ================================================================
-   COACHING TIPS — dismissable pointers that fire the first time a
-   user sees a feature. Persistent seen-list so tips don't repeat.
+   IN-APP GUIDED TOUR — premium walkthrough with dim + spotlight card.
+   Each step can:
+     - anchor: CSS selector for the spotlight (auto-scrolls into view)
+     - pre: async fn run BEFORE the step (opens menus, switches tabs)
+     - post: fn run when leaving (closes menus)
+     - side: 'right' | 'left' | 'above' | 'below' | 'center'
+     - title/body/tips: the content
+   Tour walks the whole app: billboard → rows → nav tabs → search →
+   add-source → import queue → detail modal → enhance → cinematic →
+   socials → overlay → cleanup → face-grouping → share → profile
+   menu → settings sections → feedback → replay control.
    ================================================================ */
-const COACH_SEEN_KEY = 'snapit_coach_seen_v1';
-const COACH_TIPS = [
-    { key:'billboard', anchor:'.bb-btn.pri', title:'This is your feature wall.',
-      body:'The event SnapIT thinks you\'d most want to see right now — tap <b>Open event</b> to dive in. You can change the layout by clicking <b>Feature wall</b> in the top-right of this billboard.' },
-    { key:'search',    anchor:'.searchtrigger', title:'Semantic search built in.',
-      body:'Try "the trip in June" or "Elena laughing". Runs on-device — no query ever leaves your machine.' },
-    { key:'row-scroll', anchor:'.rail-nav.right', title:'Scroll through any row.',
-      body:'Use these arrows or scroll horizontally. Every row has an <b>Explore all</b> that opens the full grid.' },
-    { key:'avatar',    anchor:'.avatar', title:'Everything else is here.',
-      body:'Switch profiles, jump to Settings, manage your licence + machines, or sign out. Family Pack supports up to 5 people.' },
-    { key:'overlay',   anchor:'.row-overlay-toggle', title:'Platform overlay.',
-      body:'Click any social tile to enlarge. Toggle this to paint the original Instagram / TikTok / YouTube UI back onto the shot.' },
+const TOUR_KEY = 'snapit_tour_seen_v1';
+const TOUR_STEPS = [
+    {
+        anchor: null, side: 'center',
+        title: 'A quick 60-second tour.',
+        body: 'This is <em>every</em> screen SnapIT ships with — <b>every row, every button, every hidden gem</b>. We\'ll walk it end-to-end, then you\'ll know where everything lives. You can hit <b>Back</b>, <b>Skip</b>, or press <b>Esc</b> any time.',
+        tips: ['20-something steps · ~90 seconds total', 'Replayable from Settings → Danger zone'],
+    },
+    {
+        anchor: '.bb-title', side: 'below',
+        title: 'The feature wall.',
+        body: 'Your <b>home billboard</b>. SnapIT picks the shot or event it thinks you\'d most want to see right now — auto-clustered from every source. The <em>italic tail</em> ("· June.") is the sub-title, formatted so it always reads editorial.',
+        tips: [
+            'Change the layout + which shot is featured — button top-right of the billboard',
+            'Open event · Add to timeline · Share buttons work on the featured event',
+        ],
+    },
+    {
+        anchor: '.fw-launcher', side: 'left',
+        title: 'Feature wall picker.',
+        body: 'Tap this to open the <b>10 pro layouts</b> — Tiled composite, Cinema mono, Split diptych, Ken Burns pan, Card stack, Vertical triptych, Big single, Mosaic, Polaroid cluster, Filmstrip. Pair any layout with any shot from your whole library. Choice saves per profile.',
+    },
+    {
+        anchor: '.searchtrigger', side: 'below',
+        title: 'Semantic search — on device.',
+        body: 'Type what you remember, not what you filed. <b>"the trip in June"</b> · <b>"kitchen before renovation"</b> · <b>"Elena laughing at brunch"</b>. SnapIT runs a CLIP-based embedding search <b>entirely on this machine</b> — the query never leaves.',
+        tips: ['Faces + places + dates + content tags are all searchable', 'Search hint text shows examples on focus'],
+    },
+    {
+        anchor: '.addbtn', side: 'below',
+        title: 'Add another source any time.',
+        body: 'Later you\'ll want to plug in your Nikon\'s SD card, mount a new NAS, connect a fresh phone. This opens the same picker the onboarding walkthrough used — three phases (this device / network / phone connect).',
+    },
+    {
+        anchor: '.iconbtn.new', side: 'below',
+        title: 'Import queue — live.',
+        body: 'Watch imports as they happen. Per-source progress bars, live rate, ETA, "Just imported" thumbnail strip. Useful when you plug in a phone or a new drive and want to see what SnapIT\'s ingesting.',
+    },
+    {
+        anchor: '#tab-events, .tab[data-view="events"]', side: 'below',
+        title: 'Events tab — auto-clustered trips.',
+        body: 'Every event SnapIT identified. <b>Time-cluster</b> (4–48h window) + <b>GPS DBSCAN</b> (~5km radius) + <b>on-device content ML</b> (beach/kitchen/church/gym/wedding archetypes) + optional <b>calendar name-matching</b>. You can rename, merge, split events any time.',
+        tips: ['Rename events by clicking the title', 'Merge two similar events from the event page'],
+    },
+    {
+        anchor: '.tab[data-view="people"]', side: 'below',
+        title: 'People tab — face groups.',
+        body: 'Faces cluster by shape on this machine using <b>a local ONNX model</b>. No cloud, no server, no data leaves. You name each cluster once ("Sofia") and the label stays. Off by default — turn it on in Settings → People & Faces.',
+        tips: ['Kids profiles auto-hide unknown people', 'Merge / split clusters from the People page'],
+    },
+    {
+        anchor: '.tab[data-view="places"]', side: 'below',
+        title: 'Places tab — grouped by GPS.',
+        body: 'DBSCAN over EXIF GPS points, reverse-geocoded on-device via a bundled offline gazetteer. Groups become city → country. Shots with no GPS still show up in the parent event\'s place if the event carries one.',
+    },
+    {
+        anchor: '.tab[data-view="videos"]', side: 'below',
+        title: 'Videos tab.',
+        body: 'Every clip across every source — sorted long → short by default so real moments surface before phone-camera bloopers. Playable in-app, no external player needed.',
+    },
+    {
+        anchor: '.tab[data-view="socials"]', side: 'below',
+        title: 'Socials tab — plug your accounts in.',
+        body: 'Every platform strips the story out of a shot before it hands you the render. <b>SnapIT reads the archive, not the render.</b> Connect via OAuth where available, or drop a GDPR takeout ZIP where it isn\'t — original date, caption, likes, tags all come back.',
+        tips: ['Instagram / YouTube / Pinterest / LinkedIn — OAuth', 'TikTok / Snapchat / BeReal / VSCO — takeout ZIP'],
+    },
+    {
+        anchor: '.row-social:first-of-type .row-head', side: 'below',
+        title: 'One row per platform.',
+        body: 'Netflix-style — each platform gets its own row. Tiles stay <b>plain images</b> across the whole suite (the site would look chaotic with every tile in native shape). Click any tile to enlarge — that\'s where the platform overlay appears.',
+    },
+    {
+        anchor: '.row-overlay-toggle', side: 'below',
+        title: 'Platform overlay toggle.',
+        body: 'Flip the <b>Instagram / TikTok / YouTube</b> UI on or off. When ON, clicking a tile shows the original chrome painted over the shot — top bar, side rail, likes, caption, music tag. Setting saves per profile.',
+    },
+    {
+        anchor: '.tab[data-view="wrapped"]', side: 'below',
+        title: 'Wrapped — your year in photos.',
+        body: 'Spotify-Wrapped-style annual recap. <b>Top places</b> · <b>top faces</b> · <b>top events</b> · <b>colour palette of your year</b> · milestones you hit. Generated end of December, saveable, shareable via encrypted link.',
+    },
+    {
+        anchor: '.tab[data-view="library"]', side: 'below',
+        title: 'My Library — everything indexed.',
+        body: 'The full grid. Filter by date range, place, camera, drive, kind (photo/video/RAW), face groups, tags, has-GPS, starred. Export selections as ZIP, PDF album, or a signed share link.',
+    },
+    {
+        anchor: '.rail-nav.right', side: 'left',
+        title: 'Scroll any row.',
+        body: 'Arrow buttons or horizontal wheel/touch. Each row has an <b>Explore all →</b> link (visible on hover) that opens the full grid for that cluster. Portrait / people / top-10 rows have their own scale-and-lift hover.',
+    },
+    {
+        anchor: '.card.landscape:first-of-type', side: 'right',
+        title: 'Hover any tile.',
+        body: 'Tiles <b>scale to 132%</b> on hover with a preview panel showing date, camera, source, and quick actions (⭐ Star, ＋ Add to event, Play, More). Click to enlarge into the detail modal.',
+    },
+    {
+        anchor: '.avatar', side: 'left',
+        title: 'Your profile menu.',
+        body: 'Switch between family members, add or manage profiles (Family Pack up to 5), jump to Settings, hit Sources / Import queue / Cleanup / Face grouping / Share, or sign out. Big gradient header at the top opens Profile settings.',
+        pre: () => document.getElementById('avatarwrap')?.classList.add('on'),
+        post: () => document.getElementById('avatarwrap')?.classList.remove('on'),
+    },
+    {
+        anchor: '.avm-row[onclick*="openImportQueue"]', side: 'left',
+        title: 'Camera-roll cleanup.',
+        body: 'SnapIT flags <b>duplicates, near-duplicates, blurred shots, dark shots, screenshots, receipts, and video thumbnail files</b> — reviewable in one place. <em>Nothing is deleted without your say.</em> Free up gigabytes without losing a memory.',
+        pre: () => document.getElementById('avatarwrap')?.classList.add('on'),
+        post: () => document.getElementById('avatarwrap')?.classList.remove('on'),
+    },
+    {
+        anchor: '.avm-row[onclick*="openSettings"]', side: 'left',
+        title: 'Settings — 11 sections.',
+        body: 'Profile · Appearance · Library · People & Faces · Sharing · Sources · Import queue · Licence & seats · Get SnapIT (downloads) · About · Feedback & reviews · Danger zone. Everything toggles instantly and saves per profile.',
+        pre: () => document.getElementById('avatarwrap')?.classList.add('on'),
+        post: () => document.getElementById('avatarwrap')?.classList.remove('on'),
+    },
+    {
+        anchor: null, side: 'center',
+        title: 'Feedback & reviews.',
+        body: 'In Settings there\'s a <b>Feedback</b> section. Post a rating + review — it lands on the marketing site\'s product page <em>and</em> in the app. Same endpoint, one truth. Nothing goes to a third-party service.',
+        tips: ['Reviews from verified licences get a ✓ badge', 'Live star average shown at the top'],
+    },
+    {
+        anchor: null, side: 'center',
+        title: 'One-click enhance.',
+        body: 'Click any image → the enlarged view has a floating <b>✨ Enhance</b> pill top-left. Fires <b>Real-ESRGAN 2×</b> on your GPU. Non-destructive: the original is untouched, upscaled version saves as new file with before/after slider.',
+        tips: ['4× and GFPGAN face-focus available in the full picker', 'Compare with a draggable wipe handle'],
+    },
+    {
+        anchor: null, side: 'center',
+        title: 'Cinematic intro.',
+        body: 'Open a <b>starred shot or a video longer than 30 seconds</b> and SnapIT plays a <b>Netflix-style "presents"</b> intro — 1.4-second visual swell with a synthesised premium sound sting (D2 → D3 → D4 → D5 stacked octaves with reverb). Skippable, and can be turned off in Appearance.',
+    },
+    {
+        anchor: null, side: 'center',
+        title: 'Share a library.',
+        body: 'Any event, album, starred selection, or the whole library — <b>end-to-end encrypted</b>. Key lives in the URL fragment (after <code>#</code>) so servers never see it. Optional password, optional expiry, view-only or view + download. Revoke any time from Settings → Sharing.',
+        tips: ['WhatsApp / Signal / Telegram / Email / QR code / Copy link', 'Every share has its own decryption key'],
+    },
+    {
+        anchor: null, side: 'center',
+        title: 'You\'re ready.',
+        body: '<b>Look around</b>. Your library will keep growing in the background. Every button here works — nothing is a preview or a placeholder.<br><br>Any time you want the tour again, it lives in <b>Settings → Danger zone → Replay walkthrough</b>. Feedback goes into Settings → Feedback.',
+    },
 ];
-let _coachIdx = 0;
-let _coachSeen = new Set();
-function _coachLoad() {
-    try { _coachSeen = new Set(JSON.parse(localStorage.getItem(COACH_SEEN_KEY) || '[]')); } catch { _coachSeen = new Set(); }
+let _tourIdx = 0;
+let _tourActive = false;
+
+function tourShouldRun() {
+    try { return !localStorage.getItem(TOUR_KEY); } catch { return false; }
 }
-function _coachSave() {
-    localStorage.setItem(COACH_SEEN_KEY, JSON.stringify([..._coachSeen]));
+function startTour() {
+    if (!tourShouldRun()) return;
+    _tourStart();
 }
-function startCoach() {
-    _coachLoad();
-    // First unseen tip in the flow
-    const remaining = COACH_TIPS.filter(t => !_coachSeen.has(t.key));
-    if (!remaining.length) return;
-    _coachIdx = 0;
-    setTimeout(() => coachShow(remaining[0]), 900);
+function _tourStart() {
+    _tourActive = true;
+    _tourIdx = 0;
+    document.getElementById('tourVeil').classList.add('on');
+    setTimeout(() => _tourRender(), 400);
 }
-function coachShow(tip) {
-    const anchor = document.querySelector(tip.anchor);
-    if (!anchor) { coachNext(); return; }
-    const rect = anchor.getBoundingClientRect();
-    const c = document.getElementById('coach');
-    c.querySelector('#coachT').textContent = tip.title;
-    c.querySelector('#coachS').innerHTML = tip.body;
-    const remaining = COACH_TIPS.filter(t => !_coachSeen.has(t.key));
-    c.querySelector('#coachCount').textContent = `Tip ${remaining.findIndex(t => t.key === tip.key) + 1} of ${remaining.length}`;
-    c._current = tip;
-    // Position: below anchor if it fits, otherwise above
-    c.style.left = Math.max(16, rect.left) + 'px';
-    // Show first to measure
-    c.classList.remove('above', 'below');
-    c.classList.add('on');
-    requestAnimationFrame(() => {
-        const cr = c.getBoundingClientRect();
-        if (rect.bottom + cr.height + 20 <= window.innerHeight) {
-            c.classList.add('below');
-            c.style.top = (rect.bottom + 12) + 'px';
-        } else {
-            c.classList.add('above');
-            c.style.top = (rect.top - cr.height - 12) + 'px';
-        }
-        // Clamp horizontally
-        if (rect.left + cr.width > window.innerWidth - 16) {
-            c.style.left = (window.innerWidth - cr.width - 16) + 'px';
-        }
-    });
-}
-function coachNext() {
-    const c = document.getElementById('coach');
-    if (c._current) {
-        _coachSeen.add(c._current.key);
-        _coachSave();
+function tourEnd(save) {
+    _tourActive = false;
+    if (save) {
+        try { localStorage.setItem(TOUR_KEY, new Date().toISOString()); } catch {}
     }
-    c.classList.remove('on');
-    const remaining = COACH_TIPS.filter(t => !_coachSeen.has(t.key));
-    if (remaining.length) {
-        setTimeout(() => coachShow(remaining[0]), 300);
-    }
+    // Close any menus a step may have left open
+    const cur = TOUR_STEPS[_tourIdx];
+    try { cur?.post?.(); } catch {}
+    document.getElementById('tourVeil').classList.remove('on');
+    document.getElementById('tourSpot').classList.remove('on');
+    document.getElementById('tourCard').classList.remove('on');
 }
-function coachDismiss(all) {
-    if (all) {
-        COACH_TIPS.forEach(t => _coachSeen.add(t.key));
-        _coachSave();
-    }
-    document.getElementById('coach').classList.remove('on');
+function tourStep(delta) {
+    if (!_tourActive) return;
+    const prev = TOUR_STEPS[_tourIdx];
+    try { prev?.post?.(); } catch {}
+    _tourIdx = _tourIdx + delta;
+    if (_tourIdx < 0) { _tourIdx = 0; return; }
+    if (_tourIdx >= TOUR_STEPS.length) { tourEnd(true); return; }
+    _tourRender();
 }
+async function _tourRender() {
+    const step = TOUR_STEPS[_tourIdx];
+    const card = document.getElementById('tourCard');
+    const spot = document.getElementById('tourSpot');
+    const veil = document.getElementById('tourVeil');
+    // Update card content
+    document.getElementById('tourStepLabel').textContent = `STEP ${_tourIdx + 1} · OF ${TOUR_STEPS.length}`;
+    document.getElementById('tourCardTitle').innerHTML = step.title;
+    document.getElementById('tourCardBody').innerHTML = step.body;
+    const tips = document.getElementById('tourCardTips');
+    const tipsList = document.getElementById('tourTipsList');
+    if (step.tips?.length) {
+        tips.hidden = false;
+        tipsList.innerHTML = step.tips.map(t => `<li>${t}</li>`).join('');
+    } else {
+        tips.hidden = true;
+    }
+    // Progress
+    document.getElementById('tourProgress').style.width = ((_tourIdx + 1) / TOUR_STEPS.length * 100).toFixed(1) + '%';
+    // Nav buttons
+    document.getElementById('tourBack').style.visibility = _tourIdx === 0 ? 'hidden' : 'visible';
+    document.getElementById('tourNext').textContent = _tourIdx === TOUR_STEPS.length - 1 ? 'Finish ✓' : 'Next →';
+
+    // Run pre-action (opens menus, switches tabs)
+    try { await step.pre?.(); } catch {}
+
+    // Small delay to let pre-action DOM settle
+    setTimeout(() => _tourPosition(step, card, spot, veil), step.pre ? 200 : 0);
+}
+function _tourPosition(step, card, spot, veil) {
+    const anchor = step.anchor ? document.querySelector(step.anchor) : null;
+    if (!anchor) {
+        // Center card, no spotlight
+        veil.style.setProperty('--sx', '50%');
+        veil.style.setProperty('--sy', '50%');
+        veil.style.setProperty('--sr', '0px');
+        spot.classList.remove('on');
+        card.classList.remove('point-left','point-right','point-above','point-below');
+        card.classList.add('point-none');
+        // Center card on screen
+        card.style.left = (window.innerWidth / 2 - card.offsetWidth / 2) + 'px';
+        card.style.top  = (window.innerHeight / 2 - card.offsetHeight / 2) + 'px';
+        card.classList.add('on');
+        return;
+    }
+    // Scroll anchor into view
+    anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+        const r = anchor.getBoundingClientRect();
+        // Spotlight — sit over the element with padding
+        const pad = 8;
+        const sx = r.left + r.width / 2;
+        const sy = r.top  + r.height / 2;
+        const sr = Math.max(r.width, r.height) / 2 + pad + 20;
+        veil.style.setProperty('--sx', sx + 'px');
+        veil.style.setProperty('--sy', sy + 'px');
+        veil.style.setProperty('--sr', sr + 'px');
+        spot.style.left   = (r.left - pad) + 'px';
+        spot.style.top    = (r.top  - pad) + 'px';
+        spot.style.width  = (r.width + pad * 2) + 'px';
+        spot.style.height = (r.height + pad * 2) + 'px';
+        spot.classList.add('on');
+        // Card positioning — pick a side that fits
+        const cw = 420, ch = 260; // approx
+        const gap = 20;
+        const side = _tourPickSide(step.side, r, cw, ch, gap);
+        card.classList.remove('point-left','point-right','point-above','point-below','point-none');
+        let left, top;
+        if (side === 'right') { left = r.right + gap; top = r.top - 12; card.classList.add('point-left'); }
+        else if (side === 'left')  { left = r.left - cw - gap; top = r.top - 12; card.classList.add('point-right'); }
+        else if (side === 'below') { left = r.left; top = r.bottom + gap; card.classList.add('point-above'); }
+        else if (side === 'above') { left = r.left; top = r.top - ch - gap; card.classList.add('point-below'); }
+        else                       { left = window.innerWidth / 2 - cw / 2; top = window.innerHeight / 2 - ch / 2; card.classList.add('point-none'); }
+        // Clamp to viewport
+        left = Math.max(16, Math.min(window.innerWidth - cw - 16, left));
+        top  = Math.max(16, Math.min(window.innerHeight - ch - 16, top));
+        card.style.left = left + 'px';
+        card.style.top  = top + 'px';
+        card.classList.add('on');
+    }, 320);
+}
+function _tourPickSide(preferred, r, cw, ch, gap) {
+    // If preferred fits, use it. Otherwise pick the largest empty area.
+    const spaces = {
+        right: window.innerWidth - r.right,
+        left:  r.left,
+        below: window.innerHeight - r.bottom,
+        above: r.top,
+    };
+    const need = { right: cw + gap, left: cw + gap, below: ch + gap, above: ch + gap };
+    if (preferred && preferred !== 'center' && spaces[preferred] >= need[preferred]) return preferred;
+    // Fallback — biggest available space
+    const ranked = Object.entries(spaces).sort((a, b) => b[1] - a[1]);
+    for (const [side] of ranked) if (spaces[side] >= need[side]) return side;
+    return 'center';
+}
+// Reset — replayable from Settings
 function coachResetAll() {
-    _coachSeen = new Set();
-    _coachSave();
-    _snapitToast('Coach tips reset — start exploring to see them again');
+    try { localStorage.removeItem(TOUR_KEY); } catch {}
+    _snapitToast('Walkthrough ready — reload or hit Replay to start it again');
 }
+// Esc to end
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && _tourActive) tourEnd(true);
+});
 
 /* ================================================================
    Feature-wall controller.
@@ -6207,7 +6480,7 @@ function _completeProfileSwitch(id) {
     updateHeaderAvatar();
     renderAvatarMenu();
     // Fire coach tips on first session after onboarding
-    startCoach();
+    startTour();
 }
 
 // Backwards-compat: some existing handlers still call selectProfile.
