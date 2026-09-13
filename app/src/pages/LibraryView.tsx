@@ -538,7 +538,20 @@ function PhotoDetail({
         </div>
         <aside className="detail-meta">
           <h3>{name}</h3>
-          <div className="detail-path">{thumb.path}</div>
+          <div className="detail-path">
+            {thumb.path}{" "}
+            <button
+              className="path-reveal"
+              onClick={async () => {
+                try {
+                  await invoke("reveal_in_folder", { photoId: thumb.id });
+                } catch (_) {}
+              }}
+              title="Reveal in Finder / Explorer / Files"
+            >
+              ↗ Reveal
+            </button>
+          </div>
           <dl>
             <dt>Dimensions</dt>
             <dd>

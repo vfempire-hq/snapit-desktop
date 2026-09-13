@@ -119,6 +119,35 @@ async fn thumb_ensure(photo_id: String, state: State<'_, AppState>) -> Result<St
     Ok(path.to_string_lossy().to_string())
 }
 
+// ---------- reveal in native file manager ----------
+
+#[tauri::command]
+async fn reveal_in_folder(
+    photo_id: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    let (rel, _) = catalog::path_and_hash_by_id(&library, &photo_id).map_err(|e| e.to_string())?;
+    let abs = library.join(rel);
+
+    #[cfg(target_os = "macos")]
+    let cmd = std::process::Command::new("open")
+        .arg("-R")
+        .arg(abs.as_os_str())
+        .spawn();
+    #[cfg(target_os = "windows")]
+    let cmd = std::process::Command::new("explorer")
+        .arg(format!("/select,{}", abs.to_string_lossy()))
+        .spawn();
+    #[cfg(all(unix, not(target_os = "macos")))]
+    let cmd = std::process::Command::new("xdg-open")
+        .arg(abs.parent().unwrap_or(&abs))
+        .spawn();
+
+    cmd.map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 // ---------- rating ----------
 
 #[tauri::command]
@@ -242,6 +271,7 @@ pub fn run() {
             catalog_recent,
             catalog_duplicates,
             thumb_ensure,
+            reveal_in_folder,
             rating_set,
             edit_get,
             edit_set,

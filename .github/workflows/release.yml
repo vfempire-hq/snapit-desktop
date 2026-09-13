@@ -61,28 +61,19 @@ jobs:
         working-directory: app
         run: npm install
 
-      - name: Build (Tauri v2, macOS unsigned for R·01)
-        if: matrix.os == 'macos-latest'
+      - name: Build (Tauri v2)
         working-directory: app
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: cargo tauri build --target ${{ matrix.target }} --bundles app,dmg,updater
-
-      - name: Build (Tauri v2, Linux + Windows)
-        if: matrix.os != 'macos-latest'
-        working-directory: app
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        run: cargo tauri build --target ${{ matrix.target }}
+        run: cargo tauri build --target ${{ matrix.target }} --verbose
 
       - name: Collect artifacts
         shell: bash
         run: |
           mkdir -p out
           find app/src-tauri/target/${{ matrix.target }}/release/bundle -type f \
-            \( -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.msi' -o -name '*-setup.exe' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.sig' \) \
+            \( -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.msi' -o -name '*.msi.zip' -o -name '*-setup.exe' -o -name '*-setup.nsis.zip' -o -name '*.AppImage' -o -name '*.AppImage.tar.gz' -o -name '*.deb' -o -name '*.sig' \) \
             -exec cp {} out/ \;
           ls -la out/
 
