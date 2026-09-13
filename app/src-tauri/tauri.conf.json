@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.tauri.app/config/2.0.0",
+  "productName": "SnapIT",
+  "version": "0.1.0",
+  "identifier": "com.vfempire.snapit",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "SnapIT",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "center": true,
+        "titleBarStyle": "Visible",
+        "backgroundColor": "#0e0f11"
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "msi", "app", "dmg", "appimage", "deb"],
+    "publisher": "VF Empire",
+    "shortDescription": "Own your photo library. Local-first. One-off.",
+    "longDescription": "SnapIT keeps your photo library on your own storage. On-device AI for search, faces and restore — no photo leaves the device unless you export it. Buy the licence once, keep it forever.",
+    "category": "Photography",
+    "copyright": "© 2026 VF Empire Corp Ltd",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "11.0",
+      "hardenedRuntime": true,
+      "exceptionDomain": "vfempire.com"
+    },
+    "linux": {
+      "deb": {
+        "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
+    },
+    "windows": {
+      "wix": {
+        "language": "en-US"
+      },
+      "nsis": {
+        "installMode": "perMachine"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://snapit.vfempire.com/updates/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": "REPLACE_WITH_MINISIGN_PUBKEY_BEFORE_M4"
+    }
+  }
+}
