@@ -61,6 +61,12 @@ jobs:
         working-directory: app
         run: npm install
 
+      # Tauri's generate_context! macro reads app/dist at compile time,
+      # so we build the frontend before touching cargo test / cargo build.
+      - name: Build frontend
+        working-directory: app
+        run: npm run build
+
       # Smoke test: scan → thumb pipeline against real JPEGs on disk.
       # Runs on Linux only (fastest matrix leg). Any failure here blocks
       # the whole release.
