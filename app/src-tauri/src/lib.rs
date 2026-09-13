@@ -94,6 +94,17 @@ async fn catalog_recent(
     catalog::recent(&library, limit).map_err(|e| e.to_string())
 }
 
+// ---------- duplicates ----------
+
+#[tauri::command]
+async fn catalog_duplicates(
+    limit: u32,
+    state: State<'_, AppState>,
+) -> Result<Vec<catalog::DuplicateGroup>, String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    catalog::duplicate_groups(&library, limit).map_err(|e| e.to_string())
+}
+
 // ---------- thumbnails ----------
 
 #[tauri::command]
@@ -198,6 +209,7 @@ pub fn run() {
             catalog_open,
             library_scan,
             catalog_recent,
+            catalog_duplicates,
             thumb_ensure,
             edit_get,
             edit_set,

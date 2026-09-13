@@ -163,6 +163,63 @@ pub fn photo_count(library_root: &Path) -> Result<u64> {
 }
 
 #[derive(Serialize)]
+pub struct DuplicateGroup {
+    pub content_hash: String,
+    pub bytes_each: i64,
+    pub copies: Vec<PhotoRow>,
+}
+
+/// Groups of ≥ 2 non-deleted photos sharing the same content_hash.
+/// Ordered by wasted-space desc so the cheapest wins for the user show up first.
+pub fn duplicate_groups(library_root: &Path, limit: u32) -> Result<Vec<DuplicateGroup>> {
+    let conn = open(library_root)?;
+    let mut stmt = conn.prepare(
+        "SELECT content_hash, byte_size, COUNT(*) AS c
+         FROM photos
+         WHERE deleted_at IS NULL AND content_hash != ''
+         GROUP BY content_hash
+         HAVING c > 1
+         ORDER BY (byte_size * (c - 1)) DESC
+         LIMIT ?1",
+    )?;
+    let hashes: Vec<(String, i64)> = stmt
+        .query_map(params![limit], |r| {
+            Ok((r.get::<_, String>(0)?, r.get::<_, i64>(1)?))
+        })?
+        .filter_map(|r| r.ok())
+        .collect();
+
+    let mut groups = Vec::with_capacity(hashes.len());
+    for (h, bytes_each) in hashes {
+        let mut stmt = conn.prepare(
+            "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0), xmp_rating
+             FROM photos
+             WHERE content_hash = ?1 AND deleted_at IS NULL
+             ORDER BY imported_at ASC",
+        )?;
+        let copies: Vec<PhotoRow> = stmt
+            .query_map(params![h], |r| {
+                Ok(PhotoRow {
+                    id: r.get(0)?,
+                    path: r.get(1)?,
+                    taken_at: r.get(2)?,
+                    width: r.get(3)?,
+                    height: r.get(4)?,
+                    xmp_rating: r.get(5)?,
+                })
+            })?
+            .filter_map(|r| r.ok())
+            .collect();
+        groups.push(DuplicateGroup {
+            content_hash: h,
+            bytes_each,
+            copies,
+        });
+    }
+    Ok(groups)
+}
+
+#[derive(Serialize)]
 pub struct PhotoRow {
     pub id: String,
     pub path: String,

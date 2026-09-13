@@ -34,6 +34,7 @@ export function LibraryView({
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Thumb | null>(null);
+  const [showDupes, setShowDupes] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -97,6 +98,7 @@ export function LibraryView({
           )}
         </div>
         <div className="actions">
+          <button onClick={() => setShowDupes(true)}>Duplicates</button>
           <button onClick={rescan} disabled={busy}>
             {busy ? "Scanning…" : "Rescan"}
           </button>
@@ -119,6 +121,7 @@ export function LibraryView({
           ))
         )}
       </main>
+      {showDupes && <DuplicatesPanel onClose={() => setShowDupes(false)} />}
       {selected && (
         <PhotoDetail
           thumb={selected}
@@ -190,6 +193,118 @@ function PhotoCell({ t, onOpen }: { t: Thumb; onOpen: () => void }) {
       </div>
     </div>
   );
+}
+
+type DupeGroup = {
+  content_hash: string;
+  bytes_each: number;
+  copies: Thumb[];
+};
+
+function DuplicatesPanel({ onClose }: { onClose: () => void }) {
+  const [groups, setGroups] = useState<DupeGroup[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const g = await invoke<DupeGroup[]>("catalog_duplicates", { limit: 500 });
+        setGroups(g);
+      } catch (e: any) {
+        setErr(String(e?.message ?? e));
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [onClose]);
+
+  const wasted = useMemo(() => {
+    if (!groups) return 0;
+    return groups.reduce((n, g) => n + g.bytes_each * (g.copies.length - 1), 0);
+  }, [groups]);
+
+  return (
+    <div className="detail-overlay" onClick={onClose}>
+      <div
+        className="dupe-panel"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="dupe-head">
+          <div>
+            <h2>Duplicates</h2>
+            <div className="muted small">
+              Byte-identical copies across your library.
+              {groups && groups.length > 0 && (
+                <> Removing extras would free about {fmtBytes(wasted)}.</>
+              )}
+            </div>
+          </div>
+          <button className="detail-close" onClick={onClose} aria-label="Close">
+            ×
+          </button>
+        </header>
+        <div className="dupe-body">
+          {err && <div className="dupe-err">{err}</div>}
+          {!groups && !err && <div className="muted">Scanning…</div>}
+          {groups && groups.length === 0 && (
+            <div className="muted">
+              None found. Every photo in your library is unique.
+            </div>
+          )}
+          {groups?.map((g) => (
+            <div key={g.content_hash} className="dupe-group">
+              <div className="dupe-group-head">
+                <span className="mono">{g.content_hash.slice(0, 12)}…</span>
+                <span className="muted">
+                  {g.copies.length} copies • {fmtBytes(g.bytes_each)} each
+                </span>
+              </div>
+              <div className="dupe-copies">
+                {g.copies.map((c) => (
+                  <DupeCell key={c.id} t={c} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DupeCell({ t }: { t: Thumb }) {
+  const [src, setSrc] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const abs = await invoke<string>("thumb_ensure", { photoId: t.id });
+        if (!cancelled) setSrc(convertFileSrc(abs));
+      } catch {}
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [t.id]);
+  return (
+    <div className="dupe-cell" title={t.path}>
+      <div className="dupe-thumb">{src && <img src={src} alt="" />}</div>
+      <div className="dupe-path">{t.path}</div>
+    </div>
+  );
+}
+
+function fmtBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`;
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
 type ExportReport = {
