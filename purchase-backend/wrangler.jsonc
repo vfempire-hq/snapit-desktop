@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/wrangler.json",
+  "name": "snapit-purchase-backend",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    {
+      "pattern": "snapit.vfempire.com/*",
+      "custom_domain": true
+    }
+  ],
+  "kv_namespaces": [
+    // Bind KV for licence key ↔ Stripe session id lookup; created via wrangler after first deploy.
+    // { "binding": "LICENCES", "id": "TO_BE_CREATED" }
+  ],
+  "vars": {
+    "PRODUCT_NAME": "SnapIT",
+    "SUPPORT_EMAIL": "support@vfempire.com",
+    "LICENCE_ISSUER": "VF Empire Corp Ltd"
+  },
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/checkout",
+      "/reissue",
+      "/webhook/*",
+      "/updates/*",
+      "/downloads/*"
+    ]
+  }
+}
