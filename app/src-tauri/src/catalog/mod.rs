@@ -239,17 +239,19 @@ pub fn path_and_hash_by_id(library_root: &Path, photo_id: &str) -> Result<(Strin
     Ok(row)
 }
 
-pub fn recent(library_root: &Path, limit: u32) -> Result<Vec<PhotoRow>> {
+/// `min_rating`: 0 = all, N = only photos with xmp_rating >= N.
+pub fn recent_filtered(library_root: &Path, limit: u32, min_rating: i32) -> Result<Vec<PhotoRow>> {
     let conn = open(library_root)?;
     let mut stmt = conn.prepare(
         "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0), xmp_rating
          FROM photos
          WHERE deleted_at IS NULL
+           AND (?2 = 0 OR COALESCE(xmp_rating, 0) >= ?2)
          ORDER BY COALESCE(taken_at, imported_at) DESC
          LIMIT ?1",
     )?;
     let rows = stmt
-        .query_map(params![limit], |r| {
+        .query_map(params![limit, min_rating.clamp(0, 5)], |r| {
             Ok(PhotoRow {
                 id: r.get(0)?,
                 path: r.get(1)?,

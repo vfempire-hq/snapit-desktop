@@ -35,17 +35,21 @@ export function LibraryView({
   const [q, setQ] = useState("");
   const [selected, setSelected] = useState<Thumb | null>(null);
   const [showDupes, setShowDupes] = useState(false);
+  const [minRating, setMinRating] = useState<number>(0);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const rows = await invoke<Thumb[]>("catalog_recent", { limit: 400 });
+      const rows = await invoke<Thumb[]>("catalog_recent", {
+        limit: 400,
+        minRating,
+      });
       if (!cancelled) setRecent(rows);
     })();
     return () => {
       cancelled = true;
     };
-  }, [state.photo_count]);
+  }, [state.photo_count, minRating]);
 
   // Debounced search — 300 ms after user stops typing
   useEffect(() => {
@@ -98,6 +102,18 @@ export function LibraryView({
           )}
         </div>
         <div className="actions">
+          <div className="filter-stars" title="Filter by minimum rating">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                className={`filter-star ${minRating >= n ? "on" : ""}`}
+                onClick={() => setMinRating(minRating === n ? 0 : n)}
+                aria-label={`Show ${n}+ stars`}
+              >
+                ★
+              </button>
+            ))}
+          </div>
           <button onClick={() => setShowDupes(true)}>Duplicates</button>
           <button onClick={rescan} disabled={busy}>
             {busy ? "Scanning…" : "Rescan"}

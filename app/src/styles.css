@@ -424,6 +424,30 @@ button:disabled {
   letter-spacing: 0;
 }
 
+/* filter stars in top bar */
+.filter-stars {
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  margin-right: 4px;
+}
+.filter-star {
+  background: transparent;
+  border: none;
+  padding: 2px 3px;
+  color: #3a3d43;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+}
+.filter-star:hover,
+.filter-star.on {
+  color: var(--acc);
+}
+
 /* star row (rating in detail) */
 .star-row-wrap {
   margin: 12px 0 24px;

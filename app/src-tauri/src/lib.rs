@@ -88,10 +88,11 @@ async fn library_scan(
 #[tauri::command]
 async fn catalog_recent(
     limit: u32,
+    min_rating: Option<i32>,
     state: State<'_, AppState>,
 ) -> Result<Vec<catalog::PhotoRow>, String> {
     let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
-    catalog::recent(&library, limit).map_err(|e| e.to_string())
+    catalog::recent_filtered(&library, limit, min_rating.unwrap_or(0)).map_err(|e| e.to_string())
 }
 
 // ---------- duplicates ----------
