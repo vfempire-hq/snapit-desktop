@@ -204,7 +204,8 @@ def main():
     print(f"\n== batch complete: {written}/{len(prompts)} images written ==")
 
 def _mid_batch_regen():
-    """Fire-and-forget regen + deploy so the showcase grows mid-batch."""
+    """Fire-and-forget regen + deploy + auto-commit so the showcase grows
+    mid-batch AND the worktree stays clean without hand-holding."""
     import subprocess
     try:
         subprocess.Popen(
@@ -213,10 +214,13 @@ def _mid_batch_regen():
              "python3 regen_showcase.py > /tmp/mid-regen.log 2>&1 && "
              "export CLOUDFLARE_API_TOKEN=$(grep '^CLOUDFLARE_API_TOKEN=' /home/guardiansoftiktok/sovereign-os/.env | cut -d= -f2 | awk '{print $1}') && "
              "cd /home/guardiansoftiktok/snapit-desktop/purchase-backend && "
-             "npx wrangler deploy >> /tmp/mid-regen.log 2>&1"],
+             "npx wrangler deploy >> /tmp/mid-regen.log 2>&1 && "
+             "cd /home/guardiansoftiktok/snapit-desktop && "
+             "git add gallery/out purchase-backend/public/preview-x8f2r7/gallery purchase-backend/public/preview-x8f2r7/showcase.html && "
+             "( git diff --cached --quiet || git commit -m 'snapit(gallery): auto-commit mid-batch showcase drop' >> /tmp/mid-regen.log 2>&1 )"],
             start_new_session=True,
         )
-        print("[regen] mid-batch regen + deploy fired in background")
+        print("[regen] mid-batch regen + deploy + auto-commit fired in background")
     except Exception as e:
         print(f"[regen] mid-batch trigger failed: {e}")
 
