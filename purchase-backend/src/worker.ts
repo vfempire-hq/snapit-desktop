@@ -321,12 +321,61 @@ function compareSemver(a: string, b: string): number {
 }
 
 // -------------------------------------------------------------------------
-// /downloads/* → proxy to R2
+// /downloads/* → resolve platform shortcuts to the latest signed GH Release
+//               asset (and proxy install.sh / install.ps1 from R2 if bound).
 // -------------------------------------------------------------------------
 
-async function handleDownload(_req: Request, env: Env, url: URL): Promise<Response> {
-    if (!env.INSTALLERS) return new Response('R2 not bound yet', { status: 503 });
+const PLATFORM_ASSET_RE: Record<string, RegExp> = {
+    'mac-arm64':       /_aarch64\.dmg$/,
+    'mac-intel':       /_x64\.dmg$/,
+    'win-setup':       /_x64-setup\.exe$/,
+    'win-msi':         /_x64_en-US\.msi$/,
+    'linux-appimage':  /_amd64\.AppImage$/,
+    'linux-deb':       /_amd64\.deb$/,
+};
+
+async function handleDownload(req: Request, env: Env, url: URL): Promise<Response> {
     const key = url.pathname.slice('/downloads/'.length);
+
+    // Platform shortcut → 302 to the latest matching asset on the latest release.
+    const platMatch = PLATFORM_ASSET_RE[key];
+    if (platMatch) {
+        const cache = (caches as any).default as Cache | undefined;
+        const cacheKey = new Request(new URL('/__cache/latest-release', url.origin).toString(), req);
+        let releaseJson: any | null = null;
+        if (cache) {
+            const hit = await cache.match(cacheKey);
+            if (hit) {
+                try { releaseJson = await hit.json(); } catch {}
+            }
+        }
+        if (!releaseJson) {
+            const gh = await fetch(`https://api.github.com/repos/${GH_REPO}/releases/latest`, {
+                headers: { 'user-agent': 'snapit-downloads/1', accept: 'application/vnd.github+json' },
+            });
+            if (!gh.ok) return new Response('release lookup failed', { status: 502 });
+            releaseJson = await gh.json<any>();
+            if (cache) {
+                await cache.put(cacheKey, new Response(JSON.stringify(releaseJson), {
+                    headers: { 'content-type': 'application/json', 'cache-control': `public, max-age=${UPDATE_CACHE_TTL_S}` },
+                }));
+            }
+        }
+        const assets: Array<{ name: string; browser_download_url: string }> = releaseJson.assets || [];
+        const hit = assets.find((a) => platMatch.test(a.name));
+        if (!hit) return new Response('no matching artifact on latest release', { status: 404 });
+        return new Response(null, {
+            status: 302,
+            headers: {
+                location: hit.browser_download_url,
+                'cache-control': 'public, max-age=60',
+                ...CORS,
+            },
+        });
+    }
+
+    // Everything else (install.sh, install.ps1) — proxy to R2 if bound.
+    if (!env.INSTALLERS) return new Response('R2 not bound yet', { status: 503 });
     const obj = await env.INSTALLERS.get(key);
     if (!obj) return new Response('not found', { status: 404 });
     const headers = new Headers();

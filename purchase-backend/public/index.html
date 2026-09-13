@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SnapIT — own your photo library.</title>
-<meta name="description" content="SnapIT is a photo library manager that keeps every photo on your own storage. On-device AI. No cloud. One-off €69.">
+<meta name="description" content="SnapIT is a photo library manager that keeps every photo on your own storage. On-device AI. No cloud. Try free for 14 days, then €69 forever.">
 <link rel="preconnect" href="https://checkout.stripe.com">
+<link rel="preconnect" href="https://github.com">
 <style>
 :root {
   --bg:#0e0f11; --bg-2:#16181c; --fg:#eceff3; --muted:#8a8f96;
@@ -27,10 +28,10 @@ h1 em { font-style:italic; color:var(--acc); font-weight:400; }
 .cta-row { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
 .btn { display:inline-flex; align-items:center; gap:10px; padding:15px 32px;
   border-radius:14px; font-size:15px; font-weight:600; cursor:pointer;
-  border:1px solid transparent; font-family:inherit; }
+  border:1px solid transparent; font-family:inherit; text-decoration:none; }
 .btn.pri { background:linear-gradient(180deg,var(--acc) 0%,var(--acc-2) 100%); color:#0e0f11; }
 .btn.sec { background:transparent; color:var(--fg); border-color:var(--line); }
-.btn.pri:hover { transform:translateY(-1px); }
+.btn.pri:hover, .btn.sec:hover { transform:translateY(-1px); text-decoration:none; }
 .chips { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:36px 0 0; }
 .chip { border:1px solid var(--line); padding:8px 16px; border-radius:999px; font-size:12px;
   color:var(--muted); letter-spacing:.02em; }
@@ -38,6 +39,13 @@ h1 em { font-style:italic; color:var(--acc); font-weight:400; }
 .tile { background:var(--bg-2); border:1px solid var(--line); border-radius:16px; padding:26px; }
 .tile h3 { font-family:var(--font-hero); font-weight:400; font-size:24px; margin:0 0 10px; }
 .tile p { color:var(--muted); margin:0; }
+.feat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:36px 0 0;
+  max-width:820px; margin-left:auto; margin-right:auto; }
+.feat { display:flex; gap:12px; padding:14px 16px; background:var(--bg-2);
+  border:1px solid var(--line); border-radius:12px; align-items:flex-start; }
+.feat .dot { color:var(--acc); font-size:14px; line-height:1.55; }
+.feat .txt { color:var(--fg); font-size:14px; }
+.feat .txt b { color:var(--acc); font-weight:600; }
 .pricing { margin:80px 0 20px; display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
 .plan { background:var(--bg-2); border:1px solid var(--line); border-radius:20px; padding:32px; }
 .plan.featured { border-color:var(--acc); box-shadow:0 0 0 3px rgba(255,184,74,.08); }
@@ -58,9 +66,21 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
 .install-line { background:#0a0b0d; border:1px solid var(--line); border-radius:12px;
   padding:14px 18px; display:flex; align-items:center; gap:12px; font-family:ui-monospace,"SF Mono",Menlo,monospace;
   font-size:13px; margin:10px auto 0; max-width:820px; text-align:left; color:#e5c98a; }
+.dl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:14px 0 0; max-width:820px; margin-left:auto; margin-right:auto; }
+.dl-card { background:var(--bg-2); border:1px solid var(--line); border-radius:14px; padding:22px; text-align:center; }
+.dl-card .os { color:var(--acc); font-size:11px; letter-spacing:.2em; text-transform:uppercase; margin-bottom:8px; }
+.dl-card .file { font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:11px; color:var(--muted); margin-top:8px; word-break:break-all; }
+.dl-card a { display:inline-block; margin-top:8px; padding:10px 18px; border-radius:10px;
+  background:linear-gradient(180deg,var(--acc) 0%,var(--acc-2) 100%); color:#0e0f11; font-weight:600;
+  font-size:13px; }
+.dl-card a:hover { text-decoration:none; opacity:.94; }
+.dl-alt { font-size:11px; color:var(--muted); margin-top:6px; display:block; }
+.dl-alt a { color:var(--muted); text-decoration:underline; }
+.trial-note { color:var(--muted); font-size:13px; text-align:center; margin:22px auto 0; max-width:640px; }
+.trial-note b { color:var(--fg); }
 @media (max-width: 720px) {
   h1 { font-size:44px; }
-  .grid, .pricing { grid-template-columns:1fr; }
+  .grid, .pricing, .dl-grid, .feat-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -75,12 +95,12 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
       to lose them to, no subscription to trap you, no training on your library. One price. Forever.
     </p>
     <div class="cta-row">
-      <a href="#buy" class="btn pri">Buy SnapIT — €69</a>
-      <a href="https://github.com/vfempire-hq/snapit-desktop" class="btn sec">Read the source</a>
+      <a href="#download" class="btn pri">Try free for 14 days</a>
+      <a href="#buy" class="btn sec">Buy — €69</a>
     </div>
     <div class="chips">
-      <span class="chip">macOS 11+ · Windows 10+ · Linux (R·02)</span>
-      <span class="chip">One-off · No subscription</span>
+      <span class="chip">macOS 11+ · Windows 10+ · Linux</span>
+      <span class="chip">14-day trial · One-off €69</span>
       <span class="chip">No cloud · No telemetry</span>
       <span class="chip">Portable library format</span>
     </div>
@@ -89,16 +109,73 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
   <section class="grid">
     <div class="tile">
       <h3>Point at a folder.</h3>
-      <p>Existing folders on local disk or NAS become your library. Nothing moves. Nothing is renamed.</p>
+      <p>Existing folders on local disk or NAS become your library. Nothing moves. Nothing is renamed. The catalog lives inside the folder itself — take the drive, take the library.</p>
     </div>
     <div class="tile">
       <h3>On-device AI.</h3>
-      <p>Face clustering and semantic search run here — on your CPU/GPU. No photo leaves the device.</p>
+      <p>Face clustering and semantic search run here — on your CPU/GPU. No photo leaves the device. Ever.</p>
     </div>
     <div class="tile">
       <h3>Non-destructive edits.</h3>
-      <p>Every edit lives as an ordered stack in XMP + our SQLite catalog. Originals stay untouched.</p>
+      <p>Every edit lives as an ordered stack in our SQLite catalog + XMP sidecars Lightroom and Bridge understand. Originals stay untouched.</p>
     </div>
+  </section>
+
+  <section>
+    <h2>What's in the box today.</h2>
+    <p class="honest">
+      SnapIT ships in <b>waves</b>, not <b>promises</b>. Everything below works right now on Linux, Windows and macOS.
+      Face clustering, semantic search and RAW dev are the next wave.
+    </p>
+    <div class="feat-grid">
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Fast library scan</b> — parallel walk, blake3 hashes, EXIF + XMP sidecars, live progress</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Folder watch</b> — new photos appear as your camera dumps them</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Text search</b> — filename, camera, date, XMP caption, keywords</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Star rating</b> — clickable stars with two-way XMP sync to Lightroom / Bridge / Darktable</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Filter by rating</b> — one click, only 4-5 stars</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Duplicate cleanup</b> — content-hash groups sorted by wasted space</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Export</b> — bake edit stack into JPEG (quality + optional resize)</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Reveal in Finder / Explorer / Files</b> — one-click jump to the OS file manager</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Signed auto-updater</b> — minisign verified, opt-in dialog</span></div>
+      <div class="feat"><span class="dot">●</span><span class="txt"><b>Remembers your library</b> — reopens straight into your grid on launch</span></div>
+    </div>
+  </section>
+
+  <section id="download">
+    <h2>Download the trial.</h2>
+    <p class="honest">
+      14 days, everything unlocked. No card. When you buy, drop the licence file into SnapIT and the trial nag disappears.
+    </p>
+    <div class="dl-grid">
+      <div class="dl-card">
+        <div class="os">macOS</div>
+        <a href="/downloads/mac-arm64" data-platform="mac-arm64">Download for Apple Silicon</a>
+        <span class="dl-alt"><a href="/downloads/mac-intel" data-platform="mac-intel">Intel Mac</a></span>
+        <div class="file">.dmg · macOS 11+</div>
+      </div>
+      <div class="dl-card">
+        <div class="os">Windows</div>
+        <a href="/downloads/win-setup" data-platform="win-setup">Download installer</a>
+        <span class="dl-alt"><a href="/downloads/win-msi" data-platform="win-msi">MSI (admins)</a></span>
+        <div class="file">.exe · Windows 10+</div>
+      </div>
+      <div class="dl-card">
+        <div class="os">Linux</div>
+        <a href="/downloads/linux-appimage" data-platform="linux-appimage">Download AppImage</a>
+        <span class="dl-alt"><a href="/downloads/linux-deb" data-platform="linux-deb">.deb (Debian / Ubuntu)</a></span>
+        <div class="file">portable · x86_64</div>
+      </div>
+    </div>
+    <p class="trial-note" style="margin-top:10px;">
+      Direct links resolve to the latest signed release automatically —
+      <a href="https://github.com/vfempire-hq/snapit-desktop/releases/latest">see all builds on GitHub</a>.
+    </p>
+    <p class="trial-note">
+      Prefer a one-liner? <b>PowerShell:</b>
+      <code>iex(iwr -useb https://snapit.vfempire.com/downloads/install.ps1).Content</code><br>
+      <b>macOS / Linux:</b>
+      <code>curl -sSL https://snapit.vfempire.com/downloads/install.sh | bash</code>
+    </p>
   </section>
 
   <section id="buy">
@@ -114,7 +191,7 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
         <div class="sub">One user, unlimited devices you own.</div>
         <ul>
           <li>Full library on your storage</li>
-          <li>On-device AI (faces, scenes, semantic search)</li>
+          <li>On-device AI (faces, scenes, semantic search — R·02)</li>
           <li>Non-destructive edits + XMP sidecars</li>
           <li>Free minor updates forever within v1</li>
         </ul>
@@ -136,22 +213,7 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
   </section>
 
   <section>
-    <h2>Install</h2>
-    <p class="honest">
-      Prebuilt installers for macOS, Windows and Linux land at
-      <code>snapit.vfempire.com/downloads/</code> when you complete purchase — you'll get a one-line
-      install command by email alongside your licence file.
-    </p>
-    <div class="install-line" id="win-install">
-      PS&gt;&nbsp;iex(iwr -useb https://snapit.vfempire.com/downloads/install.ps1).Content
-    </div>
-    <div class="install-line" id="mac-install">
-      $&nbsp;curl -sSL https://snapit.vfempire.com/downloads/install.sh | bash
-    </div>
-  </section>
-
-  <section>
-    <h2>What SnapIT does not do</h2>
+    <h2>What SnapIT does not do.</h2>
     <div class="grid">
       <div class="tile"><h3>No cloud storage.</h3><p>We do not run a photo cloud. That is the exact model we exist to refuse.</p></div>
       <div class="tile"><h3>No telemetry.</h3><p>No analytics. No crash reports. No "usage reporting" toggle.</p></div>
@@ -160,7 +222,7 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
   </section>
 
   <div class="foot">
-    © 2026 VF Empire Corp Ltd · Malta C 94160 · <a href="mailto:support@vfempire.com">support@vfempire.com</a>
+    SnapIT v0.1.3 · © 2026 VF Empire Corp Ltd · Malta C 94160 · <a href="mailto:support@vfempire.com">support@vfempire.com</a>
     · <a href="https://github.com/vfempire-hq/snapit-desktop">source</a>
     · <a href="/permanence">permanence guarantee</a>
     · <a href="https://vfempire.com">vfempire.com</a>
@@ -170,6 +232,7 @@ code { background:#16181c; border:1px solid var(--line); border-radius:6px; padd
 <script>
 document.querySelectorAll(".buy").forEach(b => b.addEventListener("click", async () => {
   const tier = b.dataset.tier;
+  const original = b.textContent;
   b.disabled = true; b.textContent = "Opening Stripe…";
   try {
     const r = await fetch("/checkout", {
@@ -182,7 +245,8 @@ document.querySelectorAll(".buy").forEach(b => b.addEventListener("click", async
     window.location.href = url;
   } catch (e) {
     b.disabled = false;
-    b.textContent = "Try again — " + (e.message || "error");
+    b.textContent = original;
+    alert("Purchase temporarily unavailable — email support@vfempire.com and we'll invoice you directly.");
   }
 }));
 </script>
