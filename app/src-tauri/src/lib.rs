@@ -340,7 +340,7 @@ pub fn run() {
                 match handle.updater() {
                     Ok(updater) => match updater.check().await {
                         Ok(Some(update)) => {
-                            tracing::info!("update available: {}", update.version);
+                            tracing::info!("update available -> {} (v0.1.7 test path)", update.version);
                             let _ = handle.emit(
                                 "snapit://update/available",
                                 serde_json::json!({
