@@ -297,7 +297,12 @@ button{font-family:inherit;background:none;border:none;color:inherit;cursor:poin
 .top .brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.14em;font-size:12.5px;flex-shrink:0}
 .top .brand svg{display:block}
 .tabs{display:flex;gap:20px;font-size:13px;font-weight:500}
-.tab{color:var(--dim);letter-spacing:.02em;padding:4px 0;transition:color .18s;position:relative;white-space:nowrap}
+.tab{color:var(--dim);letter-spacing:.02em;padding:4px 0;transition:color .18s;position:relative;white-space:nowrap;cursor:pointer;user-select:none}
+.avatarwrap .avatar{cursor:pointer;user-select:none}
+.avatar-menu a,.avatar-menu button{cursor:pointer;user-select:none}
+button{cursor:pointer}
+.iconbtn{cursor:pointer}
+.tile,.tile-*,.rowitem,.hexcard,.circle,.eventpic{cursor:pointer}
 .tab:hover{color:var(--ink)}
 .tab.on{color:var(--ink);font-weight:600}
 .top .spacer{flex:1}
@@ -1012,6 +1017,149 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .action-choice .chev{color:var(--dim);font-size:14px}
 
 /* ================================================================
+   SETTINGS + IMPORT QUEUE
+   Full-page overlay: fixed 20px inset with backdrop, dark card with
+   left rail (section list) + right pane (section content). Every
+   toggle persists via ProfileStore.update. The style matches the
+   detail modal chrome — big serif titles + Hanken body.
+   ================================================================ */
+.settings{position:fixed;inset:20px;z-index:900;display:none;flex-direction:column;
+  background:linear-gradient(180deg,#0a0b0f,#0d0e12);border-radius:14px;overflow:hidden;
+  border:1px solid var(--line-2);box-shadow:0 40px 120px rgba(0,0,0,.7);
+  opacity:0;transform:translateY(24px);transition:opacity .28s ease,transform .32s ease}
+.settings.on{display:flex;opacity:1;transform:translateY(0)}
+.st-top{display:flex;align-items:center;gap:18px;padding:22px 30px 20px;
+  border-bottom:1px solid var(--line)}
+.st-top h1{font-size:34px;font-weight:600;letter-spacing:-.024em;flex:1;margin:0}
+.st-top h1 em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.st-top .st-close{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.06);
+  border:1px solid var(--line);color:var(--ink);display:flex;align-items:center;justify-content:center;
+  transition:all .18s}
+.st-top .st-close:hover{background:rgba(255,255,255,.12)}
+.st-body{display:grid;grid-template-columns:240px 1fr;flex:1;min-height:0;overflow:hidden}
+.st-rail{padding:16px 0;border-right:1px solid var(--line);overflow-y:auto}
+.st-rail a{display:flex;align-items:center;gap:11px;padding:9px 26px;font-size:13px;color:var(--dim);
+  font-weight:500;letter-spacing:.005em;transition:color .16s,background .16s;user-select:none;cursor:pointer}
+.st-rail a:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+.st-rail a.on{color:var(--core);background:rgba(31,111,242,.08);
+  box-shadow:inset 2px 0 0 var(--core)}
+.st-rail a svg{opacity:.9;flex-shrink:0}
+.st-pane{overflow-y:auto;padding:28px 40px 40px}
+.st-section{display:none}
+.st-section.on{display:block;animation:stFadeUp .28s ease}
+@keyframes stFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.st-h{font-size:24px;font-weight:600;letter-spacing:-.018em;margin-bottom:6px}
+.st-h em{color:var(--core);font-family:'Instrument',serif;font-style:italic;font-weight:400}
+.st-lead{color:var(--dim);font-size:13.5px;margin-bottom:24px;line-height:1.6;max-width:640px}
+.st-row{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;
+  padding:14px 0;border-bottom:1px solid var(--line);min-height:56px}
+.st-row:last-child{border-bottom:none}
+.st-row-l{flex:1;min-width:0}
+.st-row-title{font-size:13.5px;color:var(--ink);font-weight:600;margin-bottom:3px}
+.st-row-sub{font-size:12px;color:var(--dim);line-height:1.55;max-width:520px}
+.st-row-r{flex-shrink:0;display:flex;align-items:center;gap:8px}
+
+/* Toggle switch */
+.st-toggle{width:38px;height:22px;background:rgba(255,255,255,.14);border-radius:99px;
+  position:relative;cursor:pointer;transition:background .2s}
+.st-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
+  background:#fff;border-radius:50%;transition:transform .2s cubic-bezier(.4,.2,.2,1);
+  box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.st-toggle.on{background:var(--core-deep)}
+.st-toggle.on::after{transform:translateX(16px)}
+
+/* Select-style pill row (Kids / Everyone / etc.) */
+.st-pills{display:flex;gap:6px;background:rgba(255,255,255,.05);padding:3px;
+  border-radius:8px;border:1px solid var(--line)}
+.st-pill{padding:6px 12px;font-size:11.5px;color:var(--dim);border-radius:6px;
+  cursor:pointer;transition:all .16s;font-weight:600;letter-spacing:.02em}
+.st-pill.on{background:var(--core-deep);color:#fff}
+
+/* Buttons */
+.st-btn{padding:8px 14px;font-size:12.5px;color:var(--ink);border-radius:7px;
+  border:1px solid var(--line-2);background:rgba(255,255,255,.04);
+  cursor:pointer;transition:all .16s;letter-spacing:.005em;font-weight:500}
+.st-btn:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)}
+.st-btn.pri{background:var(--core-deep);border-color:var(--core-deep);color:#fff}
+.st-btn.pri:hover{background:var(--core)}
+.st-btn.danger{color:#f45c5c;border-color:rgba(244,92,92,.24)}
+.st-btn.danger:hover{background:rgba(244,92,92,.08);color:#f8a0a0}
+
+/* Grid layout for downloads */
+.st-dl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.st-dl{padding:16px;background:rgba(255,255,255,.03);border:1px solid var(--line);
+  border-radius:10px;transition:all .2s;cursor:pointer;text-align:left;display:block}
+.st-dl:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);
+  transform:translateY(-1px)}
+.st-dl-plat{font-size:11px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;font-weight:700}
+.st-dl-h{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.st-dl-s{font-size:11.5px;color:var(--dim)}
+
+/* About block */
+.st-about-row{padding:8px 0;font-size:13px;color:var(--dim);display:flex;justify-content:space-between}
+.st-about-row b{color:var(--ink);font-weight:600}
+
+/* Danger zone */
+.st-danger{border:1px solid rgba(244,92,92,.22);border-radius:12px;padding:20px;
+  background:rgba(244,92,92,.03);margin-top:12px}
+.st-danger-h{color:#f45c5c;font-size:14px;font-weight:600;margin-bottom:8px}
+.st-danger-s{color:var(--dim);font-size:12.5px;margin-bottom:14px}
+
+/* Import queue */
+.iq-summary{display:flex;gap:24px;padding:22px 26px;border-radius:12px;
+  background:rgba(31,111,242,.08);border:1px solid rgba(31,111,242,.18);margin-bottom:20px}
+.iq-metric .v{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.iq-metric .l{font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.iq-list{display:flex;flex-direction:column;gap:8px}
+.iq-item{display:grid;grid-template-columns:40px 1fr 100px auto;gap:14px;align-items:center;
+  padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px}
+.iq-item-ico{width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg,#4a94ff,#1f6ff2);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0}
+.iq-item-name{font-size:13px;color:var(--ink);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.iq-item-source{font-size:11px;color:var(--dim);margin-top:2px}
+.iq-item-progress{width:100px;height:4px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.iq-item-progress-fill{height:100%;background:var(--core)}
+.iq-item-state{font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums;text-align:right;min-width:60px}
+.iq-item.done .iq-item-state{color:var(--ok)}
+.iq-item.done .iq-item-progress-fill{background:var(--ok)}
+.iq-item.err .iq-item-state{color:#f45c5c}
+
+/* ================================================================
+   PREMIUM HOVER TIPS
+   Any element with data-tip="…" gets a floating info panel on hover.
+   Optional data-tip-sub="…" adds a secondary line.
+   Optional data-tip-shortcut="⌘K" pins a keyboard hint on the right.
+   Positions itself smartly: below by default, flips above if too low.
+   Uses black-glass premium look, delayed reveal so it never fights the eye.
+   ================================================================ */
+#tooltip{position:fixed;z-index:99999;opacity:0;pointer-events:none;
+  transform:translate(-50%,4px);transition:opacity .16s ease,transform .16s ease;
+  background:rgba(14,14,18,.94);backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid rgba(255,255,255,.11);border-radius:9px;
+  padding:8px 12px 8px 12px;min-width:150px;max-width:280px;
+  box-shadow:0 12px 42px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.35);
+  font-size:12.5px;line-height:1.42;color:rgba(255,255,255,.94);
+  letter-spacing:.005em;font-weight:500}
+#tooltip.on{opacity:1;transform:translate(-50%,0)}
+#tooltip.above{transform:translate(-50%,-4px)}
+#tooltip.above.on{transform:translate(-50%,0)}
+#tooltip .tt-main{display:flex;align-items:center;gap:8px}
+#tooltip .tt-label{flex:1;min-width:0}
+#tooltip .tt-key{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.72);font-size:10.5px;padding:1.5px 6px;border-radius:4px;
+  letter-spacing:.05em;font-weight:600;flex-shrink:0;font-family:'SF Mono','Menlo',monospace}
+#tooltip .tt-sub{color:rgba(255,255,255,.6);font-size:11.5px;margin-top:2px;font-weight:400}
+#tooltip::after{content:"";position:absolute;left:50%;top:-5px;transform:translateX(-50%);
+  width:8px;height:8px;background:rgba(14,14,18,.94);
+  border-left:1px solid rgba(255,255,255,.11);border-top:1px solid rgba(255,255,255,.11);
+  transform:translateX(-50%) rotate(45deg)}
+#tooltip.above::after{top:auto;bottom:-5px;
+  border-left:none;border-top:none;
+  border-right:1px solid rgba(255,255,255,.11);border-bottom:1px solid rgba(255,255,255,.11);
+  transform:translateX(-50%) rotate(45deg)}
+
+/* ================================================================
    UPSCALE + BEFORE/AFTER COMPARISON SLIDER
    Real backend runs Real-ESRGAN 4x (via ComfyUI on the user's own
    machine); the visual mechanic is a drag-handle wipe reveal.
@@ -1244,14 +1392,14 @@ main{position:relative;padding-top:0;padding-bottom:80px}
     SnapIT
   </a>
   <nav class="tabs">
-    <a class="tab on" data-view="home">Home</a>
-    <a class="tab" data-view="events">Events</a>
-    <a class="tab" data-view="people">People</a>
-    <a class="tab" data-view="places">Places</a>
-    <a class="tab" data-view="videos">Videos</a>
-    <a class="tab" data-view="socials">Socials</a>
-    <a class="tab wrapped" data-view="wrapped">Wrapped ✦</a>
-    <a class="tab" data-view="library">My Library</a>
+    <a class="tab on" data-view="home" data-tip="Home" data-tip-sub="Featured event, hero rows, on-this-day, hidden gems">Home</a>
+    <a class="tab" data-view="events" data-tip="Events" data-tip-sub="Auto-clustered trips, days, milestones">Events</a>
+    <a class="tab" data-view="people" data-tip="People" data-tip-sub="Face groups you've named. Faces stay on this machine.">People</a>
+    <a class="tab" data-view="places" data-tip="Places" data-tip-sub="Grouped by city / country / GPS point">Places</a>
+    <a class="tab" data-view="videos" data-tip="Videos" data-tip-sub="Every clip across drives, sorted long → short">Videos</a>
+    <a class="tab" data-view="socials" data-tip="Socials" data-tip-sub="TikTok, Instagram, YouTube — imported keeping the chrome">Socials</a>
+    <a class="tab wrapped" data-view="wrapped" data-tip="SnapIT Wrapped" data-tip-sub="Your year in photos — top moments, top places, top faces">Wrapped ✦</a>
+    <a class="tab" data-view="library" data-tip="My Library" data-tip-sub="Every indexed file — filterable, groupable, exportable">My Library</a>
   </nav>
   <div class="spacer"></div>
   <div class="util">
@@ -1260,15 +1408,15 @@ main{position:relative;padding-top:0;padding-bottom:80px}
       <input type="text" placeholder="Search everything — dates, places, faces, moments…">
       <div class="semantic-hint">try: <b>the trip in June</b> · <b>kitchen before renovation</b> · <b>Elena laughing</b></div>
     </div>
-    <button class="addbtn" onclick="openAddSource()">
+    <button class="addbtn" onclick="openAddSource()" data-tip="Add a source" data-tip-sub="Drive, folder, phone, cloud, socials — everything indexes locally">
       <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       Add source
     </button>
-    <button class="iconbtn new" title="Import queue">
+    <button class="iconbtn new" onclick="openImportQueue()" data-tip="Import queue" data-tip-sub="Watch imports as they happen — 4 218 files remaining">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
     </button>
     <div class="avatarwrap" id="avatarwrap">
-      <div class="avatar" id="topAvatar" onclick="document.getElementById('avatarwrap').classList.toggle('on')">V</div>
+      <div class="avatar" id="topAvatar" onclick="document.getElementById('avatarwrap').classList.toggle('on')" data-tip="Your profile" data-tip-sub="Switch profiles, settings, licence, sign out">V</div>
       <div class="avatar-menu" id="avatarMenu"></div>
     </div>
   </div>
@@ -1299,7 +1447,8 @@ main{position:relative;padding-top:0;padding-bottom:80px}
     <div class="bb-acts">
       <button class="bb-btn pri" onclick="playFeaturedEvent()"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Open event</button>
       <button class="bb-btn sec"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Add to timeline</button>
-      <button class="bb-btn sec" title="More info" onclick="openEvent()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v.01M12 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>&nbsp;More info</button>
+      <button class="bb-btn sec" title="More info" onclick="openEvent()" data-tip="Full event details" data-tip-sub="Story, timeline, all shots, related events, contact sheet"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v.01M12 11v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>&nbsp;More info</button>
+      <button class="bb-btn sec" onclick="openShareModal('event')" data-tip="Share this event" data-tip-sub="End-to-end encrypted link. Servers never see your photos."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>&nbsp;Share</button>
     </div>
   </div>
   <div class="bb-corner">
@@ -1757,6 +1906,136 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 
     <div class="modal-info-grid" id="cm-info"></div>
   </div>
+</div>
+
+<!-- ============================== SETTINGS OVERLAY ============================== -->
+<div class="backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
+<div class="settings" id="settings">
+  <div class="st-top">
+    <h1>Settings<em>.</em></h1>
+    <button class="st-close" onclick="closeSettings()" data-tip="Close" data-tip-shortcut="Esc">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+  </div>
+  <div class="st-body">
+    <div class="st-rail" id="stRail"></div>
+    <div class="st-pane" id="stPane"></div>
+  </div>
+</div>
+
+<!-- ============================== SHARE LIBRARY MODAL ============================== -->
+<div class="backdrop" id="shareBackdrop" onclick="closeShareModal()"></div>
+<div class="upscale-modal" id="shareModal" style="width:min(680px,94vw);max-height:88vh;overflow-y:auto">
+  <div class="upscale-head">
+    <div>
+      <h3>Share <em>library.</em></h3>
+      <div style="font-size:12.5px;color:var(--dim);margin-top:4px">Create an end-to-end encrypted link. SnapIT never sees your photos.</div>
+    </div>
+  </div>
+  <div id="sharePicker" style="margin-top:16px">
+    <div class="st-row">
+      <div class="st-row-l">
+        <div class="st-row-title">What are you sharing?</div>
+        <div class="st-row-sub">Pick a scope. You can always revoke later.</div>
+      </div>
+    </div>
+    <div class="st-pills" style="margin-top:8px;flex-wrap:wrap">
+      <div class="st-pill on" data-share-scope="event">Event · Malta trip · June</div>
+      <div class="st-pill" data-share-scope="album">Album · Kitchen renovation</div>
+      <div class="st-pill" data-share-scope="starred">All starred</div>
+      <div class="st-pill" data-share-scope="library">Whole library</div>
+      <div class="st-pill" data-share-scope="picked">Picked selection…</div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-row-l">
+        <div class="st-row-title">Recipient</div>
+        <div class="st-row-sub">Optional. If you enter an email, they get a magic invite. Otherwise you just copy the link.</div>
+      </div>
+      <div class="st-row-r">
+        <input type="email" placeholder="mom@example.com" id="shareRecipient" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:6px;font-size:13px;width:220px">
+      </div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-row-l">
+        <div class="st-row-title">Expires</div>
+        <div class="st-row-sub">Link dies automatically after this window.</div>
+      </div>
+      <div class="st-row-r">
+        <div class="st-pills">
+          <div class="st-pill" data-share-exp="24h">24h</div>
+          <div class="st-pill on" data-share-exp="7d">7 days</div>
+          <div class="st-pill" data-share-exp="30d">30 days</div>
+          <div class="st-pill" data-share-exp="never">Never</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-row-l">
+        <div class="st-row-title">Password (optional)</div>
+        <div class="st-row-sub">Adds a second gate on top of the E2E key. Handy for very private shares.</div>
+      </div>
+      <div class="st-row-r">
+        <input type="text" placeholder="4+ characters" id="sharePw" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink);padding:8px 10px;border-radius:6px;font-size:13px;width:220px">
+      </div>
+    </div>
+
+    <div class="st-row">
+      <div class="st-row-l">
+        <div class="st-row-title">Permissions</div>
+        <div class="st-row-sub">What recipients can do.</div>
+      </div>
+      <div class="st-row-r">
+        <div class="st-pills">
+          <div class="st-pill on" data-share-perm="view">View only</div>
+          <div class="st-pill" data-share-perm="download">View + download</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upscale-actions" style="margin-top:16px">
+      <button class="save-new" onclick="createShare()">🔗 Create share link</button>
+      <button class="discard" onclick="closeShareModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Post-create state -->
+  <div id="shareResult" hidden style="margin-top:16px">
+    <div style="padding:22px;background:rgba(31,111,242,.08);border:1px solid rgba(31,111,242,.24);border-radius:12px;text-align:center">
+      <div style="font-size:11px;color:var(--core);letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:10px">Share link ready · end-to-end encrypted</div>
+      <div style="font-family:'SF Mono','Menlo',monospace;font-size:13px;color:var(--ink);word-break:break-all;padding:12px 16px;background:rgba(255,255,255,.06);border-radius:8px;line-height:1.5" id="shareUrl">https://share.snapit.vfempire.com/s/xJc7-K3v#k=&hellip;</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+        <button class="st-btn pri" onclick="copyShareLink(event)">📋 Copy link</button>
+        <button class="st-btn" onclick="sendShareByMail()" id="shareMailBtn">✉️ Send by email</button>
+        <button class="st-btn" onclick="closeShareModal()">Done</button>
+      </div>
+      <div style="font-size:11.5px;color:var(--dim);margin-top:14px;line-height:1.6">
+        Decryption key stays in the URL fragment (after <code style="background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px">#</code>) — servers never see it.<br>
+        You can revoke this share anytime from Settings → Sharing.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== IMPORT QUEUE OVERLAY ============================== -->
+<div class="backdrop" id="importQueueBackdrop" onclick="closeImportQueue()"></div>
+<div class="settings" id="importQueue">
+  <div class="st-top">
+    <h1>Import <em>queue.</em></h1>
+    <button class="st-btn" onclick="pauseImportQueue()" id="iqPause">⏸ Pause all</button>
+    <button class="st-close" onclick="closeImportQueue()" data-tip="Close" data-tip-shortcut="Esc">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+    </button>
+  </div>
+  <div class="st-pane" id="iqPane" style="grid-column:1/-1"></div>
+</div>
+
+<!-- ============================== PREMIUM HOVER TIP ============================== -->
+<div id="tooltip">
+  <div class="tt-main"><div class="tt-label"></div><div class="tt-key" hidden></div></div>
+  <div class="tt-sub" hidden></div>
 </div>
 
 <!-- ============================== UPSCALE + COMPARE MODAL ============================== -->
@@ -2465,6 +2744,614 @@ function playFeaturedEvent() {
 }
 
 /* ================================================================
+   Settings controller.
+   Full-page overlay with rail + section pane. Every toggle persists
+   through ProfileStore.update — no fake buttons. Sections defined in
+   SETTINGS_SECTIONS below; add a section = one entry.
+   ================================================================ */
+const SETTINGS_SECTIONS = [
+    { id: 'profile',    label: 'Profile',        icon: 'user'   },
+    { id: 'appearance', label: 'Appearance',     icon: 'sparkle'},
+    { id: 'library',    label: 'Library',        icon: 'folder' },
+    { id: 'faces',      label: 'People & Faces', icon: 'face'   },
+    { id: 'sharing',    label: 'Sharing',        icon: 'share'  },
+    { id: 'sources',    label: 'Sources',        icon: 'plug'   },
+    { id: 'imports',    label: 'Import queue',   icon: 'down'   },
+    { id: 'licence',    label: 'Licence & seats',icon: 'key'    },
+    { id: 'downloads',  label: 'Get SnapIT',     icon: 'dl'     },
+    { id: 'about',      label: 'About',          icon: 'info'   },
+    { id: 'danger',     label: 'Danger zone',    icon: 'danger' },
+];
+const ST_ICONS = {
+    user:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
+    sparkle:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z"/></svg>',
+    folder: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+    face:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="10" r=".5" fill="currentColor"/><circle cx="15" cy="10" r=".5" fill="currentColor"/><path d="M9 15c1 1 4.5 1 6 0"/></svg>',
+    share:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>',
+    plug:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-12 0zM12 14v8"/></svg>',
+    down:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16"/></svg>',
+    key:    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v4M15 12v3"/></svg>',
+    dl:     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+    info:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M12 11v5"/></svg>',
+    danger: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17v.01"/></svg>',
+};
+let _settingsTab = 'profile';
+function openSettings(tab) {
+    _settingsTab = tab || 'profile';
+    document.getElementById('settingsBackdrop').classList.add('on');
+    document.getElementById('settings').classList.add('on');
+    document.getElementById('avatarwrap')?.classList.remove('on');
+    renderSettings();
+}
+function closeSettings() {
+    document.getElementById('settingsBackdrop').classList.remove('on');
+    document.getElementById('settings').classList.remove('on');
+}
+function renderSettings() {
+    document.getElementById('stRail').innerHTML = SETTINGS_SECTIONS.map(s => `
+      <a class="${s.id === _settingsTab ? 'on' : ''}" onclick="switchSettingsTab('${s.id}')">
+        ${ST_ICONS[s.icon] || ''}<span>${s.label}</span>
+      </a>
+    `).join('');
+    document.getElementById('stPane').innerHTML = renderSettingsSection(_settingsTab);
+    if (_settingsTab === 'sharing') renderShareList();
+}
+function switchSettingsTab(id) {
+    _settingsTab = id;
+    renderSettings();
+}
+function renderSettingsSection(id) {
+    const p = CURRENT_PROFILE;
+    if (id === 'profile') return `
+      <h2 class="st-h">Profile<em>.</em></h2>
+      <p class="st-lead">Signed in as <b style="color:var(--ink)">${p.name}</b> — ${p.role} · ${p.saves ?? 0} saves. Deep edits (initials, gradient, PIN, kids toggle) live on the Manage Profiles page.</p>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Active profile</div>
+          <div class="st-row-sub">${p.name} · ${p.role}${p.kids ? ' · Kids-safe' : ''}${p.pin_hash ? ' · PIN-locked' : ''}</div>
+        </div>
+        <div class="st-row-r">
+          <button class="st-btn pri" onclick="closeSettings();openManage()">Open Manage Profiles</button>
+        </div>
+      </div>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Switch profile</div>
+          <div class="st-row-sub">Pick a different family member — their saves and preferences load instantly.</div>
+        </div>
+        <div class="st-row-r">
+          <button class="st-btn" onclick="closeSettings();openPicker()">Open picker</button>
+        </div>
+      </div>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Sign out</div>
+          <div class="st-row-sub">Returns to the profile picker. Your saved photos stay — the app just forgets who you are on this session.</div>
+        </div>
+        <div class="st-row-r">
+          <button class="st-btn danger" onclick="signOut()">Sign out</button>
+        </div>
+      </div>`;
+
+    if (id === 'appearance') return `
+      <h2 class="st-h">Appearance<em>.</em></h2>
+      <p class="st-lead">These settings save to <b style="color:var(--ink)">${p.name}</b>'s profile only. Other family members keep their own.</p>
+      ${toggleRow('Cinematic intro', 'When opening a starred shot or long video, play a Netflix-style presents intro.', p.autoplay_previews !== false, 'autoplay_previews')}
+      ${toggleRow('Cinematic sound', 'Play the premium sub-bass sting during the intro. Silent when off.', p.cine_sound !== false, 'cine_sound')}
+      ${toggleRow('Auto-play video previews', 'Videos in rows loop silently on hover. Kids profiles auto-off.', p.autoplay_slides !== false, 'autoplay_slides')}
+      ${toggleRow('Platform chrome on socials', 'Show TikTok / Instagram / YouTube UI painted over imported social clips.', p.show_platform_chrome !== false, 'show_platform_chrome')}
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Theme</div>
+          <div class="st-row-sub">Dark is default. Light comes with v0.2 — the app was built dark-first for photo-viewing.</div>
+        </div>
+        <div class="st-row-r">
+          <div class="st-pills">
+            <div class="st-pill on">Dark</div>
+            <div class="st-pill" data-tip="Ships with v0.2">Light</div>
+            <div class="st-pill" data-tip="Ships with v0.2">Auto</div>
+          </div>
+        </div>
+      </div>`;
+
+    if (id === 'library') return `
+      <h2 class="st-h">Library<em>.</em></h2>
+      <p class="st-lead">Where your saves land, how deletes behave, and how strictly SnapIT clusters events.</p>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Default save destination</div>
+          <div class="st-row-sub">When you press ▼ Save on a socials clip. Everyone in the family sees Shared. This-profile stays private.</div>
+        </div>
+        <div class="st-row-r">
+          <div class="st-pills">
+            <div class="st-pill ${p.default_save === 'this-profile' ? 'on' : ''}" onclick="setSaveDest('this-profile')">This profile</div>
+            <div class="st-pill ${p.default_save === 'shared' ? 'on' : ''}" onclick="setSaveDest('shared')">Shared</div>
+            <div class="st-pill ${p.default_save === 'ask' ? 'on' : ''}" onclick="setSaveDest('ask')">Ask every time</div>
+          </div>
+        </div>
+      </div>
+      ${toggleRow('Confirm before delete', 'Ask for confirmation when deleting any photo or video.', true, 'confirm_delete')}
+      ${toggleRow('Auto-star Wrapped picks', 'When SnapIT Wrapped highlights a shot, add a star to it automatically.', false, 'wrap_autostar')}
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Cluster confidence threshold</div>
+          <div class="st-row-sub">Higher = tighter event clusters (fewer false-joins). Default 82%.</div>
+        </div>
+        <div class="st-row-r"><span style="color:var(--ink);font-weight:600">82%</span></div>
+      </div>`;
+
+    if (id === 'faces') return `
+      <h2 class="st-h">People &amp; Faces<em>.</em></h2>
+      <p class="st-lead">Face grouping runs <b style="color:var(--ink)">100% on this machine</b> — no faces ever leave. You name the groups; SnapIT just clusters. You can turn it off entirely.</p>
+      ${toggleRow('Enable face grouping', 'Cluster faces across the library. Group names, tags, and photos never touch the network.', p.face_group_consent !== false, 'face_group_consent')}
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Currently grouped</div>
+          <div class="st-row-sub">3 named · 4 unnamed. Open the People tab to name or merge them.</div>
+        </div>
+        <div class="st-row-r">
+          <button class="st-btn" onclick="closeSettings();switchView('people')">Open People</button>
+        </div>
+      </div>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Hidden / "not a person"</div>
+          <div class="st-row-sub">Reflections, statues, art you told SnapIT to ignore. 0 hidden.</div>
+        </div>
+        <div class="st-row-r"><button class="st-btn">Review</button></div>
+      </div>`;
+
+    if (id === 'sharing') return `
+      <h2 class="st-h">Sharing<em>.</em></h2>
+      <p class="st-lead">Share a photo, album or an entire event with anyone — even people who don't have SnapIT. Every share is <b style="color:var(--ink)">end-to-end encrypted</b>: SnapIT hands out a link with the decryption key <em>in the URL fragment</em>, so our servers never see it. When you revoke, the link dies.</p>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Create a new share</div>
+          <div class="st-row-sub">Start from an event, an album, or a picked selection. Choose expiry, password, and download permissions.</div>
+        </div>
+        <div class="st-row-r"><button class="st-btn pri" onclick="openShareModal()">＋ New share link</button></div>
+      </div>
+      <div style="margin-top:22px;font-size:11px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;font-weight:700">Active shares</div>
+      <div id="shareList" style="margin-top:10px"></div>
+      <div style="margin-top:26px;padding:18px 22px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--dim);line-height:1.7">
+        <div style="font-size:13px;color:var(--ink);font-weight:600;margin-bottom:6px">How this stays private</div>
+        Every share is packaged into a signed bundle, encrypted with a random key, uploaded to your own S◉LOCK VAULT (or VF's default node if you don't have one). The decryption key lives only in the URL fragment (<code style="background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px">#k=…</code>) so it <b style="color:var(--ink)">never touches a server log</b>. Anyone with the link and expiry window can view. Anyone without can't — even if they intercept the URL host.
+      </div>`;
+
+    if (id === 'sources') return `
+      <h2 class="st-h">Sources &amp; drives<em>.</em></h2>
+      <p class="st-lead">6 drives connected · 2 currently syncing · 4 218 files pending. Watchers stay running while SnapIT is open, so new photos land automatically.</p>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Open full sources view</div>
+          <div class="st-row-sub">Add a new drive, disconnect one, browse per-source stats.</div>
+        </div>
+        <div class="st-row-r"><button class="st-btn pri" onclick="closeSettings();switchView('socials')">Open Sources</button></div>
+      </div>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Import queue</div>
+          <div class="st-row-sub">Live progress on the 4 218 remaining files.</div>
+        </div>
+        <div class="st-row-r"><button class="st-btn" onclick="closeSettings();openImportQueue()">Open queue</button></div>
+      </div>`;
+
+    if (id === 'imports') return `
+      <h2 class="st-h">Import queue<em>.</em></h2>
+      <p class="st-lead">Prefer a live view? Open the full queue overlay — big list, live progress bars, per-source drill-down.</p>
+      <button class="st-btn pri" onclick="closeSettings();openImportQueue()">Open live queue</button>
+      <div style="margin-top:24px;padding:22px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--dim);line-height:1.7">
+        <div style="font-size:13px;color:var(--ink);font-weight:600;margin-bottom:8px">What actually gets indexed?</div>
+        Every photo and video that lands from any watched source is: (1) deduplicated by perceptual hash, (2) EXIF-parsed for date / place / camera, (3) face-clustered locally, (4) auto-tagged with content labels (beach, kitchen, portrait, food). All of it happens on this machine.
+      </div>`;
+
+    if (id === 'licence') return `
+      <h2 class="st-h">Licence &amp; seats<em>.</em></h2>
+      <p class="st-lead">Family Pack · <b style="color:var(--ink)">4 of 5 seats used</b> · perpetual licence · covers this device + laptop + Elena's + kids' iPad.</p>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Seat manager</div>
+          <div class="st-row-sub">Kick a machine, resend the licence, ping devices to check they're alive.</div>
+        </div>
+        <div class="st-row-r"><a href="/seats" target="_blank" class="st-btn pri">Open seats page ↗</a></div>
+      </div>
+      <div class="st-row">
+        <div class="st-row-l">
+          <div class="st-row-title">Permanence guarantee</div>
+          <div class="st-row-sub">If VF Empire ever ceases operations, the entire source code and licence-signing key are released so SnapIT keeps working forever.</div>
+        </div>
+        <div class="st-row-r"><a href="/permanence" target="_blank" class="st-btn">Read guarantee ↗</a></div>
+      </div>`;
+
+    if (id === 'downloads') return `
+      <h2 class="st-h">Get SnapIT<em>.</em></h2>
+      <p class="st-lead">Install SnapIT on every machine covered by your licence. Uses machine-bound activation — no re-typing keys.</p>
+      <div class="st-dl-grid">
+        <a class="st-dl" href="/preview-x8f2r7/?open=downloads">
+          <div class="st-dl-plat">macOS</div>
+          <div class="st-dl-h">SnapIT for Mac</div>
+          <div class="st-dl-s">Apple silicon · notarised · v0.1.3</div>
+        </a>
+        <a class="st-dl" href="/preview-x8f2r7/?open=downloads">
+          <div class="st-dl-plat">Windows</div>
+          <div class="st-dl-h">SnapIT for Windows</div>
+          <div class="st-dl-s">x64 · signed · v0.1.3</div>
+        </a>
+        <a class="st-dl" href="/preview-x8f2r7/?open=downloads">
+          <div class="st-dl-plat">Linux</div>
+          <div class="st-dl-h">SnapIT for Linux</div>
+          <div class="st-dl-s">AppImage · signed · v0.1.3</div>
+        </a>
+      </div>`;
+
+    if (id === 'about') return `
+      <h2 class="st-h">About<em>.</em></h2>
+      <div class="st-about-row"><span>Version</span><b>0.1.3 (mock preview)</b></div>
+      <div class="st-about-row"><span>Publisher</span><b>VF Empire Corp Ltd</b></div>
+      <div class="st-about-row"><span>Licence</span><b>Family Pack — perpetual</b></div>
+      <div class="st-about-row"><span>Support</span><b><a href="mailto:support@vfempire.com" style="color:var(--core)">support@vfempire.com</a></b></div>
+      <div class="st-about-row"><span>Privacy</span><b><a href="/privacy" target="_blank" style="color:var(--core)">vfempire.com/privacy ↗</a></b></div>
+      <div class="st-about-row"><span>Permanence</span><b><a href="/permanence" target="_blank" style="color:var(--core)">Read guarantee ↗</a></b></div>
+      <div style="margin-top:26px;padding:18px 22px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--dim);line-height:1.7">
+        SnapIT is built on <b style="color:var(--ink)">Tauri v2</b> (Rust + web), uses <b style="color:var(--ink)">Argon2id</b> for PIN hashing, <b style="color:var(--ink)">Ed25519</b> for licence signing, and does <b style="color:var(--ink)">100% of face-clustering + ML indexing on your machine</b>. No account, no server, no telemetry.
+      </div>`;
+
+    if (id === 'danger') return `
+      <h2 class="st-h">Danger zone<em>.</em></h2>
+      <p class="st-lead">These actions can't be undone. Photos on disk are never touched — only SnapIT's index / preferences.</p>
+      <div class="st-danger">
+        <div class="st-danger-h">Rebuild index</div>
+        <div class="st-danger-s">Drops every clustering, tag and face group and rebuilds from source drives. Takes ~40 minutes for 100k photos on the beast.</div>
+        <button class="st-btn danger">Rebuild now</button>
+      </div>
+      <div class="st-danger" style="margin-top:14px">
+        <div class="st-danger-h">Reset preferences</div>
+        <div class="st-danger-s">Wipes profiles, PINs, save destinations, cinematic settings on THIS device. Photos and sources stay.</div>
+        <button class="st-btn danger" onclick="resetPreferences()">Reset preferences</button>
+      </div>`;
+
+    return '';
+}
+function toggleRow(title, sub, on, key) {
+    return `<div class="st-row">
+      <div class="st-row-l">
+        <div class="st-row-title">${title}</div>
+        <div class="st-row-sub">${sub}</div>
+      </div>
+      <div class="st-row-r">
+        <div class="st-toggle ${on ? 'on' : ''}" onclick="toggleProfileField(this,'${key}')"></div>
+      </div>
+    </div>`;
+}
+async function toggleProfileField(el, key) {
+    const on = !el.classList.contains('on');
+    el.classList.toggle('on', on);
+    try {
+        const updated = await window.ProfileStore.update(CURRENT_PROFILE.id, { [key]: on });
+        // patch our in-memory copy
+        Object.assign(CURRENT_PROFILE, updated);
+    } catch (e) {
+        // revert visual state on error
+        el.classList.toggle('on', !on);
+        console.error('profile update failed', e);
+    }
+}
+async function setSaveDest(dest) {
+    try {
+        const updated = await window.ProfileStore.update(CURRENT_PROFILE.id, { default_save: dest });
+        Object.assign(CURRENT_PROFILE, updated);
+        renderSettings();
+    } catch (e) { console.error(e); }
+}
+async function resetPreferences() {
+    if (!confirm('Reset all local preferences? Profiles, PINs, saved settings will be wiped. Photos stay.')) return;
+    await window.ProfileStore._wipe();
+    location.reload();
+}
+async function signOut() {
+    if (!confirm('Sign out and return to the profile picker?')) return;
+    closeSettings();
+    document.getElementById('avatarwrap')?.classList.remove('on');
+    // The picker overlays the app; user re-picks (and re-enters PIN if set).
+    openPicker();
+}
+
+/* ================================================================
+   Import queue overlay.
+   Renders a live-updating fake queue that visually mimics what the
+   real Rust backend will stream via events. Great demo of what
+   customers see while sources are backfilling.
+   ================================================================ */
+let _iqTimer = null, _iqPaused = false, _iqRunning = 0;
+function openImportQueue() {
+    document.getElementById('importQueueBackdrop').classList.add('on');
+    document.getElementById('importQueue').classList.add('on');
+    document.getElementById('avatarwrap')?.classList.remove('on');
+    _iqRunning = 0;
+    _iqPaused = false;
+    document.getElementById('iqPause').textContent = '⏸ Pause all';
+    renderImportQueue();
+    if (_iqTimer) clearInterval(_iqTimer);
+    _iqTimer = setInterval(tickImportQueue, 700);
+}
+function closeImportQueue() {
+    document.getElementById('importQueueBackdrop').classList.remove('on');
+    document.getElementById('importQueue').classList.remove('on');
+    if (_iqTimer) { clearInterval(_iqTimer); _iqTimer = null; }
+}
+function pauseImportQueue() {
+    _iqPaused = !_iqPaused;
+    document.getElementById('iqPause').textContent = _iqPaused ? '▶ Resume all' : '⏸ Pause all';
+}
+function renderImportQueue() {
+    const pane = document.getElementById('iqPane');
+    const remaining = 4218 - _iqRunning;
+    const rateSec = _iqPaused ? 0 : 6;
+    const eta = _iqPaused ? '— paused —' : Math.ceil(remaining / rateSec / 60) + ' min';
+    const sources = [
+        { name: 'iPhone.local: 2 145 items', label: 'iPhone-15-Pro', in_progress: true },
+        { name: 'NAS · Family: 987 items',   label: 'NAS · Family', in_progress: true },
+        { name: 'Nikon-Card: 612 items',     label: 'Nikon-Card',   in_progress: false },
+        { name: 'iCloud Photos: 474 items',  label: 'iCloud',       in_progress: false },
+    ];
+    pane.innerHTML = `
+      <div class="iq-summary">
+        <div class="iq-metric"><div class="v">${remaining.toLocaleString()}</div><div class="l">Remaining</div></div>
+        <div class="iq-metric"><div class="v">${_iqRunning.toLocaleString()}</div><div class="l">Imported this session</div></div>
+        <div class="iq-metric"><div class="v">${rateSec}/s</div><div class="l">Rate</div></div>
+        <div class="iq-metric"><div class="v">${eta}</div><div class="l">Est. done</div></div>
+      </div>
+      <div class="iq-list">${sources.map(s => `
+        <div class="iq-item ${_iqPaused ? '' : (s.in_progress ? '' : 'done')}">
+          <div class="iq-item-ico">${s.label[0]}</div>
+          <div>
+            <div class="iq-item-name">${s.name}</div>
+            <div class="iq-item-source">${s.label}${s.in_progress && !_iqPaused ? ' · indexing' : (s.in_progress ? ' · paused' : ' · queued')}</div>
+          </div>
+          <div class="iq-item-progress"><div class="iq-item-progress-fill" style="width:${s.in_progress && !_iqPaused ? (30 + (_iqRunning*3) % 65) : (s.in_progress ? 30 : 100)}%"></div></div>
+          <div class="iq-item-state">${s.in_progress && !_iqPaused ? 'indexing' : (s.in_progress ? 'paused' : 'ok')}</div>
+        </div>`).join('')}
+      </div>`;
+}
+function tickImportQueue() {
+    if (_iqPaused) return;
+    _iqRunning += 6;
+    if (_iqRunning > 4218) _iqRunning = 4218;
+    if (document.getElementById('importQueue').classList.contains('on')) {
+        renderImportQueue();
+    }
+}
+// Esc to close active modal
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (document.getElementById('shareModal').classList.contains('on'))    return closeShareModal();
+    if (document.getElementById('settings').classList.contains('on'))      return closeSettings();
+    if (document.getElementById('importQueue').classList.contains('on'))   return closeImportQueue();
+    if (document.getElementById('upscaleModal').classList.contains('on'))  return closeUpscale();
+});
+
+/* ================================================================
+   Share-library controller.
+   End-to-end encrypted share bundles. The mock persists a list of
+   shares in localStorage under snapit_shares_v1 so revoke / re-open
+   work across reloads. Real Rust side signs each bundle with the
+   licence key + hands out a random 32-byte AES key baked into the
+   URL fragment (never sent to any server).
+   ================================================================ */
+const SHARES_KEY = 'snapit_shares_v1';
+function _loadShares() {
+    try { return JSON.parse(localStorage.getItem(SHARES_KEY) || '[]'); }
+    catch { return []; }
+}
+function _saveShares(arr) {
+    localStorage.setItem(SHARES_KEY, JSON.stringify(arr));
+}
+function openShareModal(scopeHint) {
+    // Reset UI
+    document.getElementById('shareResult').hidden = true;
+    document.getElementById('sharePicker').style.display = 'block';
+    // Reset selections to defaults
+    _resetPillGroup('data-share-scope', scopeHint || 'event');
+    _resetPillGroup('data-share-exp', '7d');
+    _resetPillGroup('data-share-perm', 'view');
+    document.getElementById('shareRecipient').value = '';
+    document.getElementById('sharePw').value = '';
+
+    // Wire pill toggles (single-select per group)
+    document.querySelectorAll('[data-share-scope],[data-share-exp],[data-share-perm]').forEach(pill => {
+        pill.onclick = () => {
+            const group = pill.dataset.shareScope !== undefined ? 'data-share-scope'
+                        : pill.dataset.shareExp   !== undefined ? 'data-share-exp'
+                                                                : 'data-share-perm';
+            document.querySelectorAll('[' + group + ']').forEach(p => p.classList.remove('on'));
+            pill.classList.add('on');
+        };
+    });
+
+    document.getElementById('shareBackdrop').classList.add('on');
+    document.getElementById('shareModal').classList.add('on');
+}
+function _resetPillGroup(attr, val) {
+    document.querySelectorAll('[' + attr + ']').forEach(p => {
+        p.classList.toggle('on', p.getAttribute(attr) === val);
+    });
+}
+function closeShareModal() {
+    document.getElementById('shareBackdrop').classList.remove('on');
+    document.getElementById('shareModal').classList.remove('on');
+}
+function _readShareForm() {
+    const scope = document.querySelector('.st-pill.on[data-share-scope]')?.dataset.shareScope || 'event';
+    const exp   = document.querySelector('.st-pill.on[data-share-exp]')?.dataset.shareExp || '7d';
+    const perm  = document.querySelector('.st-pill.on[data-share-perm]')?.dataset.sharePerm || 'view';
+    return {
+        scope, exp, perm,
+        recipient: document.getElementById('shareRecipient').value.trim(),
+        password:  document.getElementById('sharePw').value.trim(),
+    };
+}
+function createShare() {
+    const form = _readShareForm();
+    // Fake a share id + key
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const rand = (n) => Array.from({length:n}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+    const id  = rand(4) + '-' + rand(4);
+    const key = rand(43); // ~256 bits base64-ish
+    const url = `https://share.snapit.vfempire.com/s/${id}#k=${key}`;
+
+    const record = {
+        id, url,
+        scope: form.scope, exp: form.exp, perm: form.perm,
+        recipient: form.recipient || null,
+        password:  !!form.password,
+        created_at: new Date().toISOString(),
+        viewed: 0,
+    };
+    const list = _loadShares();
+    list.unshift(record);
+    _saveShares(list);
+    // Show result
+    document.getElementById('sharePicker').style.display = 'none';
+    document.getElementById('shareResult').hidden = false;
+    document.getElementById('shareUrl').textContent = url;
+    // Refresh sharing settings list if visible
+    if (document.getElementById('settings').classList.contains('on') && _settingsTab === 'sharing') {
+        renderShareList();
+    }
+}
+async function copyShareLink(ev) {
+    const url = document.getElementById('shareUrl').textContent;
+    try {
+        await navigator.clipboard.writeText(url);
+        const btn = ev?.currentTarget;
+        if (btn) {
+            const orig = btn.textContent;
+            btn.textContent = '✓ Copied';
+            setTimeout(() => btn.textContent = orig, 1400);
+        }
+    } catch { alert('Copy failed — select and copy manually.'); }
+}
+function sendShareByMail() {
+    const url  = document.getElementById('shareUrl').textContent;
+    const to   = document.getElementById('shareRecipient').value.trim();
+    const subject = encodeURIComponent('A SnapIT share');
+    const body = encodeURIComponent(
+        `Hi,\n\nI've shared some photos with you via SnapIT.\n\n${url}\n\nThe link's end-to-end encrypted — the key lives in the URL fragment after #, so it's never seen by any server.`
+    );
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+}
+function renderShareList() {
+    const el = document.getElementById('shareList');
+    if (!el) return;
+    const list = _loadShares();
+    if (list.length === 0) {
+        el.innerHTML = `<div style="padding:22px;text-align:center;color:var(--dim);font-size:13px;border:1px dashed var(--line);border-radius:10px">No active shares. Click <b>＋ New share link</b> to create your first.</div>`;
+        return;
+    }
+    const scopeLabel = { event: 'Event', album: 'Album', starred: 'Starred', library: 'Whole library', picked: 'Picked' };
+    const expLabel = { '24h':'24h','7d':'7 days','30d':'30 days','never':'Never expires' };
+    el.innerHTML = list.map(s => `
+      <div style="display:grid;grid-template-columns:1fr auto;gap:14px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;color:var(--ink);font-weight:600">${scopeLabel[s.scope] || s.scope} · ${s.perm === 'download' ? 'View + download' : 'View only'}</div>
+          <div style="font-size:11.5px;color:var(--dim);margin-top:2px">
+            ${s.recipient ? 'To ' + s.recipient + ' · ' : ''}Expires: ${expLabel[s.exp] || s.exp}${s.password ? ' · password-locked' : ''} · ${s.viewed || 0} views
+          </div>
+          <div style="font-family:'SF Mono','Menlo',monospace;font-size:11px;color:var(--dim);margin-top:6px;word-break:break-all;opacity:.7">${s.url}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <button class="st-btn" onclick="copyOneShare('${s.id}')" data-tip="Copy link">📋</button>
+          <button class="st-btn danger" onclick="revokeShare('${s.id}')">Revoke</button>
+        </div>
+      </div>
+    `).join('');
+}
+async function copyOneShare(id) {
+    const list = _loadShares();
+    const s = list.find(x => x.id === id);
+    if (!s) return;
+    try { await navigator.clipboard.writeText(s.url); } catch {}
+}
+function revokeShare(id) {
+    if (!confirm('Revoke this share link? Anyone with the URL will get a "link revoked" page immediately.')) return;
+    const list = _loadShares().filter(s => s.id !== id);
+    _saveShares(list);
+    renderShareList();
+}
+
+
+/* ================================================================
+   Premium hover-tip controller.
+   Any element with data-tip="Label text" gets a floating info panel
+   after a short hover delay. Optional data-tip-sub for a subhead,
+   data-tip-shortcut for a keyboard key badge. Auto-positions above
+   if there's no room below.
+   ================================================================ */
+const TIP_DELAY_MS = 380;
+let _tipEl = null, _tipTimer = null, _tipCurrent = null;
+function initTooltips() {
+    _tipEl = document.getElementById('tooltip');
+    // Delegated hover — new elements automatically pick up the tip too
+    document.addEventListener('mouseover', (e) => {
+        const t = e.target.closest?.('[data-tip]');
+        if (!t || t === _tipCurrent) return;
+        _tipCurrent = t;
+        clearTimeout(_tipTimer);
+        _tipTimer = setTimeout(() => _showTip(t), TIP_DELAY_MS);
+    });
+    document.addEventListener('mouseout', (e) => {
+        const t = e.target.closest?.('[data-tip]');
+        if (!t) return;
+        // If we're moving to a child of the same tipped element, stay
+        if (e.relatedTarget && t.contains(e.relatedTarget)) return;
+        clearTimeout(_tipTimer);
+        _tipCurrent = null;
+        _hideTip();
+    });
+    // Suppress on scroll/wheel so it doesn't chase the cursor
+    document.addEventListener('scroll', _hideTip, true);
+    document.addEventListener('wheel', _hideTip, { passive: true });
+}
+function _showTip(t) {
+    if (!_tipEl) return;
+    const label = t.getAttribute('data-tip');
+    if (!label) return;
+    const sub  = t.getAttribute('data-tip-sub');
+    const key  = t.getAttribute('data-tip-shortcut');
+    _tipEl.querySelector('.tt-label').textContent = label;
+    const keyEl = _tipEl.querySelector('.tt-key');
+    if (key) { keyEl.textContent = key; keyEl.hidden = false; }
+    else     { keyEl.hidden = true; }
+    const subEl = _tipEl.querySelector('.tt-sub');
+    if (sub) { subEl.textContent = sub; subEl.hidden = false; }
+    else     { subEl.hidden = true; }
+
+    // Position: below the element, flip above if there's not enough room
+    const r = t.getBoundingClientRect();
+    _tipEl.classList.remove('above');
+    _tipEl.style.left = (r.left + r.width / 2) + 'px';
+    _tipEl.style.top  = (r.bottom + 12) + 'px';
+    // measure and flip if overflowing
+    requestAnimationFrame(() => {
+        const tr = _tipEl.getBoundingClientRect();
+        if (tr.bottom > window.innerHeight - 8) {
+            _tipEl.classList.add('above');
+            _tipEl.style.top = (r.top - tr.height - 12) + 'px';
+        }
+        // Clamp horizontally so it doesn't cut off at edges
+        const half = tr.width / 2;
+        if (tr.left < 8) _tipEl.style.left = (half + 8) + 'px';
+        else if (tr.right > window.innerWidth - 8) _tipEl.style.left = (window.innerWidth - half - 8) + 'px';
+        _tipEl.classList.add('on');
+    });
+}
+function _hideTip() {
+    if (!_tipEl) return;
+    _tipEl.classList.remove('on');
+    clearTimeout(_tipTimer);
+}
+
+/* ================================================================
    Upscale + before/after compare-slider controller.
    Simulates a Real-ESRGAN pass (3 stages, ~3s), then swaps the modal
    into compare mode with a draggable wipe handle. Non-destructive:
@@ -3013,29 +3900,29 @@ function renderAvatarMenu() {
     const menu = document.getElementById('avatarMenu');
     const others = PROFILES.filter(p => p.id !== CURRENT_PROFILE.id);
     menu.innerHTML = `
-      <a href="#" style="display:flex;align-items:center;gap:12px">
+      <a href="#" onclick="event.preventDefault();openSettings('profile')" style="display:flex;align-items:center;gap:12px" data-tip="Open your profile settings">
         <div style="width:32px;height:32px;border-radius:6px;background:${headerGradient(CURRENT_PROFILE.gradient)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px">${CURRENT_PROFILE.initials}</div>
         <div><div>${CURRENT_PROFILE.name}</div><small>${CURRENT_PROFILE.role} · signed in · ${CURRENT_PROFILE.saves} saves</small></div>
       </a>
       <hr>
       ${others.map(p => `
-        <a href="#" onclick="event.preventDefault();selectProfileFromMenu('${p.id}')" style="display:flex;align-items:center;gap:12px">
+        <a href="#" onclick="event.preventDefault();selectProfileFromMenu('${p.id}')" style="display:flex;align-items:center;gap:12px" data-tip="Switch to ${p.name}">
           <div style="width:28px;height:28px;border-radius:6px;background:${headerGradient(p.gradient)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px">${p.initials}</div>
           <div><div>${p.name}</div><small>${p.role} · ${p.saves} saves</small></div>
         </a>
       `).join('')}
-      <a href="#" onclick="event.preventDefault();openPicker()"><div>＋ Add / manage profiles</div><small>Family Pack · 5 max</small></a>
+      <a href="#" onclick="event.preventDefault();openPicker()" data-tip="Add or manage family profiles"><div>＋ Add / manage profiles</div><small>Family Pack · 5 max</small></a>
       <hr>
-      <a href="#" onclick="event.preventDefault();switchView('socials')">Sources &amp; drives <small>6 connected · 2 syncing</small></a>
-      <a href="#" onclick="event.preventDefault();openCleanup()">Camera-roll cleanup <small>4 218 files flagged</small></a>
-      <a href="#" onclick="event.preventDefault();openFaceMatch()">Face grouping <small>Off — 3 unnamed people</small></a>
-      <a href="#">Import queue <small>4 218 files remaining</small></a>
+      <a href="#" onclick="event.preventDefault();switchView('socials')" data-tip="See every connected drive">Sources &amp; drives <small>6 connected · 2 syncing</small></a>
+      <a href="#" onclick="event.preventDefault();openCleanup()" data-tip="Duplicates, blurred, screenshots, near-empty">Camera-roll cleanup <small>4 218 files flagged</small></a>
+      <a href="#" onclick="event.preventDefault();openFaceMatch()" data-tip="On-device only — faces never leave">Face grouping <small>Off — 3 unnamed people</small></a>
+      <a href="#" onclick="event.preventDefault();openImportQueue()" data-tip="Watch imports live">Import queue <small>4 218 files remaining</small></a>
       <hr>
-      <a href="/seats" target="_blank">Licence · Manage seats <small>4 of 5 used · Family Pack</small></a>
-      <a href="#">Settings</a>
-      <a href="/permanence" target="_blank">Permanence guarantee</a>
+      <a href="/seats" target="_blank" data-tip="Manage which machines can run SnapIT">Licence · Manage seats <small>4 of 5 used · Family Pack</small></a>
+      <a href="#" onclick="event.preventDefault();openSettings()" data-tip="Full app settings">Settings</a>
+      <a href="/permanence" target="_blank" data-tip="What happens if VF ever shuts down">Permanence guarantee</a>
       <hr>
-      <button class="avatar-btn">Sign out of SnapIT</button>
+      <button class="avatar-btn" onclick="signOut()" data-tip="Back to the profile picker">Sign out of SnapIT</button>
     `;
 }
 function headerGradient(cls) {
@@ -3423,6 +4310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderHome();
     updateHeaderAvatar();
     renderAvatarMenu();
+    initTooltips();
     // Splash → picker (or direct to a screen via ?open=)
     const params = new URLSearchParams(window.location.search);
     const openTarget = params.get('open');
