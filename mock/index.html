@@ -1143,32 +1143,62 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .action-choice .chev{color:var(--dim);font-size:14px}
 
 /* ================================================================
-   COMPACT SOCIAL CHROME — overlays on tiles when show_platform_chrome
-   is on and the tile has social metadata. Real chrome + big overlays
-   live on the showcase page; this is the "reads-as-social" version
-   for library tiles.
+   PLATFORM CHROME — ported 1:1 from the showcase (regen_showcase.py).
+   Vincent wants the exact same look on library tiles as on the
+   marketing gallery. Applied only when the tile has social metadata
+   AND CURRENT_PROFILE.show_platform_chrome !== false.
    ================================================================ */
-.sc-chrome{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;
-  justify-content:space-between;padding:9px 11px}
-.sc-top{display:flex;align-items:center;gap:8px}
-.sc-av{width:22px;height:22px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:700;border:1.5px solid rgba(255,255,255,.9);
-  box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.sc-handle{font-size:11.5px;font-weight:700;color:#fff;letter-spacing:-.003em;
-  text-shadow:0 1px 2px rgba(0,0,0,.7)}
-.sc-play{margin-left:auto;width:24px;height:24px;background:#ff0000;color:#fff;border-radius:2px;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.5)}
-.sc-bot{display:flex;justify-content:space-between;align-items:flex-end;color:#fff}
-.sc-likes{display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;
-  padding:4px 8px;background:rgba(0,0,0,.44);border-radius:99px;backdrop-filter:blur(4px);
-  text-shadow:0 1px 2px rgba(0,0,0,.6)}
-.sc-likes svg{color:#ff5c7a}
-.sc-chrome[data-brand="tiktok"] .sc-likes svg{color:#fff}
-.sc-chrome[data-brand="youtube"] .sc-likes{background:rgba(255,0,0,.85)}
-.sc-chrome[data-brand="youtube"] .sc-likes svg{display:none}
-.sc-chrome[data-brand="youtube"] .sc-handle::before{content:"▶ ";color:#ff0000}
-/* On hover the chrome fades out so the underlying image is fully visible */
-.card.landscape:hover .sc-chrome{opacity:0;transition:opacity .18s}
+.chrome{position:absolute;inset:0;pointer-events:none;transition:opacity .25s ease;z-index:2}
+.card:hover .chrome{opacity:.15}
+
+/* INSTAGRAM chrome */
+.ig-chrome{display:flex;flex-direction:column}
+.ig-top{display:flex;align-items:center;gap:10px;padding:10px 12px;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent)}
+.ig-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+.ig-handle{color:#fff;font-size:12px;font-weight:600}
+.ig-dots{margin-left:auto;color:#fff;font-size:16px}
+.ig-bot{margin-top:auto;padding:12px 14px;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);color:#fff}
+.ig-icons{display:flex;gap:14px;align-items:center;margin-bottom:8px}
+.ig-icons svg{width:22px;height:22px}
+.ig-likes{font-size:12px;font-weight:700}
+.ig-caption{font-size:11.5px;margin-top:2px;opacity:.95;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ig-caption span{color:#7cd0ff}
+
+/* TIKTOK chrome — real-app proportions */
+.tt-chrome{display:flex}
+.tt-side{margin-left:auto;width:20%;max-width:36px;padding:0 3px 6px;display:flex;flex-direction:column;
+  justify-content:flex-end;gap:7px;align-items:center;color:#fff}
+.tt-avatar-wrap{position:relative;margin-bottom:8px}
+.tt-avatar{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#ff0050,#00f2ea);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:9px;border:1.5px solid #fff}
+.tt-follow{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:11px;height:11px;
+  border-radius:50%;background:#fe2c55;color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;line-height:1;border:1px solid rgba(0,0,0,.14)}
+.tt-icon{display:flex;flex-direction:column;align-items:center;gap:0;font-size:8px;font-weight:600;
+  text-shadow:0 1px 2px rgba(0,0,0,.7);line-height:1.2}
+.tt-icon svg{width:17px;height:17px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
+.tt-disc{margin-top:2px}
+.tt-disc svg{width:20px;height:20px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));animation:tt-spin 4s linear infinite}
+@keyframes tt-spin{to{transform:rotate(360deg)}}
+.tt-bot{position:absolute;bottom:8px;left:8px;right:36px;color:#fff}
+.tt-handle{font-weight:800;font-size:10.5px;text-shadow:0 1px 2px rgba(0,0,0,.8);letter-spacing:.01em}
+.tt-cap{font-size:9px;line-height:1.35;margin-top:2px;text-shadow:0 1px 2px rgba(0,0,0,.75);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tt-cap span{color:#dceaff}
+.tt-sound{font-size:8.5px;margin-top:4px;padding:2px 5px;background:rgba(0,0,0,.35);border-radius:99px;
+  display:inline-block;backdrop-filter:blur(3px);text-shadow:0 1px 1px rgba(0,0,0,.6)}
+
+/* YOUTUBE chrome */
+.yt-chrome{}
+.yt-title{position:absolute;top:12px;left:14px;right:14px;color:#fff;font-size:13px;font-weight:600;line-height:1.35;text-shadow:0 1px 3px rgba(0,0,0,.75);opacity:.95;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.yt-bar{position:absolute;left:0;right:0;bottom:0;padding:0 12px 8px;color:#fff}
+.yt-prog{height:3px;background:rgba(255,255,255,.28);border-radius:99px;margin-bottom:6px;overflow:hidden}
+.yt-prog-fill{height:100%;width:33%;background:#ff0000}
+.yt-row{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.yt-time{font-weight:600}
+.yt-badges{display:flex;gap:6px}
+.yt-badge{padding:1px 5px;background:rgba(0,0,0,.5);border-radius:3px;font-size:10px}
 
 /* Chrome toggle pill in the top-nav util area */
 .chromepill{display:flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border-radius:99px;
@@ -2930,35 +2960,91 @@ function _socialBrandIcon(b) {
     };
     return ic[b] || '';
 }
-// Compact chrome for tiles — shows a mini avatar + handle + likes + brand icon
-// only when profile has show_platform_chrome on AND item has social metadata
+// Platform chrome overlay for tiles. Ported 1:1 from regen_showcase.py's
+// chrome_overlay() so the app looks identical to the showcase. Applied
+// only for IG/TikTok/YouTube (the three platforms with strong branded
+// UI). Other platforms just get the corner brand-dot on the tile.
 function socialChromeCompact(it) {
     if (!it.social) return '';
     if (CURRENT_PROFILE?.show_platform_chrome === false) return '';
     const brand = typeof it.social === 'string' ? it.social : it.social.brand;
     const meta  = typeof it.social === 'object' ? it.social : {};
-    const handle = meta.handle || (brand === 'youtube' ? 'youtube' : 'vincent');
-    const likes  = meta.likes  || (brand === 'tiktok' ? '128K' : '1.2K');
-    const brandGrad = {
-        instagram: 'linear-gradient(135deg,#f58529,#dd2a7b,#8134af)',
-        tiktok:    'linear-gradient(135deg,#00f2ea,#ff0050)',
-        youtube:   'linear-gradient(135deg,#ff4444,#cc0000)',
-        facebook:  'linear-gradient(135deg,#4267b2,#4b83e4)',
-        threads:   'linear-gradient(135deg,#333,#7c3aed)',
-    }[brand] || 'linear-gradient(135deg,#4a94ff,#1f6ff2)';
-    const heart = '<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-8-6-8-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-8 12-8 12z"/></svg>';
-    const play  = brand === 'youtube' ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' : '';
-    return `
-      <div class="sc-chrome" data-brand="${brand}">
-        <div class="sc-top">
-          <div class="sc-av" style="background:${brandGrad}">${handle[0].toUpperCase()}</div>
-          <div class="sc-handle">${handle}</div>
-          ${play ? `<div class="sc-play">${play}</div>` : ''}
-        </div>
-        <div class="sc-bot">
-          <span class="sc-likes">${heart}<span>${likes}</span></span>
-        </div>
-      </div>`;
+
+    if (brand === 'instagram') {
+        const handle  = meta.handle  || 'vincent.f';
+        const caption = meta.caption || '';
+        const hashtag = meta.hashtag || '';
+        const likes   = meta.likes   || '1 284';
+        return `
+          <div class="chrome ig-chrome">
+            <div class="ig-top">
+              <div class="ig-avatar">${handle[0].toUpperCase()}</div>
+              <div class="ig-handle">${handle}</div>
+              <div class="ig-dots">···</div>
+            </div>
+            <div class="ig-bot">
+              <div class="ig-icons">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.7-7.3L21 3v7"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="ig-likes">${likes} likes</div>
+              <div class="ig-caption"><b>${handle}</b> ${_esc(caption)} <span>${_esc(hashtag)}</span></div>
+            </div>
+          </div>`;
+    }
+    if (brand === 'tiktok') {
+        const handle   = meta.handle   || 'vincent';
+        const caption  = meta.caption  || '';
+        const hashtag  = meta.hashtag  || '';
+        const likes    = meta.likes    || '128K';
+        const comments = meta.comments || '2.8K';
+        const saves    = meta.saves    || '12K';
+        const music    = meta.music    || 'original sound';
+        return `
+          <div class="chrome tt-chrome">
+            <div class="tt-side">
+              <div class="tt-avatar-wrap">
+                <div class="tt-avatar">${handle[0].toUpperCase()}</div>
+                <div class="tt-follow">+</div>
+              </div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="#fff"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span>${likes}</span></div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>${comments}</span></div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="#fff"><path d="M6 3a1 1 0 0 0-1 1v17l7-5 7 5V4a1 1 0 0 0-1-1H6z"/></svg><span>${saves}</span></div>
+              <div class="tt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><path d="M4 12c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8"/><path d="M12 8v4l3 2"/></svg><span>Share</span></div>
+              <div class="tt-disc"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="12" r="11" fill="#333"/><circle cx="12" cy="12" r="3" fill="#fff"/><path d="M12 3a9 9 0 0 1 9 9" stroke="#fff" stroke-width="1" fill="none"/></svg></div>
+            </div>
+            <div class="tt-bot">
+              <div class="tt-handle">@${handle}</div>
+              <div class="tt-cap">${_esc(caption)} <span>${_esc(hashtag)}</span></div>
+              <div class="tt-sound">♪ ${_esc(music)}</div>
+            </div>
+          </div>`;
+    }
+    if (brand === 'youtube') {
+        const title = meta.title || 'Untitled video';
+        const time  = meta.time  || '4:12 / 12:38';
+        return `
+          <div class="chrome yt-chrome">
+            <div class="yt-title">${_esc(title)}</div>
+            <div class="yt-bar">
+              <div class="yt-prog"><div class="yt-prog-fill"></div></div>
+              <div class="yt-row">
+                <span class="yt-time">${_esc(time)}</span>
+                <span class="yt-badges">
+                  <span class="yt-badge">CC</span>
+                  <span class="yt-badge">HD</span>
+                  <span class="yt-badge">⚙</span>
+                </span>
+              </div>
+            </div>
+          </div>`;
+    }
+    return '';
+}
+function _esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 function renderPortrait(it) {
     const dur = it.kind === 'video' ? `<span class="card-dur">${fmtDur(it.duration_s)}</span>` : '';
@@ -3134,13 +3220,29 @@ function renderHome() {
         [{ id:'top10', title:'Top 10 shots this year', subtitle:'By stars, plays and re-visits', items: shuffle(L.starred.items.concat(L.recent.items)).slice(0,10) }, 'top10'],
         [albumEvent1, 'landscape'],
         [hiddenGems, 'landscape'],
-        [{ id:'socials-back', title:'From your socials', subtitle:'Every platform · restored to native shape · original captions + likes',
+        [{ id:'socials-back', title:'From your socials', subtitle:'Every platform · native shape · original chrome + likes',
            nativeSocials: true,
-           items: L.recent.items.slice(0, 14).map((x, i) => {
-               // Cycle through platforms so users see the variety
-               const brands = ['instagram','tiktok','youtube','pinterest','x','snapchat','threads','facebook','instagram','tiktok','pinterest','youtube','x','snapchat'];
-               return {...x, social: { brand: brands[i], handle: 'vincent.f', likes: brands[i]==='tiktok'?'128K':brands[i]==='youtube'?'42K':'1.2K' }};
-           }) }, 'landscape'],
+           // Prefer real social items from the gallery manifest — they carry
+           // the full SOCIAL_META (caption, hashtag, likes, comments, saves,
+           // music, title, time) so tiles render the same chrome as the
+           // showcase page. Falls back to fake platform assignments only if
+           // the manifest hasn't produced any social images yet.
+           items: (() => {
+               const realSocials = (window.SNAPIT_GALLERY || [])
+                   .filter(x => x.social && x.section?.startsWith('social-'));
+               if (realSocials.length >= 4) return realSocials.slice(0, 14);
+               const brands = ['instagram','tiktok','youtube','pinterest','x','snapchat','threads','facebook','instagram','tiktok'];
+               return L.recent.items.slice(0, 10).map((x, i) => ({
+                   ...x,
+                   social: { brand: brands[i], handle: 'vincent.f',
+                             caption: 'moment from the library', hashtag: '#snapit',
+                             likes: brands[i]==='tiktok'?'128K':brands[i]==='youtube'?'42K':'1.2K',
+                             comments: '1.2K', saves: '3.4K',
+                             music: 'original sound — @vincent',
+                             title: 'A moment from the library',
+                             time: '4:12 / 12:38' }
+               }));
+           })() }, 'landscape'],
         [albumEvent2, 'landscape'],
         [{ id:'videos', title:'Videos across everything', subtitle:'Playable in-app · no external player', items: getAllVideos().slice(0,12) }, 'landscape'],
         [L.place[0], 'landscape'],
