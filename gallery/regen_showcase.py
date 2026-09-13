@@ -14,6 +14,56 @@ ROOT   = Path("/home/guardiansoftiktok/snapit-desktop")
 OUT    = ROOT / "gallery" / "out"
 SERVE  = ROOT / "purchase-backend" / "public" / "preview-x8f2r7"
 GALLERY_DEST = SERVE / "gallery"
+MOCK_ROOT = ROOT / "mock"
+
+# Metadata hints keyed by filename fragment so the app's tiles get
+# realistic place / people / camera / event / kind labels instead of
+# random noise. Real Rust catalog will pull these from EXIF + ML.
+PLACE_HINTS = {
+    "malta": "Malta", "valletta": "Valletta", "comino": "Comino",
+    "sicily": "Sicily", "taormina": "Taormina", "etna": "Etna",
+    "alps": "Swiss Alps", "ski": "Swiss Alps", "italian": "Italian Alps",
+    "rostock": "Rostock", "berlin": "Berlin", "leipzig": "Leipzig",
+    "vietnam": "Vietnam", "bali": "Bali", "singapore": "Singapore",
+    "tokyo": "Tokyo", "dubai": "Dubai", "spain": "Spain", "italy": "Italy",
+    "germany": "Germany", "vineyard": "Tuscany", "yoga": "Bali",
+    "mediterranean": "Malta", "cliff": "Comino",
+}
+EVENT_HINTS = {
+    "malta-june":       "Malta trip · June",
+    "sicily":           "Sicily road trip",
+    "ski":              "Alps ski week",
+    "family-christmas": "Christmas 2025",
+    "family-reunion":   "Family reunion",
+    "graduation":       "Graduation day",
+    "baby":             "Baby's first year",
+    "kitchen":          "Kitchen renovation",
+    "halloween":        "Halloween",
+    "new-year":         "New Year in Valletta",
+    "backyard":         "Backyard BBQ",
+    "anniversary":      "Anniversary dinner",
+    "berlin":           "Berlin office move",
+    "rostock":          "Rostock warehouse",
+    "site-visit":       "Property viewing",
+    "valletta-morning": "Malta trip · June",
+    "cliff-yoga":       "Malta trip · June",
+    "vineyard":         "Tuscany harvest",
+    "mediterranean":    "Storm at sea",
+}
+CAMERA_BY_SECTION = {
+    "hero":            "Nikon Z8",
+    "highlights":      "Nikon Z8",
+    "portrait":        "Fujifilm X-T5",
+    "starred":         "Sony A7 IV",
+    "still-life":      "Fujifilm X-T5",
+    "place":           "Sony A7 IV",
+    "kids-row":        "iPhone 15 Pro",
+    "raw-technical":   "Nikon Z8",
+    "video-still":     "DJI Mavic 3",
+    "social-instagram":"iPhone 15 Pro",
+    "social-tiktok":   "iPhone 15 Pro",
+    "social-youtube":  "Sony A7 IV",
+}
 
 # Aspect classification by filename convention — set from prompt files
 ASPECTS_BY_SECTION = {
@@ -212,9 +262,79 @@ def chrome_overlay(brand, meta=None):
           </div>'''
     return ""
 
+def _guess_place(name):
+    n = name.lower()
+    for k, v in PLACE_HINTS.items():
+        if k in n:
+            return v
+    return None
+
+def _guess_event(name):
+    n = name.lower()
+    for k, v in EVENT_HINTS.items():
+        if k in n:
+            return v
+    return None
+
+def _pretty(name):
+    return name.replace("-", " ").replace("_", " ").capitalize()
+
+def write_app_manifest(sections_data):
+    """Emit mock/gallery-manifest.js + preview mirror. Every real image on
+    disk becomes a catalog entry the app can drop straight into its rows —
+    place/event/camera/kind/starred inferred from filename + section so the
+    tile chrome matches what a shipped app would show. The IDs are stable
+    so re-runs don't churn the app state."""
+    from datetime import datetime, timedelta
+    now = datetime(2026, 9, 13, 18, 0, 0)
+    items = []
+    idx = 0
+    for section_id, entries in sections_data.items():
+        for name, url in entries:
+            # url is like /preview-x8f2r7/gallery/hero/x.png — the app is
+            # served at /preview-x8f2r7/, so relative "gallery/..." works.
+            rel = url.split("/preview-x8f2r7/", 1)[-1]
+            place  = _guess_place(name)
+            event  = _guess_event(name)
+            camera = CAMERA_BY_SECTION.get(section_id, "iPhone 15 Pro")
+            kind = "video" if section_id == "video-still" else "photo"
+            aspect = ASPECTS_BY_SECTION.get(section_id, "landscape")
+            starred = section_id in ("starred", "hero", "highlights") and (idx % 4 == 0)
+            # Social sections carry the platform chrome metadata
+            social = None
+            if section_id.startswith("social-"):
+                brand = section_id.split("-", 1)[1]
+                meta = SOCIAL_META.get(name, SOCIAL_META_DEFAULT.get(brand, {}))
+                social = {"brand": brand, **meta}
+            taken = now - timedelta(days=idx * 4 + (idx % 7))
+            items.append({
+                "id":         f"real-{section_id}-{name}",
+                "thumb":      rel,
+                "section":    section_id,
+                "aspect":     aspect,
+                "kind":       kind,
+                "duration_s": (12 + (idx * 3) % 45) if kind == "video" else None,
+                "taken_at":   taken.isoformat() + "Z",
+                "camera":     camera,
+                "drive":      "iPhone-15-Pro" if idx % 3 == 0 else ("Nikon-Card" if idx % 3 == 1 else "NAS · Family"),
+                "place":      place,
+                "event":      event,
+                "starred":    starred,
+                "raw":        section_id == "raw-technical",
+                "featured":   section_id == "hero" and idx < 6,
+                "pretty":     _pretty(name),
+                "social":     social,
+            })
+            idx += 1
+    payload = "window.SNAPIT_GALLERY = " + json.dumps(items, indent=2) + ";\n"
+    (MOCK_ROOT / "gallery-manifest.js").write_text(payload)
+    (SERVE / "gallery-manifest.js").write_text(payload)
+    print(f"[regen] wrote gallery-manifest.js · {len(items)} real items")
+
 def render():
     sections_data = scan_sections()
     total_count = sum(len(v) for v in sections_data.values())
+    write_app_manifest(sections_data)
     section_html = []
     for section_id, label, desc in SECTIONS:
         items = sections_data.get(section_id, [])

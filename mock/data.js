@@ -42,27 +42,58 @@ const EVENT_NAMES = [
     'New Year in Valletta',
 ];
 
-// Build 40 photo/video items using the pre-rendered mock thumbs.
+// Build items — real Flux-generated photos when gallery-manifest.js is
+// present (produced by regen_showcase.py after each batch), otherwise
+// fall back to the legacy mock-XXX.jpg placeholders so the app still
+// renders in environments where the manifest hasn't been generated.
 const items = [];
-for (let i = 0; i < 40; i++) {
-    const isVideo = i % 7 === 0;
-    const daysAgo = Math.floor(i * 8 + Math.random() * 30);
-    const taken = new Date(NOW.getTime() - daysAgo * 86400_000);
-    items.push({
-        id: `mock-${String(i).padStart(3, '0')}`,
-        thumb: `assets/thumbs/mock-${String(i).padStart(3, '0')}.jpg`,
-        kind: isVideo ? 'video' : 'photo',
-        duration_s: isVideo ? Math.floor(20 + Math.random() * 240) : null,
-        taken_at: taken.toISOString(),
-        camera: pick(CAMERAS),
-        drive: pick(DRIVES),
-        people: (Math.random() < 0.6 ? [pick(PEOPLE)] : []).concat(
-            Math.random() < 0.3 ? [pick(PEOPLE)] : []
-        ),
-        place: Math.random() < 0.7 ? pick(PLACES) : null,
-        starred: Math.random() < 0.18,
-        raw: Math.random() < 0.25,
-    });
+const REAL = (typeof window !== 'undefined' && Array.isArray(window.SNAPIT_GALLERY))
+    ? window.SNAPIT_GALLERY : [];
+
+if (REAL.length >= 10) {
+    // Use real images. Fill in missing people randomly so face-grouping
+    // demos still work — real app pulls people from ML face-clustering.
+    for (const r of REAL) {
+        items.push({
+            id: r.id,
+            thumb: r.thumb,
+            kind: r.kind,
+            duration_s: r.duration_s,
+            taken_at: r.taken_at,
+            camera: r.camera,
+            drive: r.drive,
+            people: Math.random() < 0.6 ? [pick(PEOPLE)] : [],
+            place: r.place,
+            starred: r.starred,
+            raw: r.raw,
+            event: r.event,
+            featured: r.featured,
+            pretty: r.pretty,
+            social: r.social || null,
+            section: r.section,
+        });
+    }
+} else {
+    for (let i = 0; i < 40; i++) {
+        const isVideo = i % 7 === 0;
+        const daysAgo = Math.floor(i * 8 + Math.random() * 30);
+        const taken = new Date(NOW.getTime() - daysAgo * 86400_000);
+        items.push({
+            id: `mock-${String(i).padStart(3, '0')}`,
+            thumb: `assets/thumbs/mock-${String(i).padStart(3, '0')}.jpg`,
+            kind: isVideo ? 'video' : 'photo',
+            duration_s: isVideo ? Math.floor(20 + Math.random() * 240) : null,
+            taken_at: taken.toISOString(),
+            camera: pick(CAMERAS),
+            drive: pick(DRIVES),
+            people: (Math.random() < 0.6 ? [pick(PEOPLE)] : []).concat(
+                Math.random() < 0.3 ? [pick(PEOPLE)] : []
+            ),
+            place: Math.random() < 0.7 ? pick(PLACES) : null,
+            starred: Math.random() < 0.18,
+            raw: Math.random() < 0.25,
+        });
+    }
 }
 
 // Build rows.
@@ -83,7 +114,23 @@ function rowByYear() {
 }
 
 function rowByEvent() {
-    // Random distribution across event names for the mock.
+    // If real items carry an `event` field (from the manifest), group by
+    // it so tiles cluster into their actual events. Fall back to the
+    // random-EVENT_NAMES distribution when no event metadata exists.
+    const withEvent = items.filter(i => i.event);
+    if (withEvent.length >= 6) {
+        const map = {};
+        for (const it of withEvent) (map[it.event] ??= []).push(it);
+        // Include un-labelled items as an "Other" cluster if worth showing
+        const rest = items.filter(i => !i.event);
+        if (rest.length >= 4) map['Recently added'] = rest;
+        return Object.entries(map).map(([name, list]) => ({
+            id: `event-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+            title: name,
+            subtitle: `${list.length} · ${list[0].place ?? ''}`,
+            items: list,
+        }));
+    }
     const shuffled = [...items].sort(() => Math.random() - 0.5);
     const rows = [];
     let idx = 0;
