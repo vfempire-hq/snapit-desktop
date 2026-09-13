@@ -61,6 +61,14 @@ jobs:
         working-directory: app
         run: npm install
 
+      # Smoke test: scan → thumb pipeline against real JPEGs on disk.
+      # Runs on Linux only (fastest matrix leg). Any failure here blocks
+      # the whole release.
+      - name: Smoke test (Linux)
+        if: matrix.os == 'ubuntu-22.04'
+        working-directory: app/src-tauri
+        run: cargo test --test scan_thumb_smoke -- --nocapture
+
       - name: Build (Tauri v2)
         working-directory: app
         env:
