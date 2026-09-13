@@ -216,7 +216,7 @@ def _mid_batch_regen():
              "cd /home/guardiansoftiktok/snapit-desktop/purchase-backend && "
              "npx wrangler deploy >> /tmp/mid-regen.log 2>&1 && "
              "cd /home/guardiansoftiktok/snapit-desktop && "
-             "git add gallery/out purchase-backend/public/preview-x8f2r7/gallery purchase-backend/public/preview-x8f2r7/showcase.html && "
+             "git add gallery/out purchase-backend/public/preview-x8f2r7/gallery purchase-backend/public/preview-x8f2r7/showcase.html mock/gallery-manifest.js purchase-backend/public/preview-x8f2r7/gallery-manifest.js && "
              "( git diff --cached --quiet || git commit -m 'snapit(gallery): auto-commit mid-batch showcase drop' >> /tmp/mid-regen.log 2>&1 )"],
             start_new_session=True,
         )
