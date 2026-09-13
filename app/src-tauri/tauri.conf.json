@@ -69,7 +69,7 @@
         "https://snapit.vfempire.com/updates/{{target}}/{{arch}}/{{current_version}}"
       ],
       "dialog": true,
-      "pubkey": "REPLACE_WITH_MINISIGN_PUBKEY_BEFORE_M4"
+      "pubkey": "ZFc1MGNuVnpkR1ZrSUdOdmJXMWxiblE2SUcxcGJtbHphV2R1SUhCMVlteHBZeUJyWlhrNklFUkRSRFV5UkRRME5EWkNNREV5TmpVS1VsZFNiRVZ5UWtkU1F6TldNMDFZUjIwMVZtNUhNR1ZrWWpnd0t6azBSR1ZGTlRNeVNURnRUbU4xYW5aQ1RtazJTalZ5VnpoQmVrWUs="
     }
   }
 }

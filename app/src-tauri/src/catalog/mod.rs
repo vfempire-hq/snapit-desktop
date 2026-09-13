@@ -138,6 +138,16 @@ pub struct PhotoRow {
     pub height: i64,
 }
 
+pub fn path_and_hash_by_id(library_root: &Path, photo_id: &str) -> Result<(String, String)> {
+    let conn = open(library_root)?;
+    let row = conn.query_row(
+        "SELECT rel_path, content_hash FROM photos WHERE id = ?1",
+        params![photo_id],
+        |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)),
+    )?;
+    Ok(row)
+}
+
 pub fn recent(library_root: &Path, limit: u32) -> Result<Vec<PhotoRow>> {
     let conn = open(library_root)?;
     let mut stmt = conn.prepare(

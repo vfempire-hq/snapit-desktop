@@ -4,3 +4,5 @@
 // R·02: S3-compat backend behind the same trait.
 
 pub mod local;
+pub mod thumbs;
+pub mod watch;
