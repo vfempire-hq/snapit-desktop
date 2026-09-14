@@ -89,6 +89,10 @@ jobs:
           find app/src-tauri/target/${{ matrix.target }}/release/bundle -type f \
             \( -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.msi' -o -name '*.msi.zip' -o -name '*-setup.exe' -o -name '*-setup.nsis.zip' -o -name '*.AppImage' -o -name '*.AppImage.tar.gz' -o -name '*.deb' -o -name '*.sig' \) \
             -exec cp {} out/ \;
+          # SHA-256 sidecars for every artifact
+          for f in out/*; do
+            [ -f "$f" ] && sha256sum "$f" | awk '{print $1}' > "$f.sha256"
+          done
           ls -la out/
 
       - uses: actions/upload-artifact@v4
@@ -96,8 +100,88 @@ jobs:
           name: snapit-${{ matrix.label }}
           path: out/*
 
+  # Direct-from-site Android APK — dual-lane distribution LAW: every VF app
+  # ships stores AND direct APK for buyers who don't want Play Store or the
+  # Apple-controlled TestFlight. Unsigned debug build for now; production
+  # signing lands with R·02b when Play Console + Apple certs go live.
+  android:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Rust + Android targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri -> target
+          shared-key: android
+
+      - name: Install cargo-tauri + cargo-ndk
+        run: |
+          cargo install tauri-cli --version '^2' --locked
+          cargo install cargo-ndk --locked
+
+      - name: Install Android NDK r27c
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r27c
+          local-cache: true
+
+      - name: npm install
+        working-directory: app
+        run: npm install
+
+      - name: Build frontend
+        working-directory: app
+        run: npm run build
+
+      - name: Init Tauri Android project (idempotent)
+        working-directory: app/src-tauri
+        env:
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          if [ ! -d gen/android ]; then
+            cargo tauri android init
+          fi
+
+      - name: Build Android APK (unsigned debug for direct download)
+        working-directory: app/src-tauri
+        env:
+          NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cargo tauri android build --debug --apk --split-per-abi
+          find gen/android -name '*.apk' -exec ls -la {} \;
+
+      - name: Collect APKs
+        shell: bash
+        run: |
+          mkdir -p out
+          find app/src-tauri/gen/android -name '*.apk' -exec cp {} out/ \;
+          for f in out/*.apk; do
+            [ -f "$f" ] && sha256sum "$f" | awk '{print $1}' > "$f.sha256"
+          done
+          ls -la out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snapit-android
+          path: out/*
+
   publish:
-    needs: build
+    needs: [build, android]
     runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -111,3 +195,16 @@ jobs:
         with:
           files: dist-artifacts/**/*
           generate_release_notes: true
+
+      - name: Deploy to snapit.vfempire.com/downloads/
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          mkdir -p purchase-backend/public/downloads
+          find dist-artifacts -type f \
+            \( -name '*.deb' -o -name '*.AppImage' -o -name '*-setup.exe' -o -name '*.dmg' -o -name '*.app.tar.gz' -o -name '*.apk' -o -name '*.sig' -o -name '*.sha256' \) \
+            -exec cp {} purchase-backend/public/downloads/ \;
+          cd purchase-backend
+          npm install
+          npx wrangler deploy
