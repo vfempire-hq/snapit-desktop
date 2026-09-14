@@ -130,6 +130,66 @@ async fn catalog_recent(
     catalog::recent_filtered(&library, limit, min_rating.unwrap_or(0)).map_err(|e| e.to_string())
 }
 
+/// Frontend-friendly row: everything the mock tile needs to render.
+/// `thumb_path` is a raw filesystem path — the frontend runs it through
+/// convertFileSrc() to turn it into an asset:// URL. Not converting here
+/// keeps the Rust side platform-agnostic (Windows uses http://asset.localhost/,
+/// Mac/Linux use asset://localhost/).
+#[derive(serde::Serialize)]
+struct HydratedRow {
+    id: String,
+    path: String,
+    taken_at: Option<String>,
+    width: i64,
+    height: i64,
+    xmp_rating: Option<i32>,
+    kind: String,
+    camera: Option<String>,
+    caption: Option<String>,
+    duration_s: Option<i64>,
+    content_hash: String,
+    /// filesystem path — pass through convertFileSrc() before assigning to <img>
+    thumb_path: String,
+}
+
+/// Recent photos WITH precomputed thumbnail paths. Cheap because thumb_asset_path
+/// is deterministic: it just concatenates library_root + hash-shard + hash + size.
+/// The thumbnail file might not exist yet on disk — the frontend can fall back to
+/// a placeholder + call thumb_ensure lazily as the user scrolls.
+#[tauri::command]
+async fn catalog_recent_hydrated(
+    limit: u32,
+    min_rating: Option<i32>,
+    state: State<'_, AppState>,
+) -> Result<Vec<HydratedRow>, String> {
+    let library = state.library.lock().unwrap().clone().ok_or("no library open")?;
+    let rows = catalog::recent_filtered(&library, limit, min_rating.unwrap_or(0))
+        .map_err(|e| e.to_string())?;
+    let hydrated = rows
+        .into_iter()
+        .map(|r| {
+            let thumb_path = storage::thumbs::thumb_asset_path(&library, &r.content_hash, 256)
+                .to_string_lossy()
+                .to_string();
+            HydratedRow {
+                id: r.id,
+                path: r.path,
+                taken_at: r.taken_at,
+                width: r.width,
+                height: r.height,
+                xmp_rating: r.xmp_rating,
+                kind: r.kind,
+                camera: r.camera,
+                caption: r.caption,
+                duration_s: r.duration_s,
+                content_hash: r.content_hash,
+                thumb_path,
+            }
+        })
+        .collect();
+    Ok(hydrated)
+}
+
 // ---------- duplicates ----------
 
 #[tauri::command]
@@ -453,6 +513,7 @@ pub fn run() {
             catalog_open,
             library_scan,
             catalog_recent,
+            catalog_recent_hydrated,
             catalog_duplicates,
             events_recluster,
             events_list,

@@ -42,10 +42,11 @@ const EVENT_NAMES = [
     'New Year in Valletta',
 ];
 
-// Build items — real Flux-generated photos when gallery-manifest.js is
-// present (produced by regen_showcase.py after each batch), otherwise
-// fall back to the legacy mock-XXX.jpg placeholders so the app still
-// renders in environments where the manifest hasn't been generated.
+// Build the library from either the demo manifest OR — when the Tauri
+// adapter has swapped in real content — the actual catalog rows. Wrapped
+// in a function so `window.rebuildLibraryData()` can be called any time
+// the gallery source changes (e.g. after `library_scan`).
+function buildLibrary() {
 const items = [];
 const REAL = (typeof window !== 'undefined' && Array.isArray(window.SNAPIT_GALLERY))
     ? window.SNAPIT_GALLERY : [];
@@ -96,136 +97,79 @@ if (REAL.length >= 10) {
     }
 }
 
-// Build rows.
-function rowByYear() {
-    const byYear = {};
-    for (const it of items) {
-        const y = new Date(it.taken_at).getUTCFullYear();
-        (byYear[y] ??= []).push(it);
+    // Row builders read the outer `items` closure — declared here inside
+    // buildLibrary() so they see the freshly-built list each rebuild.
+    function _byYear() {
+        const byYear = {};
+        for (const it of items) { const y = new Date(it.taken_at).getUTCFullYear(); (byYear[y] ??= []).push(it); }
+        return Object.entries(byYear).sort((a,b)=>Number(b[0])-Number(a[0]))
+            .map(([y,list])=>({ id:`year-${y}`, title:y, subtitle:`${list.length} · ${list.filter(i=>i.kind==='video').length} videos`, items:list }));
     }
-    return Object.entries(byYear)
-        .sort((a, b) => Number(b[0]) - Number(a[0]))
-        .map(([y, list]) => ({
-            id: `year-${y}`,
-            title: y,
-            subtitle: `${list.length} · ${list.filter((i) => i.kind === 'video').length} videos`,
-            items: list,
-        }));
-}
-
-function rowByEvent() {
-    // If real items carry an `event` field (from the manifest), group by
-    // it so tiles cluster into their actual events. Fall back to the
-    // random-EVENT_NAMES distribution when no event metadata exists.
-    const withEvent = items.filter(i => i.event);
-    if (withEvent.length >= 6) {
-        const map = {};
-        for (const it of withEvent) (map[it.event] ??= []).push(it);
-        // Include un-labelled items as an "Other" cluster if worth showing
-        const rest = items.filter(i => !i.event);
-        if (rest.length >= 4) map['Recently added'] = rest;
-        return Object.entries(map).map(([name, list]) => ({
-            id: `event-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-            title: name,
-            subtitle: `${list.length} · ${list[0].place ?? ''}`,
-            items: list,
-        }));
-    }
-    const shuffled = [...items].sort(() => Math.random() - 0.5);
-    const rows = [];
-    let idx = 0;
-    for (const name of EVENT_NAMES) {
-        const size = 3 + Math.floor(Math.random() * 4);
-        const chunk = shuffled.slice(idx, idx + size);
-        if (chunk.length === 0) break;
-        rows.push({
-            id: `event-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-            title: name,
-            subtitle: `${chunk.length} · ${chunk[0].place ?? ''}`,
-            items: chunk,
-        });
-        idx += size;
-    }
-    return rows;
-}
-
-function rowByPeople() {
-    const map = {};
-    for (const it of items) {
-        for (const p of it.people) {
-            (map[p] ??= []).push(it);
+    function _byEvent() {
+        const withEvent = items.filter(i => i.event);
+        if (withEvent.length >= 6) {
+            const map = {}; for (const it of withEvent) (map[it.event] ??= []).push(it);
+            const rest = items.filter(i => !i.event); if (rest.length >= 4) map['Recently added'] = rest;
+            return Object.entries(map).map(([name,list])=>({ id:`event-${name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`, title:name, subtitle:`${list.length} · ${list[0].place ?? ''}`, items:list }));
         }
+        const shuffled = [...items].sort(()=>Math.random()-0.5);
+        const rows = []; let idx=0;
+        for (const name of EVENT_NAMES) {
+            const size = 3 + Math.floor(Math.random()*4);
+            const chunk = shuffled.slice(idx, idx+size); if (!chunk.length) break;
+            rows.push({ id:`event-${name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`, title:name, subtitle:`${chunk.length} · ${chunk[0].place ?? ''}`, items:chunk });
+            idx += size;
+        }
+        return rows;
     }
-    return Object.entries(map)
-        .sort((a, b) => b[1].length - a[1].length)
-        .map(([p, list]) => ({
-            id: `people-${p.toLowerCase()}`,
-            title: p,
-            subtitle: `${list.length} photos & videos`,
-            items: list,
-        }));
-}
-
-function rowByPlace() {
-    const map = {};
-    for (const it of items) {
-        if (!it.place) continue;
-        (map[it.place] ??= []).push(it);
+    function _byPeople() {
+        const map = {}; for (const it of items) for (const p of it.people) (map[p] ??= []).push(it);
+        return Object.entries(map).sort((a,b)=>b[1].length-a[1].length)
+            .map(([p,list])=>({ id:`people-${p.toLowerCase()}`, title:p, subtitle:`${list.length} photos & videos`, items:list }));
     }
-    return Object.entries(map)
-        .sort((a, b) => b[1].length - a[1].length)
-        .map(([p, list]) => ({
-            id: `place-${p.toLowerCase()}`,
-            title: p,
-            subtitle: `${list.length} photos`,
-            items: list,
-        }));
-}
+    function _byPlace() {
+        const map = {}; for (const it of items) if (it.place) (map[it.place] ??= []).push(it);
+        return Object.entries(map).sort((a,b)=>b[1].length-a[1].length)
+            .map(([p,list])=>({ id:`place-${p.toLowerCase()}`, title:p, subtitle:`${list.length} photos`, items:list }));
+    }
+    function _recent() {
+        const sorted = [...items].sort((a,b)=>new Date(b.taken_at)-new Date(a.taken_at));
+        return { id:'recent', title:'Recently added', subtitle:'Last 30 days · imported today', items:sorted.slice(0,12) };
+    }
+    function _starred() {
+        const s = items.filter(i=>i.starred);
+        return { id:'starred', title:'Starred', subtitle:`${s.length} favourites`, items:s };
+    }
 
-function rowRecent() {
-    const sorted = [...items].sort(
-        (a, b) => new Date(b.taken_at) - new Date(a.taken_at)
-    );
-    return {
-        id: 'recent',
-        title: 'Recently added',
-        subtitle: 'Last 30 days · imported today',
-        items: sorted.slice(0, 12),
+    window.MOCK_LIBRARY = {
+        counts: {
+            photos: items.filter((i) => i.kind === 'photo').length,
+            videos: items.filter((i) => i.kind === 'video').length,
+            events: EVENT_NAMES.length,
+            drives: DRIVES.length,
+            duplicates_folded: 137,
+            gb_freed: 3.4,
+        },
+        drives: DRIVES.map((name, idx) => ({
+            id: `drive-${idx}`,
+            name,
+            connected: idx < 4,
+            used_gb: (12 + Math.random() * 400).toFixed(1),
+            photos: 200 + Math.floor(Math.random() * 8000),
+        })),
+        rows: {
+            recent: _recent(),
+            starred: _starred(),
+            year: _byYear(),
+            event: _byEvent(),
+            people: _byPeople(),
+            place: _byPlace(),
+        },
     };
 }
 
-function rowStarred() {
-    const starred = items.filter((i) => i.starred);
-    return {
-        id: 'starred',
-        title: 'Starred',
-        subtitle: `${starred.length} favourites`,
-        items: starred,
-    };
-}
-
-window.MOCK_LIBRARY = {
-    counts: {
-        photos: items.filter((i) => i.kind === 'photo').length,
-        videos: items.filter((i) => i.kind === 'video').length,
-        events: EVENT_NAMES.length,
-        drives: DRIVES.length,
-        duplicates_folded: 137,
-        gb_freed: 3.4,
-    },
-    drives: DRIVES.map((name, idx) => ({
-        id: `drive-${idx}`,
-        name,
-        connected: idx < 4,
-        used_gb: (12 + Math.random() * 400).toFixed(1),
-        photos: 200 + Math.floor(Math.random() * 8000),
-    })),
-    rows: {
-        recent: rowRecent(),
-        starred: rowStarred(),
-        year: rowByYear(),
-        event: rowByEvent(),
-        people: rowByPeople(),
-        place: rowByPlace(),
-    },
-};
+// Expose a rebuild trigger for the Tauri adapter (or anyone else who
+// wants to swap in a new SNAPIT_GALLERY). Also runs once immediately
+// so the mock has data on first paint.
+window.rebuildLibraryData = buildLibrary;
+buildLibrary();

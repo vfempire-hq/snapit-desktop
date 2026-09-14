@@ -3296,6 +3296,9 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 <script type="module" src="store.js"></script>
 <script src="gallery-manifest.js"></script>
 <script src="data.js"></script>
+<!-- Tauri adapter — silent no-op in the web preview, hydrates real
+     catalog data into SNAPIT_GALLERY when running in the desktop app. -->
+<script src="tauri-adapter.js"></script>
 <script>
 /* ============================================================
    Rendering
