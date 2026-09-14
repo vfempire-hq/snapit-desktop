@@ -4,7 +4,7 @@ version = "0.1.7"
 edition = "2021"
 description = "SnapIT — own your photo library. Local-first, on-device AI, one-off purchase."
 authors = ["VF Empire Corp Ltd <security@vfempire.com>"]
-license = "AGPL-3.0-or-later"
+license = "LicenseRef-FSL-1.1-ALv2"
 repository = "https://github.com/vfempire-hq/snapit-desktop"
 
 [lib]

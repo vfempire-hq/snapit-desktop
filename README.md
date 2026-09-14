@@ -9,7 +9,7 @@ On-device AI does search, faces, and restoration. The licence is one-off and
 never expires. Nothing about your library ever leaves the device, and there is
 no key material we could hand over even if compelled.
 
-[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+[![License: FSL-1.1-ALv2](https://img.shields.io/badge/license-FSL--1.1--ALv2-blue.svg)](LICENSE)
 [![Tauri v2](https://img.shields.io/badge/Tauri-v2-24C8DB.svg)](https://tauri.app)
 [![Version](https://img.shields.io/badge/version-0.1.7-brightgreen.svg)](https://github.com/vfempire-hq/snapit-desktop/releases)
 [![security-scan](https://github.com/vfempire-hq/snapit-desktop/actions/workflows/security-scan.yml/badge.svg)](https://github.com/vfempire-hq/snapit-desktop/actions/workflows/security-scan.yml)
@@ -132,15 +132,30 @@ we owe you a public explanation.
 
 ## License
 
-[AGPL-3.0](LICENSE). If you fork SnapIT and run it as a hosted service, you
-must share the source of your modified version with your users. If you want
-commercial terms without the copyleft, contact `licensing@vfempire.com`.
+[FSL-1.1-ALv2](LICENSE) — the Functional Source License.
+
+In plain terms:
+
+- You can **read every line** of this code. Nothing about SnapIT is hidden.
+- You can **run, modify, and share** it for personal use, evaluation,
+  education, and research — free, forever.
+- You **cannot build a competing photo-library product** from this code for
+  the first two years after each version's release.
+- Two years after each release, that version **automatically becomes
+  Apache 2.0** — at which point you can do whatever you want with it.
+
+Why FSL and not AGPL? Same trust story (source is public, verifiable, no
+telemetry), plus a two-year window against direct commercial clones so we
+can fund continuous development. It's the same license Sentry uses.
+
+For commercial terms outside these bounds, contact `licensing@vfempire.com`.
 
 ## Trademark
 
 **SnapIT** and **VF Empire** are trademarks of VF Empire Corp Ltd, Malta C 94160.
-The code is AGPL; the name and logo are not — you can fork but not ship a
-competing product under the SnapIT brand.
+The code is FSL-1.1-ALv2; the name and logo are not — you can read the source
+under the license terms but you can't ship a competing product under the
+SnapIT brand.
 
 ---
 
