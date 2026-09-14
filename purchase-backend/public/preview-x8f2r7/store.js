@@ -95,9 +95,12 @@ function _view(p) {
     };
 }
 
-// ---- public API ------------------------------------------------------
+// ---- Web implementation (localStorage-backed, for the preview site) ---
+// The Tauri wrap replaces every method below with an invoke() call to the
+// Rust ProfileStore. That backend uses Argon2id + atomic writes to
+// ~/.config/SnapIT/profiles.json — see app/src-tauri/src/profile/mod.rs.
 
-export const ProfileStore = {
+const WebProfileStore = {
     /** Ensure at least one Owner profile exists. */
     async bootstrap() {
         const store = _load();
@@ -247,5 +250,88 @@ export const ProfileStore = {
     async _wipe() { localStorage.removeItem(STORE_KEY); },
 };
 
+// ---- Tauri detection -------------------------------------------------
+// Tauri v2 exposes window.__TAURI_INTERNALS__.invoke; older builds expose
+// window.__TAURI__.core.invoke. We check both to keep the bridge robust
+// across minor Tauri upgrades.
+function _tauriInvoke() {
+    if (typeof window === 'undefined') return null;
+    const internals = window.__TAURI_INTERNALS__?.invoke;
+    if (typeof internals === 'function') return internals;
+    const core = window.__TAURI__?.core?.invoke;
+    if (typeof core === 'function') return core;
+    return null;
+}
+const IS_TAURI = _tauriInvoke() !== null;
+
+// ---- Tauri implementation --------------------------------------------
+// Every method delegates to a matching #[tauri::command] in the Rust
+// backend. The command names + argument shapes must match lib.rs exactly.
+// Errors from Rust arrive as strings; we rethrow them so calling code
+// gets the same catch semantics either way.
+const TauriProfileStore = {
+    async bootstrap() {
+        return _tauriInvoke()('profile_bootstrap');
+    },
+    async list() {
+        return _tauriInvoke()('profile_list');
+    },
+    async activeId() {
+        const p = await _tauriInvoke()('profile_active');
+        return p?.id ?? null;
+    },
+    async setActive(profileId, pin) {
+        // The Rust backend has no "verify + set" combo — verify first, then
+        // set. Preserves the pin_mismatch semantics the mock expects.
+        const invoke = _tauriInvoke();
+        const list = await invoke('profile_list');
+        const target = list.find(p => p.id === profileId);
+        if (!target) throw new Error('profile_not_found');
+        if (target.locked) {
+            const ok = await invoke('profile_verify_pin', { id: profileId, pin: pin || '' });
+            if (!ok) throw new Error('pin_mismatch');
+        }
+        await invoke('profile_set_active', { id: profileId });
+        return target;
+    },
+    async create({ name, initials, gradient, kids, pin, role, content_restrictions }) {
+        return _tauriInvoke()('profile_create', {
+            input: { name, initials, gradient, kids: !!kids, role, content_restrictions },
+            pin: pin || null,
+        });
+    },
+    async update(profileId, patch) {
+        // The Rust ProfilePatch struct only takes the editable fields; keep
+        // the same allow-list here so unknown keys can't leak through.
+        const editable = ['name','initials','gradient','kids','autoplay_slides',
+            'autoplay_previews','face_group_consent','default_save',
+            'content_restrictions','language','show_platform_chrome'];
+        const clean = {};
+        for (const k of editable) if (patch[k] !== undefined) clean[k] = patch[k];
+        return _tauriInvoke()('profile_update', { id: profileId, patch: clean });
+    },
+    async remove(profileId) {
+        return _tauriInvoke()('profile_delete', { id: profileId });
+    },
+    async setPin(profileId, newPin) {
+        // null / empty string both clear the PIN.
+        const pin = (newPin === null || newPin === '') ? null : newPin;
+        await _tauriInvoke()('profile_set_pin', { id: profileId, pin });
+        const list = await _tauriInvoke()('profile_list');
+        return list.find(p => p.id === profileId);
+    },
+    async verifyPin(profileId, pin) {
+        return _tauriInvoke()('profile_verify_pin', { id: profileId, pin: pin || '' });
+    },
+    /** Wipe everything — dev button only. Tauri side deletes the profiles
+     *  file directly; no invoke because we don't want the frontend to be
+     *  able to wipe in production. In Tauri we just return silently. */
+    async _wipe() { /* not exposed via IPC — use Rust CLI or delete profiles.json */ },
+};
+
+// ---- Facade: pick the right implementation ---------------------------
+export const ProfileStore = IS_TAURI ? TauriProfileStore : WebProfileStore;
+
 // Expose on window for the mock's inline handlers to reach.
 window.ProfileStore = ProfileStore;
+window.SNAPIT_IS_TAURI = IS_TAURI;

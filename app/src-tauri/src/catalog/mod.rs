@@ -254,13 +254,25 @@ pub fn duplicate_groups(library_root: &Path, limit: u32) -> Result<Vec<Duplicate
     let mut groups = Vec::with_capacity(hashes.len());
     for (h, bytes_each) in hashes {
         let mut stmt = conn.prepare(
-            "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0), xmp_rating
+            "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0),
+                    xmp_rating, kind, camera_make, camera_model, xmp_caption,
+                    duration_ms, content_hash
              FROM photos
              WHERE content_hash = ?1 AND deleted_at IS NULL
              ORDER BY imported_at ASC",
         )?;
         let copies: Vec<PhotoRow> = stmt
             .query_map(params![h], |r| {
+                let kind: String = r.get::<_, Option<String>>(6)?.unwrap_or_else(|| "photo".into());
+                let make: Option<String> = r.get(7)?;
+                let model: Option<String> = r.get(8)?;
+                let camera = match (make.as_deref(), model.as_deref()) {
+                    (Some(m), Some(mo)) if !m.is_empty() && !mo.is_empty() => Some(format!("{m} {mo}")),
+                    (Some(m), _) if !m.is_empty() => Some(m.to_string()),
+                    (_, Some(mo)) if !mo.is_empty() => Some(mo.to_string()),
+                    _ => None,
+                };
+                let duration_ms: Option<i64> = r.get(10)?;
                 Ok(PhotoRow {
                     id: r.get(0)?,
                     path: r.get(1)?,
@@ -268,6 +280,11 @@ pub fn duplicate_groups(library_root: &Path, limit: u32) -> Result<Vec<Duplicate
                     width: r.get(3)?,
                     height: r.get(4)?,
                     xmp_rating: r.get(5)?,
+                    kind,
+                    camera,
+                    caption: r.get(9)?,
+                    duration_s: duration_ms.map(|ms| ms / 1000),
+                    content_hash: r.get(11)?,
                 })
             })?
             .filter_map(|r| r.ok())
@@ -328,6 +345,19 @@ pub struct PhotoRow {
     pub width: i64,
     pub height: i64,
     pub xmp_rating: Option<i32>,
+    /// "photo" | "video" — used by the frontend to show a duration
+    /// pill + play button on tiles.
+    pub kind: String,
+    /// Combined "Make Model" so the UI has a single label to render;
+    /// null when the shot has no EXIF (screenshots, WhatsApp, etc.)
+    pub camera: Option<String>,
+    /// XMP caption if the user (or Lightroom) added one — used as
+    /// the tile pretty-name when EXIF has nothing else.
+    pub caption: Option<String>,
+    /// Video duration in seconds (kind='video' only); None otherwise.
+    pub duration_s: Option<i64>,
+    /// Blake3 content hash — needed to fetch the thumbnail URL.
+    pub content_hash: String,
 }
 
 pub fn path_and_hash_by_id(library_root: &Path, photo_id: &str) -> Result<(String, String)> {
@@ -341,10 +371,16 @@ pub fn path_and_hash_by_id(library_root: &Path, photo_id: &str) -> Result<(Strin
 }
 
 /// `min_rating`: 0 = all, N = only photos with xmp_rating >= N.
+///
+/// Returns the rich PhotoRow used by the mock UI — includes kind,
+/// camera-label, caption, video duration + content_hash. The extra
+/// columns are cheap: they're all in the same photos row.
 pub fn recent_filtered(library_root: &Path, limit: u32, min_rating: i32) -> Result<Vec<PhotoRow>> {
     let conn = open(library_root)?;
     let mut stmt = conn.prepare(
-        "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0), xmp_rating
+        "SELECT id, rel_path, taken_at, COALESCE(width,0), COALESCE(height,0),
+                xmp_rating, kind, camera_make, camera_model, xmp_caption,
+                duration_ms, content_hash
          FROM photos
          WHERE deleted_at IS NULL
            AND (?2 = 0 OR COALESCE(xmp_rating, 0) >= ?2)
@@ -353,6 +389,16 @@ pub fn recent_filtered(library_root: &Path, limit: u32, min_rating: i32) -> Resu
     )?;
     let rows = stmt
         .query_map(params![limit, min_rating.clamp(0, 5)], |r| {
+            let kind: String = r.get::<_, Option<String>>(6)?.unwrap_or_else(|| "photo".into());
+            let make: Option<String> = r.get(7)?;
+            let model: Option<String> = r.get(8)?;
+            let camera = match (make.as_deref(), model.as_deref()) {
+                (Some(m), Some(mo)) if !m.is_empty() && !mo.is_empty() => Some(format!("{m} {mo}")),
+                (Some(m), _) if !m.is_empty() => Some(m.to_string()),
+                (_, Some(mo)) if !mo.is_empty() => Some(mo.to_string()),
+                _ => None,
+            };
+            let duration_ms: Option<i64> = r.get(10)?;
             Ok(PhotoRow {
                 id: r.get(0)?,
                 path: r.get(1)?,
@@ -360,6 +406,11 @@ pub fn recent_filtered(library_root: &Path, limit: u32, min_rating: i32) -> Resu
                 width: r.get(3)?,
                 height: r.get(4)?,
                 xmp_rating: r.get(5)?,
+                kind,
+                camera,
+                caption: r.get(9)?,
+                duration_s: duration_ms.map(|ms| ms / 1000),
+                content_hash: r.get(11)?,
             })
         })?
         .filter_map(|r| r.ok())
