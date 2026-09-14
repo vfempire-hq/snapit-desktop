@@ -1477,56 +1477,107 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   50%    {box-shadow:0 0 0 4px rgba(31,111,242,.75),0 0 48px 12px rgba(31,111,242,.5)}
 }
 
-.tour-card{position:fixed;z-index:9370;width:min(420px,calc(100vw - 32px));
-  padding:22px 24px 20px;border-radius:16px;
-  background:linear-gradient(135deg,#1f6ff2 0%,#4a94ff 55%,#7c3aed 100%);
-  background-size:180% 180%;animation:coachShift 10s ease-in-out infinite;
-  color:#fff;
-  box-shadow:0 32px 90px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.24);
-  opacity:0;pointer-events:none;transform:translateY(8px) scale(.96);
-  transition:opacity .3s cubic-bezier(.4,.2,.2,1),transform .3s cubic-bezier(.4,.2,.2,1),left .3s ease,top .3s ease}
-@keyframes coachShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+/* --- Premium tour card ------------------------------------------------
+   Dark editorial glass instead of a flat gradient. Layers:
+     1) radial glow at top (blue-tinted)
+     2) subtle bottom violet accent
+     3) crisp dark surface with backdrop-blur so any bright content behind
+        it shows through faintly (feels like paper on top of the page)
+     4) faint noise via SVG data URI for texture
+   Typography: Instrument Serif italic for the title tail, Hanken 700 for
+   the lede, body 14/1.65, tips on a darker inset with dot bullets.
+   ------------------------------------------------------------------ */
+.tour-card{position:fixed;z-index:9370;width:min(440px,calc(100vw - 32px));
+  padding:26px 28px 22px;border-radius:20px;color:#f4f5f8;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(31,111,242,.28),transparent 55%),
+    radial-gradient(circle at 100% 100%,rgba(124,58,237,.18),transparent 55%),
+    linear-gradient(180deg,rgba(14,16,22,.94) 0%,rgba(9,10,14,.96) 100%);
+  backdrop-filter:blur(32px) saturate(160%);
+  -webkit-backdrop-filter:blur(32px) saturate(160%);
+  box-shadow:
+    0 40px 110px rgba(0,0,0,.68),
+    0 0 0 1px rgba(255,255,255,.06),
+    0 0 0 3px rgba(31,111,242,.14),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  opacity:0;pointer-events:none;transform:translateY(10px) scale(.965);
+  transition:opacity .32s cubic-bezier(.4,.2,.2,1),transform .32s cubic-bezier(.4,.2,.2,1),left .3s ease,top .3s ease;
+  overflow:hidden}
+/* Subtle animated sheen sweep — one pass every 8s */
+.tour-card::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:20px;
+  background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.05) 50%,transparent 60%);
+  animation:tourSheen 9s ease-in-out infinite}
+@keyframes tourSheen{0%{transform:translateX(-100%)}55%,100%{transform:translateX(100%)}}
 .tour-card.on{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
-.tour-card-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.tour-card-step{padding:3px 10px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);
-  border-radius:99px;font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
-  backdrop-filter:blur(4px)}
-.tour-card-title{font-size:20px;font-weight:700;letter-spacing:-.014em;line-height:1.15;margin-bottom:8px;
-  text-shadow:0 1px 3px rgba(0,0,0,.24)}
-.tour-card-body{font-size:14px;line-height:1.6;opacity:.94}
-.tour-card-body b{font-weight:700;opacity:1}
-.tour-card-body em{font-style:italic;opacity:1}
-.tour-card-tips{margin-top:12px;padding:12px 14px;background:rgba(0,0,0,.18);border-radius:10px;
-  border:1px solid rgba(255,255,255,.08);font-size:12.5px;line-height:1.55}
-.tour-card-tips-h{font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;
-  opacity:.75;margin-bottom:6px}
+
+/* Head — thin accent bar + step counter serif number */
+.tour-card-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;position:relative;z-index:2}
+.tour-card-step{display:flex;align-items:baseline;gap:8px;font-family:'Hanken',sans-serif}
+.tour-card-step .num{font-size:22px;font-weight:600;letter-spacing:-.02em;color:#fff;
+  font-variant-numeric:tabular-nums;line-height:1;
+  text-shadow:0 0 20px rgba(31,111,242,.6)}
+.tour-card-step .num em{font-family:'Instrument',serif;font-style:italic;color:var(--core);font-weight:400}
+.tour-card-step .of{font-size:10px;color:rgba(255,255,255,.44);letter-spacing:.24em;text-transform:uppercase;font-weight:700}
+.tour-card-head::after{content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,rgba(31,111,242,.5),transparent)}
+
+/* Title — big serif with italic accent */
+.tour-card-title{font-size:26px;font-weight:600;letter-spacing:-.024em;line-height:1.08;
+  margin-bottom:12px;color:#fff;font-family:'Hanken',sans-serif;position:relative;z-index:2}
+.tour-card-title em{font-family:'Instrument',serif;font-style:italic;color:var(--core);font-weight:400}
+.tour-card-title b{font-weight:700}
+
+/* Body — editorial rhythm */
+.tour-card-body{font-size:14.5px;line-height:1.65;color:rgba(255,255,255,.82);position:relative;z-index:2;
+  font-family:'Hanken',sans-serif}
+.tour-card-body b{color:#fff;font-weight:600}
+.tour-card-body em{font-family:'Instrument',serif;font-style:italic;color:rgba(255,255,255,.94);font-weight:400}
+.tour-card-body code{background:rgba(31,111,242,.14);color:var(--core);padding:1px 6px;border-radius:4px;
+  font-family:'SF Mono','Menlo',monospace;font-size:11.5px}
+
+/* Tips — inset dark tile with blue dot bullets */
+.tour-card-tips{margin-top:16px;padding:14px 16px;background:rgba(0,0,0,.32);border-radius:12px;
+  border:1px solid rgba(255,255,255,.06);position:relative;z-index:2}
+.tour-card-tips-h{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:800;
+  color:var(--core);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tour-card-tips-h::before{content:"";width:14px;height:1px;background:var(--core)}
 .tour-card-tips ul{list-style:none;padding:0;margin:0}
-.tour-card-tips li{padding:3px 0;padding-left:18px;position:relative}
-.tour-card-tips li::before{content:"→";position:absolute;left:0;font-weight:800;opacity:.7}
-.tour-card-nav{display:flex;gap:8px;margin-top:16px;align-items:center}
-.tour-progress{flex:1;height:3px;background:rgba(255,255,255,.16);border-radius:99px;overflow:hidden;
-  margin-right:12px;min-width:80px}
-.tour-progress-fill{height:100%;background:#fff;transition:width .32s ease;box-shadow:0 0 8px rgba(255,255,255,.5)}
-.tour-btn{padding:9px 16px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;
-  transition:all .18s cubic-bezier(.4,.2,.2,1);letter-spacing:.005em;
-  background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
-.tour-btn:hover{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.36);transform:translateY(-1px)}
-.tour-btn.pri{background:#fff;color:#1f6ff2;border-color:#fff;font-weight:700;
-  box-shadow:0 8px 22px rgba(0,0,0,.28)}
-.tour-btn.pri:hover{background:#f4f7ff}
-.tour-btn.ghost{background:transparent;border-color:transparent;color:rgba(255,255,255,.72);padding:9px 10px}
-.tour-btn.ghost:hover{color:#fff;background:rgba(255,255,255,.08)}
-/* Card fin — anchors the card to the spotlight */
-.tour-card::before{content:"";position:absolute;width:16px;height:16px;background:inherit;background-size:inherit;
-  border:1px solid rgba(255,255,255,.14)}
-.tour-card.point-left::before{left:-8px;top:32px;transform:rotate(-45deg);border-right:none;border-top:none}
-.tour-card.point-right::before{right:-8px;top:32px;transform:rotate(135deg);border-right:none;border-top:none}
-.tour-card.point-above::before{bottom:-8px;left:32px;transform:rotate(-135deg);border-right:none;border-top:none}
-.tour-card.point-below::before{top:-8px;left:32px;transform:rotate(45deg);border-right:none;border-top:none}
+.tour-card-tips li{padding:3px 0;padding-left:18px;position:relative;font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.78)}
+.tour-card-tips li::before{content:"";position:absolute;left:2px;top:9px;width:5px;height:5px;background:var(--core);
+  border-radius:50%;box-shadow:0 0 8px var(--core)}
+
+/* Nav bar — segmented progress dots + refined button hierarchy */
+.tour-card-nav{display:flex;gap:10px;margin-top:20px;align-items:center;position:relative;z-index:2}
+.tour-progress{flex:1;display:flex;gap:3px;min-width:80px;margin-right:12px}
+.tour-progress-dot{flex:1;height:3px;background:rgba(255,255,255,.12);border-radius:99px;transition:all .32s ease}
+.tour-progress-dot.done{background:rgba(31,111,242,.5)}
+.tour-progress-dot.on{background:var(--core);box-shadow:0 0 8px rgba(31,111,242,.7)}
+.tour-btn{padding:10px 18px;border-radius:10px;font-size:12.5px;font-weight:600;cursor:pointer;
+  transition:all .18s cubic-bezier(.4,.2,.2,1);letter-spacing:.005em;font-family:inherit;
+  background:rgba(255,255,255,.06);color:#f4f5f8;border:1px solid rgba(255,255,255,.1)}
+.tour-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+.tour-btn.pri{padding:11px 20px;
+  background:linear-gradient(135deg,#1f6ff2,#4a94ff);
+  border-color:rgba(255,255,255,.18);color:#fff;font-weight:700;letter-spacing:.005em;
+  box-shadow:0 10px 24px rgba(31,111,242,.42),inset 0 1px 0 rgba(255,255,255,.28)}
+.tour-btn.pri:hover{transform:translateY(-1px);box-shadow:0 14px 32px rgba(31,111,242,.54),inset 0 1px 0 rgba(255,255,255,.34)}
+.tour-btn.ghost{background:transparent;border-color:transparent;color:rgba(255,255,255,.44);padding:10px 6px}
+.tour-btn.ghost:hover{color:rgba(255,255,255,.85);background:transparent;transform:none}
+
+/* Card fin — precise gradient inheritance */
+.tour-card::before{content:"";position:absolute;width:16px;height:16px;
+  background:linear-gradient(180deg,rgba(14,16,22,.94),rgba(9,10,14,.96));
+  border:1px solid rgba(255,255,255,.06);z-index:1}
+.tour-card.point-left::before{left:-9px;top:36px;transform:rotate(-45deg);border-right:none;border-top:none}
+.tour-card.point-right::before{right:-9px;top:36px;transform:rotate(135deg);border-right:none;border-top:none}
+.tour-card.point-above::before{bottom:-9px;left:36px;transform:rotate(-135deg);border-right:none;border-top:none}
+.tour-card.point-below::before{top:-9px;left:36px;transform:rotate(45deg);border-right:none;border-top:none}
 .tour-card.point-none::before{display:none}
+
 @media (max-width:600px){
-  .tour-card{width:calc(100vw - 24px);left:12px !important;right:12px}
+  .tour-card{width:calc(100vw - 24px);left:12px !important;right:12px;padding:22px 22px 18px}
   .tour-card::before{display:none}
+  .tour-card-title{font-size:22px}
 }
 
 /* ================================================================
@@ -2820,18 +2871,21 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 <div class="tour-spot" id="tourSpot"></div>
 <div class="tour-card point-none" id="tourCard">
   <div class="tour-card-head">
-    <div class="tour-card-step" id="tourStepLabel">STEP 1 · OF 24</div>
+    <div class="tour-card-step">
+      <span class="num" id="tourStepNum">01</span>
+      <span class="of" id="tourStepOf">of 24</span>
+    </div>
   </div>
   <div class="tour-card-title" id="tourCardTitle"></div>
   <div class="tour-card-body" id="tourCardBody"></div>
   <div class="tour-card-tips" id="tourCardTips" hidden>
-    <div class="tour-card-tips-h">Tips</div>
+    <div class="tour-card-tips-h">Also good to know</div>
     <ul id="tourTipsList"></ul>
   </div>
   <div class="tour-card-nav">
-    <div class="tour-progress"><div class="tour-progress-fill" id="tourProgress" style="width:0%"></div></div>
-    <button class="tour-btn ghost" onclick="tourEnd(true)">Skip tour</button>
-    <button class="tour-btn" onclick="tourStep(-1)" id="tourBack">Back</button>
+    <div class="tour-progress" id="tourProgress"></div>
+    <button class="tour-btn ghost" onclick="tourEnd(true)">Skip</button>
+    <button class="tour-btn" onclick="tourStep(-1)" id="tourBack">← Back</button>
     <button class="tour-btn pri" onclick="tourStep(1)" id="tourNext">Next →</button>
   </div>
 </div>
@@ -5015,149 +5069,242 @@ function _onbStartIndexSim() {
    menu → settings sections → feedback → replay control.
    ================================================================ */
 const TOUR_KEY = 'snapit_tour_seen_v1';
+
+// Helper — pick a demo image from the gallery manifest for tour steps
+// that need a real shot to demo (Enhance, Cinematic).
+function _tourDemoImage() {
+    const g = window.SNAPIT_GALLERY || [];
+    // Prefer a starred landscape hero (Malta shots are strongest visually)
+    return g.find(x => x.section === 'hero' && x.starred)
+        || g.find(x => x.section === 'hero')
+        || g.find(x => x.section === 'highlights')
+        || g[0]
+        || { id:'demo', thumb:'assets/thumbs/mock-004.jpg', kind:'photo', camera:'Nikon Z8', drive:'Nikon-Card', place:'Malta', taken_at:'2026-06-04T14:30:00Z', starred:true };
+}
+
+// Async helpers that pause between UI transitions
+const _wait = (ms) => new Promise(r => setTimeout(r, ms));
+
 const TOUR_STEPS = [
+    // ================= INTRO =================
     {
         anchor: null, side: 'center',
-        title: 'A quick 60-second tour.',
-        body: 'This is <em>every</em> screen SnapIT ships with — <b>every row, every button, every hidden gem</b>. We\'ll walk it end-to-end, then you\'ll know where everything lives. You can hit <b>Back</b>, <b>Skip</b>, or press <b>Esc</b> any time.',
-        tips: ['20-something steps · ~90 seconds total', 'Replayable from Settings → Danger zone'],
+        title: 'The 90-second <em>tour.</em>',
+        body: 'This is <em>every</em> screen SnapIT ships with — <b>every row, every button, every hidden gem</b>. Where cards mention a feature, we\'ll open it live so you can see it in action. <b>Back</b> / <b>Skip</b> / <b>Esc</b> any time.',
+        tips: ['24 steps · we open real modals + real settings pages as we go', 'Replayable from Settings → Danger zone'],
     },
+
+    // ================= HOME BILLBOARD =================
     {
         anchor: '.bb-title', side: 'below',
-        title: 'The feature wall.',
-        body: 'Your <b>home billboard</b>. SnapIT picks the shot or event it thinks you\'d most want to see right now — auto-clustered from every source. The <em>italic tail</em> ("· June.") is the sub-title, formatted so it always reads editorial.',
+        title: 'The feature <em>wall.</em>',
+        body: 'Your <b>home billboard</b>. SnapIT picks the event or shot it thinks you\'d most want to see right now — auto-clustered from every source. The italic tail ("· June.") is the sub-title, formatted so it always reads editorial.',
         tips: [
-            'Change the layout + which shot is featured — button top-right of the billboard',
-            'Open event · Add to timeline · Share buttons work on the featured event',
+            'Open event / Add to timeline / Share buttons work on the featured event',
+            'Every detail on this card updates when you change the featured shot',
         ],
     },
     {
-        anchor: '.fw-launcher', side: 'left',
-        title: 'Feature wall picker.',
-        body: 'Tap this to open the <b>10 pro layouts</b> — Tiled composite, Cinema mono, Split diptych, Ken Burns pan, Card stack, Vertical triptych, Big single, Mosaic, Polaroid cluster, Filmstrip. Pair any layout with any shot from your whole library. Choice saves per profile.',
+        anchor: '.fw-layouts', side: 'right',
+        title: 'Change the <em>feature wall.</em>',
+        body: 'Tap this to open the picker — <b>10 pro layouts</b> (Tiled composite, Cinema mono, Split diptych, Ken Burns pan, Card stack, Vertical triptych, Big single, Mosaic, Polaroid cluster, Filmstrip) paired with any shot from your library. We\'ll open it for you.',
+        pre:  async () => { if (typeof openFeatureWall === 'function') openFeatureWall(); await _wait(320); },
+        post: () => { if (typeof closeFeatureWall === 'function') closeFeatureWall(); },
     },
+    {
+        anchor: '.fw-preview', side: 'left',
+        title: 'Live preview as you pick.',
+        body: 'The right pane shows the exact shape your billboard becomes — click any layout on the left and any shot below, the preview repaints instantly. Apply saves per profile.',
+        pre: async () => { if (typeof openFeatureWall === 'function') openFeatureWall(); await _wait(300); },
+        post: () => { if (typeof closeFeatureWall === 'function') closeFeatureWall(); },
+    },
+
+    // ================= SEARCH + SOURCES =================
     {
         anchor: '.searchtrigger', side: 'below',
         title: 'Semantic search — on device.',
-        body: 'Type what you remember, not what you filed. <b>"the trip in June"</b> · <b>"kitchen before renovation"</b> · <b>"Elena laughing at brunch"</b>. SnapIT runs a CLIP-based embedding search <b>entirely on this machine</b> — the query never leaves.',
-        tips: ['Faces + places + dates + content tags are all searchable', 'Search hint text shows examples on focus'],
+        body: 'Type what you <em>remember</em>, not what you <em>filed</em>. <b>"the trip in June"</b> · <b>"kitchen before renovation"</b> · <b>"Elena laughing at brunch"</b>. A CLIP-based embedding search runs <b>entirely on this machine</b> — the query never leaves.',
+        tips: ['Faces + places + dates + content tags all searchable', 'Hint text on the input shows live examples'],
     },
     {
         anchor: '.addbtn', side: 'below',
-        title: 'Add another source any time.',
-        body: 'Later you\'ll want to plug in your Nikon\'s SD card, mount a new NAS, connect a fresh phone. This opens the same picker the onboarding walkthrough used — three phases (this device / network / phone connect).',
+        title: 'Add a source any time.',
+        body: 'Plug in a new SD card, mount a NAS, connect a phone — this opens the same 3-phase picker the onboarding used. <b>This device</b> (auto) → <b>Network scan</b> (on-demand) → <b>Phone connect</b> (repeat for each device).',
     },
     {
-        anchor: '.iconbtn.new', side: 'below',
+        anchor: '.iq-hero', side: 'right',
         title: 'Import queue — live.',
-        body: 'Watch imports as they happen. Per-source progress bars, live rate, ETA, "Just imported" thumbnail strip. Useful when you plug in a phone or a new drive and want to see what SnapIT\'s ingesting.',
+        body: 'Watch imports as they happen. <b>88px hero counter</b>, live rate + ETA + GB freed by dedup, <b>SVG rate sparkline</b>, per-source progress bars with running-light shimmer, and a "Just imported" strip that cycles as thumbnails land. Pauseable.',
+        pre: async () => { if (typeof openImportQueue === 'function') openImportQueue(); await _wait(400); },
+        post: () => { if (typeof closeImportQueue === 'function') closeImportQueue(); },
     },
+
+    // ================= NAV TABS =================
     {
-        anchor: '#tab-events, .tab[data-view="events"]', side: 'below',
-        title: 'Events tab — auto-clustered trips.',
-        body: 'Every event SnapIT identified. <b>Time-cluster</b> (4–48h window) + <b>GPS DBSCAN</b> (~5km radius) + <b>on-device content ML</b> (beach/kitchen/church/gym/wedding archetypes) + optional <b>calendar name-matching</b>. You can rename, merge, split events any time.',
-        tips: ['Rename events by clicking the title', 'Merge two similar events from the event page'],
+        anchor: '.tab[data-view="events"]', side: 'below',
+        title: 'Events tab — auto-clustered.',
+        body: 'Every event SnapIT identifies from your library. <b>Time-cluster</b> (4–48h window) + <b>GPS DBSCAN</b> (~5km) + <b>on-device content ML</b> (beach/kitchen/wedding/gym archetypes) + optional <b>calendar name-matching</b>. Rename, merge, split any time.',
+        pre: async () => { switchView('events'); await _wait(300); },
+        post: () => switchView('home'),
     },
     {
         anchor: '.tab[data-view="people"]', side: 'below',
-        title: 'People tab — face groups.',
-        body: 'Faces cluster by shape on this machine using <b>a local ONNX model</b>. No cloud, no server, no data leaves. You name each cluster once ("Sofia") and the label stays. Off by default — turn it on in Settings → People & Faces.',
-        tips: ['Kids profiles auto-hide unknown people', 'Merge / split clusters from the People page'],
+        title: 'People — face groups.',
+        body: 'Faces cluster by shape via a <b>local ONNX model</b>. No cloud, no server. Name each cluster once ("Sofia") — the label sticks. Off by default; opt-in from Settings → People & Faces so it stays a choice.',
+        pre: async () => { switchView('people'); await _wait(300); },
+        post: () => switchView('home'),
     },
     {
         anchor: '.tab[data-view="places"]', side: 'below',
-        title: 'Places tab — grouped by GPS.',
-        body: 'DBSCAN over EXIF GPS points, reverse-geocoded on-device via a bundled offline gazetteer. Groups become city → country. Shots with no GPS still show up in the parent event\'s place if the event carries one.',
+        title: 'Places — grouped by GPS.',
+        body: 'DBSCAN over EXIF GPS points, reverse-geocoded on-device via a bundled offline gazetteer. Groups become city → country. Shots without GPS still show up under their parent event\'s place.',
+        pre: async () => { switchView('places'); await _wait(300); },
+        post: () => switchView('home'),
     },
     {
         anchor: '.tab[data-view="videos"]', side: 'below',
-        title: 'Videos tab.',
+        title: 'Videos.',
         body: 'Every clip across every source — sorted long → short by default so real moments surface before phone-camera bloopers. Playable in-app, no external player needed.',
+        pre: async () => { switchView('videos'); await _wait(300); },
+        post: () => switchView('home'),
     },
     {
         anchor: '.tab[data-view="socials"]', side: 'below',
-        title: 'Socials tab — plug your accounts in.',
-        body: 'Every platform strips the story out of a shot before it hands you the render. <b>SnapIT reads the archive, not the render.</b> Connect via OAuth where available, or drop a GDPR takeout ZIP where it isn\'t — original date, caption, likes, tags all come back.',
+        title: 'Socials — plug accounts in.',
+        body: 'Every platform strips the story out of your shots before it hands you the render. <b>SnapIT reads the archive, not the render.</b> OAuth where possible; GDPR takeout ZIP where it isn\'t. Every field comes back.',
         tips: ['Instagram / YouTube / Pinterest / LinkedIn — OAuth', 'TikTok / Snapchat / BeReal / VSCO — takeout ZIP'],
+        pre: async () => { switchView('socials'); await _wait(300); },
+        post: () => switchView('home'),
     },
     {
         anchor: '.row-social:first-of-type .row-head', side: 'below',
         title: 'One row per platform.',
-        body: 'Netflix-style — each platform gets its own row. Tiles stay <b>plain images</b> across the whole suite (the site would look chaotic with every tile in native shape). Click any tile to enlarge — that\'s where the platform overlay appears.',
+        body: 'Netflix-style — each platform gets its own row. Tiles stay <b>plain images</b> across the whole suite (looks chaotic with every tile in native shape). Click any tile to enlarge — that\'s where the platform overlay lives.',
+        pre: async () => { switchView('home'); await _wait(150); },
     },
     {
         anchor: '.row-overlay-toggle', side: 'below',
         title: 'Platform overlay toggle.',
-        body: 'Flip the <b>Instagram / TikTok / YouTube</b> UI on or off. When ON, clicking a tile shows the original chrome painted over the shot — top bar, side rail, likes, caption, music tag. Setting saves per profile.',
+        body: 'This pill flips the <b>Instagram / TikTok / YouTube</b> UI on or off. When ON, opening any social tile paints the original chrome back over the shot — top bar, side rail with the spinning music disc, likes, caption, music tag.',
     },
     {
         anchor: '.tab[data-view="wrapped"]', side: 'below',
         title: 'Wrapped — your year in photos.',
-        body: 'Spotify-Wrapped-style annual recap. <b>Top places</b> · <b>top faces</b> · <b>top events</b> · <b>colour palette of your year</b> · milestones you hit. Generated end of December, saveable, shareable via encrypted link.',
+        body: 'Spotify-Wrapped-style annual recap. Top places, top faces, top events, colour palette of your year, milestones. Generated end of December, saveable, shareable via encrypted link.',
     },
     {
         anchor: '.tab[data-view="library"]', side: 'below',
         title: 'My Library — everything indexed.',
-        body: 'The full grid. Filter by date range, place, camera, drive, kind (photo/video/RAW), face groups, tags, has-GPS, starred. Export selections as ZIP, PDF album, or a signed share link.',
+        body: 'The full grid. Filter by date, place, camera, drive, kind (photo/video/RAW), face groups, tags, has-GPS, starred. Export selections as ZIP, PDF album, or a signed share link.',
+        pre: async () => { switchView('library'); await _wait(300); },
+        post: () => switchView('home'),
+    },
+
+    // ================= DETAIL MODAL + ENHANCE + CINEMATIC =================
+    {
+        anchor: '.cm-chrome-toggle, .modal-hero', side: 'left',
+        title: 'Open any image.',
+        body: 'Click any tile to enlarge. Every shot gets a full detail modal with metadata, action row, tool grid — and, for social imports, the <b>platform overlay</b> painted right over it with a per-modal toggle.',
+        pre: async () => {
+            const it = _tourDemoImage();
+            if (typeof actuallyOpenCard === 'function') actuallyOpenCard(it);
+            await _wait(500);
+        },
+        post: () => { if (typeof closeCard === 'function') closeCard(); },
     },
     {
-        anchor: '.rail-nav.right', side: 'left',
-        title: 'Scroll any row.',
-        body: 'Arrow buttons or horizontal wheel/touch. Each row has an <b>Explore all →</b> link (visible on hover) that opens the full grid for that cluster. Portrait / people / top-10 rows have their own scale-and-lift hover.',
+        anchor: '.quick-enhance', side: 'right',
+        title: 'One-click <em>Enhance.</em>',
+        body: 'This gradient pill (top-left of every enlarged image) fires <b>Real-ESRGAN 2×</b> on your GPU. Non-destructive — original file untouched, upscaled version saves as new file. Watch — we\'ll fire it for you now →',
+        pre: async () => {
+            const it = _tourDemoImage();
+            if (typeof actuallyOpenCard === 'function') actuallyOpenCard(it);
+            await _wait(400);
+        },
+        post: () => { if (typeof closeCard === 'function') closeCard(); },
     },
     {
-        anchor: '.card.landscape:first-of-type', side: 'right',
-        title: 'Hover any tile.',
-        body: 'Tiles <b>scale to 132%</b> on hover with a preview panel showing date, camera, source, and quick actions (⭐ Star, ＋ Add to event, Play, More). Click to enlarge into the detail modal.',
+        anchor: '.compare-wrap, .upscale-modal', side: 'right',
+        title: 'Before / after wipe slider.',
+        body: 'After the ESRGAN pass finishes (2–3 seconds on a modern GPU), a draggable wipe handle appears. Slide left/right to compare — <b>Before</b> is blurred + desaturated, <b>After</b> is the enhanced pass. Save-as-new / Replace / Discard.',
+        pre: async () => {
+            const it = _tourDemoImage();
+            if (typeof actuallyOpenCard === 'function') actuallyOpenCard(it);
+            await _wait(200);
+            const src = document.getElementById('cm-img')?.src || it.thumb;
+            if (typeof openUpscale === 'function') openUpscale(src);
+            await _wait(3500); // let the ESRGAN sim complete + slider reveal
+        },
+        post: () => { if (typeof closeUpscale === 'function') closeUpscale(); if (typeof closeCard === 'function') closeCard(); },
     },
+    {
+        anchor: '.mo-tools', side: 'above',
+        title: 'The tool row.',
+        body: 'Every enlarged shot has: <b>Blur strangers</b> (on-device face detection with per-face toggles), <b>Upscale &amp; enhance</b> (full picker — 2× / 4× / GFPGAN face-focus), <b>Diary note</b> (searchable across the library), and <b>Send to phone</b> (short-lived QR + local link).',
+        pre: async () => {
+            const it = _tourDemoImage();
+            if (typeof actuallyOpenCard === 'function') actuallyOpenCard(it);
+            await _wait(500);
+        },
+        post: () => { if (typeof closeCard === 'function') closeCard(); },
+    },
+    {
+        anchor: '#cine, .modal-hero', side: 'right',
+        title: 'Cinematic <em>intro.</em>',
+        body: 'Open a <b>starred shot</b> or a <b>video longer than 30 seconds</b> and SnapIT plays a Netflix-style "presents" swell — 1.4s of stacked D2/D3/D4/D5 sub-bass through a reverb with a synthesised sting. We\'ll play a short one for you now →',
+        pre: async () => {
+            if (typeof playCinematicIntro === 'function') {
+                playCinematicIntro({ title: 'Malta trip <em>· June.</em>', subhead: 'A featured event', byline: '2026 · Valletta · Comino' }, () => {});
+            }
+            await _wait(2000);
+        },
+        post: () => { if (typeof finishCine === 'function') finishCine(); },
+    },
+
+    // ================= PROFILE + SETTINGS + FEEDBACK =================
     {
         anchor: '.avatar', side: 'left',
         title: 'Your profile menu.',
-        body: 'Switch between family members, add or manage profiles (Family Pack up to 5), jump to Settings, hit Sources / Import queue / Cleanup / Face grouping / Share, or sign out. Big gradient header at the top opens Profile settings.',
+        body: 'Switch family members (Family Pack up to 5), open Settings, jump to Sources / Import queue / Cleanup / Face grouping / Share, hit Licence &amp; seats, or sign out. The blue gradient header at the top opens Profile settings.',
         pre: () => document.getElementById('avatarwrap')?.classList.add('on'),
         post: () => document.getElementById('avatarwrap')?.classList.remove('on'),
     },
     {
-        anchor: '.avm-row[onclick*="openImportQueue"]', side: 'left',
-        title: 'Camera-roll cleanup.',
-        body: 'SnapIT flags <b>duplicates, near-duplicates, blurred shots, dark shots, screenshots, receipts, and video thumbnail files</b> — reviewable in one place. <em>Nothing is deleted without your say.</em> Free up gigabytes without losing a memory.',
-        pre: () => document.getElementById('avatarwrap')?.classList.add('on'),
-        post: () => document.getElementById('avatarwrap')?.classList.remove('on'),
-    },
-    {
-        anchor: '.avm-row[onclick*="openSettings"]', side: 'left',
+        anchor: '.st-rail', side: 'right',
         title: 'Settings — 11 sections.',
-        body: 'Profile · Appearance · Library · People & Faces · Sharing · Sources · Import queue · Licence & seats · Get SnapIT (downloads) · About · Feedback & reviews · Danger zone. Everything toggles instantly and saves per profile.',
-        pre: () => document.getElementById('avatarwrap')?.classList.add('on'),
-        post: () => document.getElementById('avatarwrap')?.classList.remove('on'),
+        body: 'Full app control: <b>Profile · Appearance · Library · People &amp; Faces · Sharing · Sources · Import queue · Licence &amp; seats · Get SnapIT · About · Feedback &amp; reviews · Danger zone</b>. Every toggle saves per profile, live.',
+        pre: async () => { if (typeof openSettings === 'function') openSettings('profile'); await _wait(400); },
+        post: () => { if (typeof closeSettings === 'function') closeSettings(); },
+    },
+    {
+        anchor: '.fb-form', side: 'right',
+        title: 'Feedback + <em>reviews.</em>',
+        body: 'Post a review — 5-star picker, title, body, name. Lands on the marketing site\'s product page <em>and</em> in the app. Same endpoint, one truth. Reviews from verified licences get a green <b>✓ VERIFIED</b> badge. Nothing goes to a third-party service.',
+        pre: async () => { if (typeof openSettings === 'function') openSettings('feedback'); await _wait(500); },
+        post: () => { if (typeof closeSettings === 'function') closeSettings(); },
+    },
+
+    // ================= CLEANUP + SHARE + WRAP =================
+    {
+        anchor: '.cleanup, .cleanup-list, .backdrop.on', side: 'right',
+        title: 'Camera-roll <em>cleanup.</em>',
+        body: 'SnapIT flags <b>duplicates, near-dupes, blurred shots, dark shots, screenshots, receipts, and video thumbnail files</b> — all in one place. <em>Nothing deletes without your say.</em> Free up gigabytes without losing memories.',
+        pre: async () => { if (typeof openCleanup === 'function') openCleanup(); await _wait(400); },
+        post: () => { if (typeof closeCleanup === 'function') closeCleanup(); },
+    },
+    {
+        anchor: '.share-modal, .sh-scope-grid', side: 'left',
+        title: 'Share a <em>library.</em>',
+        body: '<b>End-to-end encrypted</b>. Key lives in the URL fragment (after <code>#</code>) so servers never see it. Pick scope (event / album / starred / whole library / picked), expiry (24h / 7d / 30d / never), optional password, view-only or view + download. Revoke instantly.',
+        tips: ['WhatsApp / Signal / Telegram / Email / QR code / Copy link', 'Every share gets its own 256-bit key'],
+        pre: async () => { if (typeof openShareModal === 'function') openShareModal('event'); await _wait(400); },
+        post: () => { if (typeof closeShareModal === 'function') closeShareModal(); },
     },
     {
         anchor: null, side: 'center',
-        title: 'Feedback & reviews.',
-        body: 'In Settings there\'s a <b>Feedback</b> section. Post a rating + review — it lands on the marketing site\'s product page <em>and</em> in the app. Same endpoint, one truth. Nothing goes to a third-party service.',
-        tips: ['Reviews from verified licences get a ✓ badge', 'Live star average shown at the top'],
-    },
-    {
-        anchor: null, side: 'center',
-        title: 'One-click enhance.',
-        body: 'Click any image → the enlarged view has a floating <b>✨ Enhance</b> pill top-left. Fires <b>Real-ESRGAN 2×</b> on your GPU. Non-destructive: the original is untouched, upscaled version saves as new file with before/after slider.',
-        tips: ['4× and GFPGAN face-focus available in the full picker', 'Compare with a draggable wipe handle'],
-    },
-    {
-        anchor: null, side: 'center',
-        title: 'Cinematic intro.',
-        body: 'Open a <b>starred shot or a video longer than 30 seconds</b> and SnapIT plays a <b>Netflix-style "presents"</b> intro — 1.4-second visual swell with a synthesised premium sound sting (D2 → D3 → D4 → D5 stacked octaves with reverb). Skippable, and can be turned off in Appearance.',
-    },
-    {
-        anchor: null, side: 'center',
-        title: 'Share a library.',
-        body: 'Any event, album, starred selection, or the whole library — <b>end-to-end encrypted</b>. Key lives in the URL fragment (after <code>#</code>) so servers never see it. Optional password, optional expiry, view-only or view + download. Revoke any time from Settings → Sharing.',
-        tips: ['WhatsApp / Signal / Telegram / Email / QR code / Copy link', 'Every share has its own decryption key'],
-    },
-    {
-        anchor: null, side: 'center',
-        title: 'You\'re ready.',
-        body: '<b>Look around</b>. Your library will keep growing in the background. Every button here works — nothing is a preview or a placeholder.<br><br>Any time you want the tour again, it lives in <b>Settings → Danger zone → Replay walkthrough</b>. Feedback goes into Settings → Feedback.',
+        title: 'You\'re <em>ready.</em>',
+        body: '<b>Look around</b>. Your library will keep growing in the background. Every button in this tour works — nothing was a preview or a placeholder.<br><br>Replay this tour any time from <b>Settings → Danger zone</b>. Feedback lives in <b>Settings → Feedback</b>.',
+        tips: ['Bundled demo images/videos ship with the app — that\'s what you just saw', 'Every action can be turned off individually in Settings'],
     },
 ];
 let _tourIdx = 0;
@@ -5202,8 +5349,9 @@ async function _tourRender() {
     const card = document.getElementById('tourCard');
     const spot = document.getElementById('tourSpot');
     const veil = document.getElementById('tourVeil');
-    // Update card content
-    document.getElementById('tourStepLabel').textContent = `STEP ${_tourIdx + 1} · OF ${TOUR_STEPS.length}`;
+    // Step counter — zero-padded two-digit for editorial feel
+    document.getElementById('tourStepNum').innerHTML = String(_tourIdx + 1).padStart(2, '0');
+    document.getElementById('tourStepOf').textContent = `of ${String(TOUR_STEPS.length).padStart(2, '0')}`;
     document.getElementById('tourCardTitle').innerHTML = step.title;
     document.getElementById('tourCardBody').innerHTML = step.body;
     const tips = document.getElementById('tourCardTips');
@@ -5214,8 +5362,12 @@ async function _tourRender() {
     } else {
         tips.hidden = true;
     }
-    // Progress
-    document.getElementById('tourProgress').style.width = ((_tourIdx + 1) / TOUR_STEPS.length * 100).toFixed(1) + '%';
+    // Segmented progress — one dot per step, active + done states
+    const prog = document.getElementById('tourProgress');
+    prog.innerHTML = TOUR_STEPS.map((_, i) => {
+        const cls = i === _tourIdx ? 'on' : (i < _tourIdx ? 'done' : '');
+        return `<div class="tour-progress-dot ${cls}"></div>`;
+    }).join('');
     // Nav buttons
     document.getElementById('tourBack').style.visibility = _tourIdx === 0 ? 'hidden' : 'visible';
     document.getElementById('tourNext').textContent = _tourIdx === TOUR_STEPS.length - 1 ? 'Finish ✓' : 'Next →';
