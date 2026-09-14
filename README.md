@@ -1,20 +1,48 @@
 <div align="center">
 
-# 📷  SnapIT
+# SnapIT — Desktop
 
 **Own your photo library.**
 
-SnapIT is a photo library manager where your photos live on your own storage,
-your library format is portable and open, on-device AI does search and faces
-and restoration, and the licence is one-off — €69 for personal, €129 for family
-and pro. It never expires. It never phones home. It never trains on your library.
+Your photos live on your own storage. Your library format is portable and open.
+On-device AI does search, faces, and restoration. The licence is one-off and
+never expires. Nothing about your library ever leaves the device, and there is
+no key material we could hand over even if compelled.
 
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Tauri v2](https://img.shields.io/badge/Tauri-v2-24C8DB.svg)](https://tauri.app)
-[![Status](https://img.shields.io/badge/status-R%C2%B701_IN_BUILD-yellow.svg)]()
+[![Version](https://img.shields.io/badge/version-0.1.7-brightgreen.svg)](https://github.com/vfempire-hq/snapit-desktop/releases)
 [![security-scan](https://github.com/vfempire-hq/snapit-desktop/actions/workflows/security-scan.yml/badge.svg)](https://github.com/vfempire-hq/snapit-desktop/actions/workflows/security-scan.yml)
 
 </div>
+
+---
+
+## Install
+
+### Windows
+```powershell
+iex (iwr -useb https://snapit.vfempire.com/downloads/install.ps1).Content
+```
+Prebuilt NSIS installer, SHA-256 verified. No Rust, no VS Build Tools.
+
+### Linux
+```bash
+curl -sSL https://snapit.vfempire.com/downloads/install.sh | bash
+```
+Signed `.deb` and `.AppImage`.
+
+### macOS
+Coming with the paid launch. Right-click → Open on first launch until we ship a
+signed build.
+
+### Build from source
+```bash
+git clone https://github.com/vfempire-hq/snapit-desktop
+cd snapit-desktop/app
+npm install
+cargo tauri build
+```
 
 ---
 
@@ -25,55 +53,71 @@ and pro. It never expires. It never phones home. It never trains on your library
 - **Never modifies the originals.** All edits are non-destructive and live in
   XMP sidecars + our SQLite catalog inside the same folder.
 - **On-device AI.** Faces are clustered on your CPU/GPU. Semantic search
-  ("beach at sunset in italy") runs against embeddings computed here.
+  (*"beach at sunset in italy"*) runs against embeddings computed here.
   Nothing about your library leaves the device unless you export it.
 - **Portable format.** Copy the library folder to another machine. SnapIT there
   opens the same catalog and picks up where you left off. Your data outlives us.
+- **Signed licence.** Ed25519-signed licence file, verified offline. Runs even
+  if our purchase server disappears. Never phones home to check validity.
 
-## Install
+---
 
-### Windows
-```powershell
-iex(iwr -useb https://snapit.vfempire.com/downloads/install.ps1).Content
-```
+## What SnapIT deliberately does NOT do
 
-### macOS
-Download the `.dmg` from [snapit.vfempire.com](https://snapit.vfempire.com) —
-right-click → Open on first launch until we get a signed build.
-
-### Linux
-```bash
-curl -sSL https://snapit.vfempire.com/downloads/install.sh | bash
-```
-
-## What it does NOT do
-
-- Ship its own cloud photo storage. That's the model we exist to refuse.
+- Ship its own cloud photo storage. That's the business model we exist to refuse.
 - Auto-post to social networks.
 - Sell prints, merch, or albums as an upsell.
 - Recognise faces of people who did not consent — beyond the OS-level clustering
-  that Apple/Google/Windows already do on your device.
+  that Apple / Google / Windows already do on your device.
 - Send crash reports, analytics, or telemetry.
+- Have any way for us to read your library.
+
+---
+
+## Pricing
+
+One-off licence, no expiry, no re-purchase, no forced upgrades.
+
+| Tier | Standard | Founding |
+|---|---|---|
+| **Personal** — one active install | €89 | €59 |
+| **Family Pack** — up to five household installs | €149 | €99 |
+| **Pro** — unlimited installs, RAW dev, plugin API | €249 | €199 |
+
+Founding pricing is the intro run; standard prices go live once the launch
+window closes. Every tier includes the Permanence Guarantee below.
+
+---
 
 ## The Permanence Guarantee
 
-**If VF Empire ever discontinues SnapIT**, within 90 days the source is opened publicly, the sealed library format is documented in a public spec, the Ed25519 licence public key stays valid forever, and the last-shipped installer is mirrored to a transparency log so anyone can independently reproduce a byte-identical build. No online activation, no expiring licences, no "call home" beacon exists in the code to break.
+**If VF Empire ever discontinues SnapIT**, within 90 days the source is opened
+publicly, the sealed library format is documented in a public spec, the Ed25519
+licence public key stays valid forever, and the last-shipped installer is
+mirrored to a transparency log so anyone can independently reproduce a
+byte-identical build. No online activation, no expiring licences, no "call
+home" beacon exists in the code to break.
 
 Full text: [snapit.vfempire.com/permanence](https://snapit.vfempire.com/permanence).
 
 House-wide LAW as of 2026-09-13 — applies to every VF product from here on.
 
-## Roadmap (public)
+---
+
+## Roadmap
 
 | Phase | State | Scope |
 |---|---|---|
-| **R·01** | **IN BUILD** | Windows + macOS, local + NAS, import + edit stack + faces + search + purchase |
-| **R·02** | Planned | Linux, S3-compat storage, RAW dev, upscale + denoise, LAN peer sync, mobile companion |
-| **R·03** | Planned | Advanced restore, slideshow / TV cast, panorama & HDR merge, printing marketplace |
+| **R·01** | Shipped | Mock UI, on-device index, licence file, VF privacy kit, purchase flow. |
+| **R·02a** | Shipped | Tauri desktop (Windows + Linux binaries), profile + PIN, catalog IPC, mock-to-native bridge, Stripe live. |
+| **R·02b** | Next | macOS signed build, auto-updater, dedup, faces v2, RAW dev, NAS scan. |
+| **R·03** | Planned | LAN peer sync, mobile companion, upscale + denoise, restore v2, slideshow / TV cast, printing marketplace. |
+
+---
 
 ## Reproducible build
 
-```
+```bash
 git clone https://github.com/vfempire-hq/snapit-desktop
 cd snapit-desktop/app
 npm install
@@ -83,6 +127,8 @@ cargo tauri build
 Compare the SHA-256 of your installer to the one at
 `snapit.vfempire.com/downloads/`. If they diverge — that's a security bug and
 we owe you a public explanation.
+
+---
 
 ## License
 
