@@ -260,6 +260,62 @@ async fn search_text(
     ai::search::text_search(&library, &q, limit).map_err(|e| e.to_string())
 }
 
+// ---------- profiles ----------
+// Family Pack profile management. Backend (Argon2id PIN, atomic writes) lives
+// in profile/mod.rs; these are the thin Tauri shells the mock UI calls.
+
+#[tauri::command]
+async fn profile_list() -> Result<Vec<profile::ProfileView>, String> {
+    Ok(profile::list_views())
+}
+
+#[tauri::command]
+async fn profile_active() -> Result<Option<profile::ProfileView>, String> {
+    Ok(profile::active_view())
+}
+
+#[tauri::command]
+async fn profile_bootstrap() -> Result<(), String> {
+    profile::bootstrap_if_empty().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn profile_create(
+    input: profile::ProfileInput,
+    pin: Option<String>,
+) -> Result<profile::ProfileView, String> {
+    profile::create_from_input(input, pin).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn profile_update(
+    id: String,
+    patch: profile::ProfilePatch,
+) -> Result<profile::ProfileView, String> {
+    let p = profile::update(&id, patch).map_err(|e| e.to_string())?;
+    Ok(profile::ProfileView::from(&p))
+}
+
+#[tauri::command]
+async fn profile_delete(id: String) -> Result<(), String> {
+    profile::delete(&id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn profile_set_pin(id: String, pin: Option<String>) -> Result<(), String> {
+    profile::set_pin(&id, pin).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn profile_verify_pin(id: String, pin: String) -> Result<bool, String> {
+    profile::verify_pin(&id, &pin).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn profile_set_active(id: String) -> Result<(), String> {
+    profile::set_active(&id).map_err(|e| e.to_string())
+}
+
 // ---------- licence ----------
 
 #[tauri::command]
@@ -335,6 +391,12 @@ pub fn run() {
             pending_update: Mutex::new(None),
         })
         .setup(|app| {
+            // Make sure at least one profile exists (Owner) so the picker
+            // has something to render on a fresh install.
+            if let Err(e) = profile::bootstrap_if_empty() {
+                tracing::warn!("profile bootstrap failed: {}", e);
+            }
+
             // Auto-reopen the last library if it's still on disk.
             let p = prefs::load();
             if let Some(last) = p.last_library {
@@ -402,6 +464,15 @@ pub fn run() {
             edit_clear,
             edit_export,
             search_text,
+            profile_list,
+            profile_active,
+            profile_bootstrap,
+            profile_create,
+            profile_update,
+            profile_delete,
+            profile_set_pin,
+            profile_verify_pin,
+            profile_set_active,
             licence_status,
             licence_import,
             licence_forget,

@@ -269,6 +269,76 @@ pub fn set_active(profile_id: &str) -> Result<()> {
     save(&store)
 }
 
+/// Return every profile as a hides-the-PIN-hash view. Ordered by created_at
+/// so the owner (created first at bootstrap) leads.
+pub fn list_views() -> Vec<ProfileView> {
+    let store = load();
+    store.profiles.iter().map(ProfileView::from).collect()
+}
+
+/// Currently-active profile view, if any (a fresh install has none until the
+/// bootstrap runs).
+pub fn active_view() -> Option<ProfileView> {
+    let store = load();
+    let id = store.active_profile_id.as_deref()?;
+    store.profiles.iter().find(|p| p.id == id).map(ProfileView::from)
+}
+
+/// Minimal shape the frontend sends when creating a profile. The full Profile
+/// struct carries defaults + timestamps that we generate here; the DTO keeps
+/// the JS side small and forward-compatible.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct ProfileInput {
+    pub name: String,
+    #[serde(default)]
+    pub initials: Option<String>,
+    #[serde(default)]
+    pub gradient: Option<String>,
+    #[serde(default)]
+    pub kids: bool,
+    #[serde(default)]
+    pub role: Option<String>,
+    #[serde(default)]
+    pub content_restrictions: Option<String>,
+}
+
+/// Turn a lightweight `ProfileInput` from the frontend into the full Profile
+/// struct expected by `create()`, filling defaults where the client left
+/// fields empty. Kids profiles auto-flip autoplay off + set '13+' restrictions.
+pub fn create_from_input(input: ProfileInput, pin: Option<String>) -> Result<ProfileView> {
+    let initials = input.initials
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| {
+            input.name.chars().next()
+                .map(|c| c.to_ascii_uppercase().to_string())
+                .unwrap_or_else(|| "?".into())
+        });
+    let restrictions = input.content_restrictions.unwrap_or_else(|| {
+        if input.kids { "13+".into() } else { "none".into() }
+    });
+    let autoplay = !input.kids;
+    let p = Profile {
+        id: String::new(),
+        name: input.name,
+        role: input.role.unwrap_or_else(default_role),
+        initials,
+        gradient: input.gradient.unwrap_or_else(default_gradient),
+        kids: input.kids,
+        pin_hash: None,
+        autoplay_slides: autoplay,
+        autoplay_previews: autoplay,
+        face_group_consent: false,
+        default_save: default_save_dest(),
+        content_restrictions: restrictions,
+        language: default_language(),
+        show_platform_chrome: true,
+        delete_forbidden: false,
+        created_at: String::new(),
+    };
+    let created = create(p, pin)?;
+    Ok(ProfileView::from(&created))
+}
+
 /// Small patch struct so update commands can carry only the changed fields.
 #[derive(Debug, Default, Clone, Deserialize)]
 pub struct ProfilePatch {

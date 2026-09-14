@@ -4,10 +4,10 @@
   "version": "0.1.7",
   "identifier": "com.vfempire.snapit",
   "build": {
-    "frontendDist": "../dist",
+    "frontendDist": "../../mock",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "python3 -m http.server 5173 --directory ../../mock",
+    "beforeBuildCommand": ""
   },
   "app": {
     "withGlobalTauri": true,
