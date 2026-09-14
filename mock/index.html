@@ -883,6 +883,7 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 .em-actions .b.pri:hover{transform:translateY(-1px);box-shadow:0 8px 24px -8px rgba(255,255,255,.4)}
 .em-actions .b.sec{background:rgba(255,255,255,.06);color:#fff;border-color:rgba(255,255,255,.1)}
 .em-actions .b.sec:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);transform:translateY(-1px)}
+.bico{display:inline-flex;align-items:center;justify-content:center;color:currentColor}
 
 /* ============ FACTS GRID — the polished tile version ============ */
 .em-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:36px}
@@ -2686,10 +2687,10 @@ main{position:relative;padding-top:0;padding-bottom:80px}
 
       <div class="em-actions">
         <button class="b pri"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Open all 128</button>
-        <button class="b sec" onclick="openCast()">📺 Cast to TV</button>
-        <button class="b sec" onclick="openPrint()">📖 Print album</button>
+        <button class="b sec" onclick="openCast()"><span class="bico" data-emoji="tv" data-emoji-size="14"></span>Cast to TV</button>
+        <button class="b sec" onclick="openPrint()"><span class="bico" data-emoji="book" data-emoji-size="14"></span>Print album</button>
         <button class="b sec">▶ Slideshow</button>
-        <button class="b sec">🔗 Share link</button>
+        <button class="b sec"><span class="bico" data-emoji="link" data-emoji-size="14"></span>Share link</button>
         <button class="b sec">＋ Timeline</button>
         <button class="b sec">✎ Rename</button>
       </div>
@@ -3149,7 +3150,7 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   </div>
 
   <div class="upscale-actions" id="upActions" hidden>
-    <button class="save-new" onclick="closeUpscale()">💾 Save as new file</button>
+    <button class="save-new" onclick="closeUpscale()"><span class="bico" data-emoji="save" data-emoji-size="14"></span>Save as new file</button>
     <button class="replace"  onclick="closeUpscale()">↺ Replace original (backed up)</button>
     <button class="discard"  onclick="closeUpscale()">Discard</button>
   </div>
@@ -3284,17 +3285,17 @@ main{position:relative;padding-top:0;padding-bottom:80px}
   <p>SnapIT streams a full-screen slideshow to any device on your Wi-Fi — <b>photos leave your machine only for as long as playback lasts</b>. No account, no cloud.</p>
   <div class="action-choices">
     <div class="action-choice">
-      <div class="ic">📺</div>
+      <div class="ic" data-emoji="tv"></div>
       <div class="info"><div class="n">Living room TV</div><div class="s">AirPlay · Sony BRAVIA · 65"</div></div>
       <div class="chev">›</div>
     </div>
     <div class="action-choice">
-      <div class="ic">📺</div>
+      <div class="ic" data-emoji="tv"></div>
       <div class="info"><div class="n">Bedroom TV</div><div class="s">Chromecast · Google TV · 55"</div></div>
       <div class="chev">›</div>
     </div>
     <div class="action-choice">
-      <div class="ic">💻</div>
+      <div class="ic" data-emoji="laptop"></div>
       <div class="info"><div class="n">MacBook · Elena's</div><div class="s">Miracast · this Wi-Fi</div></div>
       <div class="chev">›</div>
     </div>
@@ -4102,6 +4103,43 @@ const ST_ICONS = {
     danger: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17v.01"/></svg>',
     star:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8 6.2 20.9l1.1-6.5L2.6 9.8l6.5-.9z"/></svg>',
 };
+// Inline stroke-SVG icons replacing pictorial emoji in the mock — house
+// LAW: no emoji in product UI. Size arg lets the same shape reuse across
+// 44px source cards, 28px cleanup rows, and 14px inline buttons.
+function _srcIcon(name, size) {
+    const s = size || 24;
+    const shapes = {
+        phone:     '<rect x="7" y="2.5" width="10" height="19" rx="2.4"/><circle cx="12" cy="19" r=".7" fill="currentColor" stroke="none"/>',
+        picture:   '<rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M3 15.5l4.5-4.5 3.5 3.5 3.5-3 6.5 6.5"/><circle cx="8.5" cy="9.5" r="1.3"/>',
+        book:      '<path d="M4 4v15c0-.8 1.2-1.5 4-1.5s4 .7 4 1.5V4c0-.8-1.2-1.5-4-1.5S4 3.2 4 4z"/><path d="M12 4v15c0-.8 1.2-1.5 4-1.5s4 .7 4 1.5V4c0-.8-1.2-1.5-4-1.5S12 3.2 12 4z"/>',
+        cloud:     '<path d="M6.5 18.5h11a3.5 3.5 0 0 0 .3-6.98A5.5 5.5 0 0 0 7.4 10.7 4 4 0 0 0 6.5 18.5z"/>',
+        drive:     '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 12h18"/><circle cx="17" cy="16" r=".9" fill="currentColor" stroke="none"/>',
+        server:    '<rect x="4" y="3" width="16" height="7" rx="1.5"/><rect x="4" y="14" width="16" height="7" rx="1.5"/><circle cx="7.5" cy="6.5" r=".9" fill="currentColor" stroke="none"/><circle cx="7.5" cy="17.5" r=".9" fill="currentColor" stroke="none"/>',
+        laptop:    '<rect x="4.5" y="5" width="15" height="10" rx="1.5"/><path d="M2.5 18.5h19"/>',
+        disc:      '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/>',
+        chat:      '<path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8H4l1.6-3.2A7.94 7.94 0 0 1 4 12z"/>',
+        receipt:   '<path d="M6 3v18l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V3z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+        camera:    '<rect x="3" y="6.5" width="18" height="13" rx="2"/><path d="M8.5 6.5l1.5-2.5h4l1.5 2.5"/><circle cx="12" cy="13" r="3.6"/>',
+        bolt:      '<path d="M13 2L5 13.5h6L10 22l9-12h-6z"/>',
+        link:      '<path d="M9.5 14.5l5-5"/><path d="M11 5.5l1.7-1.7a4.2 4.2 0 0 1 6 6L17 11.5"/><path d="M13 18.5l-1.7 1.7a4.2 4.2 0 0 1-6-6L7 12.5"/>',
+        briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4.5c0-.8.7-1.5 1.5-1.5h3c.8 0 1.5.7 1.5 1.5V7"/><path d="M3 12h18"/>',
+        hidden:    '<path d="M3 3l18 18"/><path d="M10.6 6.2A9 9 0 0 1 21 12s-1 2-3 3.5"/><path d="M6.6 7.6A11 11 0 0 0 3 12s3 5 9 5c1.3 0 2.5-.3 3.5-.7"/><circle cx="12" cy="12" r="2.5"/>',
+        tv:        '<rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M8 19h8"/><path d="M12 16v3"/>',
+        save:      '<path d="M4 4h13l3 3v13H4z"/><rect x="7" y="4" width="10" height="6"/><rect x="7" y="14" width="10" height="6"/>',
+        lock:      '<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+        copy:      '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+    };
+    const shape = shapes[name] || shapes.picture;
+    return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle">${shape}</svg>`;
+}
+// Static HTML slots use `data-emoji="tv"` — populate them on load so the
+// inline HTML doesn't need to embed the full SVG string.
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-emoji]').forEach(el => {
+        const size = parseInt(el.dataset.emojiSize, 10) || 20;
+        el.innerHTML = _srcIcon(el.dataset.emoji, size);
+    });
+});
 let _settingsTab = 'profile';
 function openSettings(tab) {
     _settingsTab = tab || 'profile';
@@ -4945,20 +4983,20 @@ function _onbLocalSources() {
     // Real OS-specific paths — Rust indexer will populate these from a
     // filesystem probe. Mock hard-codes the archetypes.
     if (mac) return [
-        { key:'macpictures', name:'Pictures folder',    desc:'~/Pictures — top-level photos + subfolders', ico:'🖼', count:'8 412', size:'74 GB' },
-        { key:'macphotos',   name:'Photos.app library', desc:'~/Pictures/Photos Library.photoslibrary',   ico:'📚', count:'18 220', size:'142 GB' },
-        { key:'iclouddrive', name:'iCloud Drive · Photos', desc:'iCloud sync folder — pulls when files land', ico:'☁️', count:'2 480', size:'11 GB' },
-        { key:'externalssd', name:'External SSD · TRAVEL', desc:'/Volumes/TRAVEL — plugged in now', ico:'💾', count:'6 480', size:'54 GB' },
+        { key:'macpictures', name:'Pictures folder',    desc:'~/Pictures — top-level photos + subfolders', ico:_srcIcon('picture'), count:'8 412', size:'74 GB' },
+        { key:'macphotos',   name:'Photos.app library', desc:'~/Pictures/Photos Library.photoslibrary',   ico:_srcIcon('book'),    count:'18 220', size:'142 GB' },
+        { key:'iclouddrive', name:'iCloud Drive · Photos', desc:'iCloud sync folder — pulls when files land', ico:_srcIcon('cloud'), count:'2 480', size:'11 GB' },
+        { key:'externalssd', name:'External SSD · TRAVEL', desc:'/Volumes/TRAVEL — plugged in now', ico:_srcIcon('drive'), count:'6 480', size:'54 GB' },
     ];
     if (win) return [
-        { key:'winpictures', name:'Pictures folder',     desc:'C:\\Users\\you\\Pictures — top-level photos', ico:'🖼', count:'6 240', size:'52 GB' },
-        { key:'onedrive',    name:'OneDrive · Pictures', desc:'OneDrive sync folder — pulls when files land', ico:'☁️', count:'2 100', size:'9 GB' },
-        { key:'externalssd', name:'External SSD · E:',  desc:'E:\\ — plugged in now', ico:'💾', count:'4 610', size:'38 GB' },
+        { key:'winpictures', name:'Pictures folder',     desc:'C:\\Users\\you\\Pictures — top-level photos', ico:_srcIcon('picture'), count:'6 240', size:'52 GB' },
+        { key:'onedrive',    name:'OneDrive · Pictures', desc:'OneDrive sync folder — pulls when files land', ico:_srcIcon('cloud'), count:'2 100', size:'9 GB' },
+        { key:'externalssd', name:'External SSD · E:',  desc:'E:\\ — plugged in now', ico:_srcIcon('drive'), count:'4 610', size:'38 GB' },
     ];
     // Linux + fallback
     return [
-        { key:'linuxpictures', name:'~/Pictures',    desc:'Home Pictures folder + subfolders', ico:'🖼', count:'5 180', size:'44 GB' },
-        { key:'externalssd',   name:'External SSD',  desc:'/media/you/TRAVEL — plugged in now', ico:'💾', count:'3 200', size:'27 GB' },
+        { key:'linuxpictures', name:'~/Pictures',    desc:'Home Pictures folder + subfolders', ico:_srcIcon('picture'), count:'5 180', size:'44 GB' },
+        { key:'externalssd',   name:'External SSD',  desc:'/media/you/TRAVEL — plugged in now', ico:_srcIcon('drive'), count:'3 200', size:'27 GB' },
     ];
 }
 function _onbLocalRows() {
@@ -4987,9 +5025,9 @@ function _onbScanNetwork() {
 }
 function _onbNetworkSources() {
     return [
-        { key:'nasfamily', name:'NAS · Family',       desc:'smb://192.168.1.14/family — Synology DS923+', ico:'🖥', count:'22 145', size:'318 GB' },
-        { key:'macbook',   name:"Elena's MacBook",    desc:'afp://elena-mbp.local/Photos — auto-detected', ico:'💻', count:'12 040', size:'96 GB' },
-        { key:'timecap',   name:'Time Capsule backup',desc:'afp://timecapsule.local/Backups.backupdb',    ico:'💿', count:'8 320', size:'62 GB' },
+        { key:'nasfamily', name:'NAS · Family',       desc:'smb://192.168.1.14/family — Synology DS923+', ico:_srcIcon('server'), count:'22 145', size:'318 GB' },
+        { key:'macbook',   name:"Elena's MacBook",    desc:'afp://elena-mbp.local/Photos — auto-detected', ico:_srcIcon('laptop'), count:'12 040', size:'96 GB' },
+        { key:'timecap',   name:'Time Capsule backup',desc:'afp://timecapsule.local/Backups.backupdb',    ico:_srcIcon('disc'), count:'8 320', size:'62 GB' },
     ];
 }
 function _onbNetworkRows() {
@@ -5029,9 +5067,9 @@ function _onbPhoneRows() {
 function _onbSimAddPhone() {
     _onbState.phones = _onbState.phones || [];
     const phoneArchetypes = [
-        { name:'iPhone 15 Pro',     desc:'USB · Trust prompt accepted · reading /DCIM',       ico:'📱', count:'12 481', size:'87 GB' },
-        { name:'Samsung Galaxy S24',desc:'USB · MTP mode · /DCIM + /Pictures',                 ico:'📱', count:'8 940',  size:'54 GB' },
-        { name:'iPad Pro',          desc:'Wi-Fi · SnapIT companion paired',                    ico:'📱', count:'2 145',  size:'18 GB' },
+        { name:'iPhone 15 Pro',     desc:'USB · Trust prompt accepted · reading /DCIM',       ico:_srcIcon('phone'), count:'12 481', size:'87 GB' },
+        { name:'Samsung Galaxy S24',desc:'USB · MTP mode · /DCIM + /Pictures',                 ico:_srcIcon('phone'), count:'8 940',  size:'54 GB' },
+        { name:'iPad Pro',          desc:'Wi-Fi · SnapIT companion paired',                    ico:_srcIcon('phone'), count:'2 145',  size:'18 GB' },
     ];
     const idx = _onbState.phones.length;
     if (idx >= phoneArchetypes.length) return;
@@ -5983,7 +6021,7 @@ function renderShareList() {
           <div style="font-family:'SF Mono','Menlo',monospace;font-size:11px;color:var(--dim);margin-top:6px;word-break:break-all;opacity:.7">${s.url}</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-          <button class="st-btn" onclick="copyOneShare('${s.id}')" data-tip="Copy link">📋</button>
+          <button class="st-btn" onclick="copyOneShare('${s.id}')" data-tip="Copy link">${_srcIcon('copy', 16)}</button>
           <button class="st-btn danger" onclick="revokeShare('${s.id}')">Revoke</button>
         </div>
       </div>
@@ -6481,16 +6519,16 @@ function switchView(view) {
 
 /* Camera-roll cleanup — the first-launch flow (#4) */
 const CLEANUP_CATEGORIES = [
-    { id:'screenshots',  n:'Screenshots',        c:'<b>842</b> · 3.1 GB', ic:'📱', on:true },
-    { id:'whatsapp',     n:'WhatsApp downloads', c:'<b>1 247</b> · 2.4 GB · date rescued', ic:'💬', on:true },
-    { id:'receipts',     n:'Receipts',           c:'<b>319</b> · 640 MB · OCR-detected', ic:'🧾', on:true },
-    { id:'memes',        n:'Memes',              c:'<b>412</b> · 730 MB', ic:'🖼️', on:true },
-    { id:'blurry',       n:'Blurry shots',       c:'<b>238</b> · 1.6 GB · sharpness &lt; 30%', ic:'📸', on:true },
-    { id:'burst-extras', n:'Burst extras',       c:'<b>891</b> · 4.2 GB · keep sharpest only', ic:'⚡', on:true },
-    { id:'dupes',        n:'Duplicates',         c:'<b>142</b> · 620 MB · byte-identical', ic:'🔗', on:true },
-    { id:'contact-cards',n:'Contact card photos',c:'<b>27</b> · 12 MB · faces of business cards', ic:'💼', on:false },
-    { id:'ephemeral',    n:'Snapchat / Stories', c:'<b>68</b> · 180 MB', ic:'👻', on:false },
-    { id:'video-preview',n:'Video thumbnails',   c:'<b>32</b> · 6 MB · YouTube stubs', ic:'▶︎', on:false },
+    { id:'screenshots',  n:'Screenshots',        c:'<b>842</b> · 3.1 GB', ic:_srcIcon('phone', 18), on:true },
+    { id:'whatsapp',     n:'WhatsApp downloads', c:'<b>1 247</b> · 2.4 GB · date rescued', ic:_srcIcon('chat', 18), on:true },
+    { id:'receipts',     n:'Receipts',           c:'<b>319</b> · 640 MB · OCR-detected', ic:_srcIcon('receipt', 18), on:true },
+    { id:'memes',        n:'Memes',              c:'<b>412</b> · 730 MB', ic:_srcIcon('picture', 18), on:true },
+    { id:'blurry',       n:'Blurry shots',       c:'<b>238</b> · 1.6 GB · sharpness &lt; 30%', ic:_srcIcon('camera', 18), on:true },
+    { id:'burst-extras', n:'Burst extras',       c:'<b>891</b> · 4.2 GB · keep sharpest only', ic:_srcIcon('bolt', 18), on:true },
+    { id:'dupes',        n:'Duplicates',         c:'<b>142</b> · 620 MB · byte-identical', ic:_srcIcon('link', 18), on:true },
+    { id:'contact-cards',n:'Contact card photos',c:'<b>27</b> · 12 MB · faces of business cards', ic:_srcIcon('briefcase', 18), on:false },
+    { id:'ephemeral',    n:'Snapchat / Stories', c:'<b>68</b> · 180 MB', ic:_srcIcon('hidden', 18), on:false },
+    { id:'video-preview',n:'Video thumbnails',   c:'<b>32</b> · 6 MB · YouTube stubs', ic:_srcIcon('tv', 18), on:false },
 ];
 function openCleanup() {
     const el = document.getElementById('cleanupCats');
@@ -6596,9 +6634,9 @@ function renderPicker() {
       <div class="pp-tile" onclick="pickProfile('${p.id}')">
         <div class="pp-avatar ${p.gradient} ${p.kids ? 'kids' : ''}" style="background:${headerGradient(p.gradient)}">
           <div class="initials">${p.initials}</div>
-          ${p.locked ? '<div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.75);border-radius:99px;padding:2px 8px;font-size:11px;letter-spacing:.02em;color:#fff">🔒</div>' : ''}
+          ${p.locked ? `<div style="position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.75);border-radius:99px;padding:3px 6px;color:#fff;display:inline-flex;align-items:center">${_srcIcon('lock', 12)}</div>` : ''}
         </div>
-        <div class="pp-name">${p.name}${p.locked ? ' 🔒' : ''}</div>
+        <div class="pp-name">${p.name}${p.locked ? ` <span style="display:inline-flex;vertical-align:middle;opacity:.7">${_srcIcon('lock', 12)}</span>` : ''}</div>
         <div class="pp-role">${p.role}${p.role === 'kid' ? ' · kid-safe' : ''}</div>
       </div>
     `).join('') + `
@@ -6849,7 +6887,7 @@ function renderManage() {
 
         const badge = p.kids
             ? '<span class="mp-av-badge kids">KIDS</span>'
-            : (p.locked ? '<span class="mp-av-badge locked">🔒</span>' : '');
+            : (p.locked ? `<span class="mp-av-badge locked">${_srcIcon('lock', 12)}</span>` : '');
 
         const dest = p.default_save === 'this-profile' ? 'This profile'
                    : p.default_save === 'shared' ? 'Shared library'
