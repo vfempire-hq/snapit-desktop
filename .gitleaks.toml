@@ -1,0 +1,35 @@
+# Gitleaks configuration for snapit-desktop.
+#
+# Extends the built-in default rules (which detect real secrets — Stripe
+# keys, AWS credentials, private key blocks, etc.) and adds an allowlist
+# so localStorage / IndexedDB key constants aren't mistaken for API keys.
+#
+# The default `generic-api-key` rule matches "any variable ending in _KEY,
+# _TOKEN, _SECRET assigned a string with reasonable entropy" — which
+# correctly catches `API_KEY = 'sk_live_...'` but also fires on browser
+# storage key constants like `COACH_SEEN_KEY = 'snapit_coach_seen_v1'`.
+#
+# Rules of thumb for adding to this allowlist:
+#   1. Only allow patterns that are demonstrably storage/state keys
+#      (short prefix + versioned suffix, no random-looking payload).
+#   2. Never allowlist by file — allowlist by pattern so a real secret
+#      dropped into the same file still fails the scan.
+#   3. Keep this file symmetric with vf-security-templates/gitleaks.toml
+#      so every VF public repo enforces the same rules.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Non-secret storage keys and doc placeholders"
+regexes = [
+  # localStorage / IndexedDB key constants — the *value* is what
+  # gitleaks captures for generic-api-key, e.g. 'snapit_coach_seen_v1'.
+  # Pattern: `<brand>_<snake_words>_v<digits>`. Version suffix is the
+  # tell — no real secret is versioned this way.
+  '''^(?:snapit|vf|noirda|gnp)_[a-z0-9_]+_v\d+$''',
+]
+paths = [
+  # Redacted example keys in Stripe go-live docs (sk_live_XXXX etc).
+  '''docs/STRIPE-GO-LIVE\.md''',
+]
