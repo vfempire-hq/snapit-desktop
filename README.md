@@ -12,6 +12,7 @@ and pro. It never expires. It never phones home. It never trains on your library
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Tauri v2](https://img.shields.io/badge/Tauri-v2-24C8DB.svg)](https://tauri.app)
 [![Status](https://img.shields.io/badge/status-R%C2%B701_IN_BUILD-yellow.svg)]()
+[![security-scan](https://github.com/vfempire-hq/snapit-desktop/actions/workflows/security-scan.yml/badge.svg)](https://github.com/vfempire-hq/snapit-desktop/actions/workflows/security-scan.yml)
 
 </div>
 
