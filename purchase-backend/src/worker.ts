@@ -67,8 +67,7 @@ export default {
                 return await handleWaitlist(req, env);
             }
             if (url.pathname === '/checkout' && req.method === 'POST') {
-                // Sales are paused until the R·02 scope ships. Return a friendly 503.
-                return json({ error: 'sales_paused', message: 'SnapIT is in build. Join the waitlist at snapit.vfempire.com.' }, 503);
+                return await handleCheckout(req, env);
             }
             if (url.pathname === '/webhook/stripe' && req.method === 'POST') {
                 return await handleStripeWebhook(req, env, ctx);
