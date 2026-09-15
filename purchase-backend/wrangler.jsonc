@@ -25,12 +25,11 @@
       "/waitlist",
       "/checkout",
       "/reissue",
-      "/beta/redeem",
-      "/beta/request",
-      "/admin/*",
+      "/api/*",
       "/webhook/*",
       "/updates/*",
       "/downloads/*"
-    ]
+    ],
+    "not_found_handling": "404-page"
   }
 }

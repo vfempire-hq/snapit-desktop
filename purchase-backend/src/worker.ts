@@ -92,31 +92,17 @@ export default {
             if (url.pathname === '/reissue' && req.method === 'POST') {
                 return await handleReissue(req, env);
             }
-            if (url.pathname === '/beta/redeem' && req.method === 'POST') {
+            // API endpoints live under /api/* so worker-owned paths never
+            // collide with static HTML pages at /beta, /beta/request,
+            // /admin/beta etc. Assets binding serves the HTML natively.
+            if (url.pathname === '/api/beta/redeem' && req.method === 'POST') {
                 return await handleBetaRedeem(req, env);
             }
-            if (url.pathname === '/beta/request' && req.method === 'POST') {
+            if (url.pathname === '/api/beta/request' && req.method === 'POST') {
                 return await handleBetaRequest(req, env);
             }
-            if (url.pathname === '/beta/request' && req.method === 'GET') {
-                // Same trick as /admin/beta — worker owns /beta/* so the
-                // pretty URL can't fall through to the .html file naturally.
-                return env.ASSETS.fetch(new Request(
-                    new URL('/beta/request.html', url.origin).toString(),
-                    req,
-                ));
-            }
-            if (url.pathname === '/admin/beta/data' && req.method === 'GET') {
+            if (url.pathname === '/api/admin/beta/data' && req.method === 'GET') {
                 return await handleAdminBetaData(req, env);
-            }
-            if (url.pathname === '/admin/beta' && req.method === 'GET') {
-                // Assets binding redirects .html→pretty URL but the reverse
-                // path is blocked because run_worker_first: /admin/* owns
-                // this request. Explicitly proxy through to the HTML file.
-                return env.ASSETS.fetch(new Request(
-                    new URL('/admin/beta.html', url.origin).toString(),
-                    req,
-                ));
             }
             if (url.pathname === '/reviews' && req.method === 'GET') {
                 return await handleReviewsGet(req, env);
@@ -137,7 +123,28 @@ export default {
             return env.ASSETS.fetch(req);
         } catch (e: any) {
             console.error('worker error:', e?.message || e);
-            return json({ error: 'internal', message: e?.message || String(e) }, 500);
+            // API endpoints get a JSON error so clients can react. Everything
+            // else gets the styled /500 HTML page so buyers see something
+            // human, not a stack trace.
+            const isApi = url.pathname.startsWith('/api/')
+                || url.pathname === '/checkout'
+                || url.pathname === '/reissue'
+                || url.pathname === '/webhook/stripe'
+                || url.pathname === '/waitlist'
+                || url.pathname === '/reviews'
+                || url.pathname.startsWith('/updates/');
+            if (isApi) {
+                return json({ error: 'internal', message: e?.message || String(e) }, 500);
+            }
+            try {
+                const page = await env.ASSETS.fetch(new URL('/500.html', url.origin).toString());
+                return new Response(page.body, {
+                    status: 500,
+                    headers: { 'content-type': 'text/html; charset=utf-8' },
+                });
+            } catch {
+                return new Response('Server error', { status: 500 });
+            }
         }
     },
 };

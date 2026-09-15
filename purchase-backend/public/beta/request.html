@@ -214,7 +214,7 @@ footer a:hover{color:var(--ink)}
         details.hidden = true;
 
         try {
-            const r = await fetch('/beta/request', {
+            const r = await fetch('/api/beta/request', {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
                 body: JSON.stringify({ email, name, note }),

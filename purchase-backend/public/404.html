@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Not found · SnapIT</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5f5f7'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%231d1d1f' text-anchor='middle'%3EVF%3C/text%3E%3C/svg%3E">
+<style>
+@font-face{font-family:'Hanken';src:url('/fonts/hanken.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Instrument';src:url('/fonts/instrument-italic.woff2') format('woff2');font-style:italic;font-display:swap}
+:root{
+  --paper:#fbfbfd;
+  --silver:#f5f5f7;
+  --ink:#1d1d1f;
+  --dove:#6e6e73;
+  --faint:#a1a1a6;
+  --line:#e4e6ea;
+  --core:#1f6ff2;
+  --core-deep:#0b47b8;
+  --core-soft:rgba(31,111,242,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Hanken',-apple-system,'SF Pro Text','Inter','Segoe UI',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.55}
+a{color:inherit;text-decoration:none}
+em{font-family:'Instrument',serif;font-style:italic;color:var(--core);font-weight:400}
+
+body{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 20px;
+  position:relative;
+}
+body::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 22% 30%,rgba(31,111,242,.05) 0,transparent 55%),
+             radial-gradient(circle at 78% 70%,rgba(31,111,242,.04) 0,transparent 55%);
+}
+.wrap{max-width:640px;text-align:center;position:relative;z-index:1}
+
+.brand{font-family:'Instrument',serif;font-size:16px;letter-spacing:.02em;
+  color:var(--dove);margin:0 0 44px}
+.brand small{
+  font-family:'Hanken',sans-serif;font-size:10.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--faint);margin-left:12px;
+  border-left:1px solid var(--line);padding-left:12px;vertical-align:2px;font-weight:600
+}
+
+.code{font-family:'Instrument',serif;font-style:italic;font-size:120px;
+  line-height:1;letter-spacing:-.04em;color:var(--core);margin:0 0 12px;font-weight:400}
+h1{font-size:34px;letter-spacing:-.02em;margin:0 0 14px;font-weight:600}
+h1 em{font-family:'Instrument',serif;font-style:italic;color:var(--core)}
+.sub{color:var(--dove);font-size:16px;max-width:480px;margin:0 auto 40px;line-height:1.55}
+
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 40px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:99px;
+  font-size:14.5px;font-weight:600;letter-spacing:.005em;transition:all .2s;
+  border:1px solid transparent;font-family:inherit
+}
+.btn.pri{background:var(--core);color:#fff;box-shadow:0 12px 30px -14px rgba(31,111,242,.4)}
+.btn.pri:hover{background:var(--core-deep);transform:translateY(-2px);box-shadow:0 18px 40px -14px rgba(31,111,242,.55)}
+.btn.sec{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.sec:hover{border-color:var(--core);color:var(--core);transform:translateY(-2px)}
+
+.links{
+  border-top:1px solid var(--line);
+  padding-top:24px;
+  display:flex;justify-content:center;gap:22px;flex-wrap:wrap;
+  font-size:13px;color:var(--dove)
+}
+.links a{color:var(--dove);transition:color .18s}
+.links a:hover{color:var(--core)}
+
+footer{
+  position:absolute;bottom:24px;left:0;right:0;
+  text-align:center;font-size:11.5px;color:var(--faint);letter-spacing:.02em
+}
+footer a{color:var(--faint)}
+footer a:hover{color:var(--dove)}
+
+@media (max-width:560px){
+  .code{font-size:88px}
+  h1{font-size:26px}
+  .sub{font-size:15px}
+  .actions{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <div class="brand">SnapIT<small>Empty page</small></div>
+
+  <div class="code">404</div>
+  <h1>This page <em>isn't here.</em></h1>
+  <p class="sub">Either you followed a stale link, or we haven't built this one yet. If a URL of ours pointed you here, that's on us — email support and we'll fix it.</p>
+
+  <div class="actions">
+    <a class="btn pri" href="/">Back to snapit.vfempire.com</a>
+    <a class="btn sec" href="/beta/request">Try the beta — free</a>
+  </div>
+
+  <div class="links">
+    <a href="/">Home</a>
+    <a href="/beta/request">Beta</a>
+    <a href="/permanence">Permanence Guarantee</a>
+    <a href="mailto:support@vfempire.com">Support</a>
+    <a href="https://github.com/vfempire-hq/snapit-desktop">Source</a>
+  </div>
+</main>
+
+<footer>SnapIT · A VF Empire product · &copy; 2026 VF Empire Corp Ltd · <a href="https://vfempire.com">vfempire.com</a></footer>
+
+</body>
+</html>

@@ -256,7 +256,7 @@ td.code button.copied{color:var(--ok);background:var(--ok-soft)}
     async function fetchData() {
         if (!token) return showLogin();
         try {
-            const r = await fetch('/admin/beta/data', {
+            const r = await fetch('/api/admin/beta/data', {
                 headers: { 'authorization': 'Bearer ' + token },
             });
             if (r.status === 401) {
