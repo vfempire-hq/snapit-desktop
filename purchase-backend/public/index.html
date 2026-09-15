@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SnapIT — every photo, every video, one library. · VF Empire</title>
-<meta name="description" content="SnapIT is the local-first photo library — one place for every photo and every video across every drive you own. On-device AI, portable format, one-off licence. Linux + Windows shipping today. €59 Founding.">
+<meta name="description" content="SnapIT is the local-first photo library — one place for every photo and every video across every drive you own. On-device AI, portable format, one-off perpetual licence. Linux + Windows shipping today. Founding from €59.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5f5f7'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%231d1d1f' text-anchor='middle'%3EVF%3C/text%3E%3C/svg%3E">
 <style>
 @font-face{font-family:'Hanken';src:url('/fonts/hanken.woff2') format('woff2');font-weight:100 900;font-display:swap}
@@ -19,6 +19,7 @@
   --line:#e4e6ea;
   --core:#1f6ff2;
   --core-deep:#0b47b8;
+  --core-soft:rgba(31,111,242,.08);
   --glow:rgba(37,110,245,.35);
 }
 *{box-sizing:border-box}
@@ -26,9 +27,10 @@ html,body{margin:0;background:var(--paper);color:var(--ink);
   font-family:'Hanken',-apple-system,'SF Pro Text','Inter','Segoe UI',system-ui,sans-serif;
   font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{text-decoration:none;color:inherit}
-em.i{font-family:'Instrument',serif;font-style:italic;font-weight:400;letter-spacing:0;color:var(--core)}
+em.i,h1 em,h2 em{font-family:'Instrument',serif;font-style:italic;font-weight:400;letter-spacing:0;color:var(--core)}
 ::selection{background:var(--core);color:#fff}
 
+/* nav ---------------------------------------------------------------- */
 .nav{position:sticky;top:0;z-index:100;background:rgba(251,251,253,.86);backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .nav .in{max-width:1200px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:36px}
@@ -37,62 +39,113 @@ em.i{font-family:'Instrument',serif;font-style:italic;font-weight:400;letter-spa
 .nav .parent:hover{color:var(--core)}
 .nav .status{margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.14em;color:var(--core);text-transform:uppercase}
 
-.wrap{max-width:1100px;margin:0 auto;padding:0 28px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
 
-.hero{padding:96px 0 48px;text-align:center}
+/* hero --------------------------------------------------------------- */
+.hero{padding:96px 0 40px;text-align:center;position:relative}
 .eb{color:var(--core);font-size:11.5px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:24px;font-weight:600}
-h1{font-size:78px;line-height:1.02;letter-spacing:-.028em;margin:0 0 22px;font-weight:600}
-h1 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
-.sub{color:var(--dove);font-size:20px;max-width:700px;margin:0 auto 40px}
+h1{font-size:82px;line-height:1.02;letter-spacing:-.028em;margin:0 0 22px;font-weight:600}
+.sub{color:var(--dove);font-size:20px;max-width:720px;margin:0 auto 44px;line-height:1.5}
 
-.buy{max-width:640px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:20px;
-  padding:30px 34px;box-shadow:0 20px 60px -40px rgba(29,29,31,.2)}
-.buy .k{color:var(--core);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
-.buy h3{font-size:22px;letter-spacing:-.015em;margin:0 0 8px;font-weight:600}
-.buy p.lede{color:var(--dove);font-size:14px;margin:0 0 22px}
-.buy .row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 14px}
-.buy .tier{border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:left;background:var(--silver);
-  cursor:pointer;transition:all .18s;font-family:inherit;color:var(--ink)}
-.buy .tier:hover{border-color:var(--core);background:#fff;transform:translateY(-1px);box-shadow:0 12px 30px -18px rgba(31,111,242,.35)}
-.buy .tier .lb{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--dove);margin-bottom:4px}
-.buy .tier .nm{font-size:15px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
-.buy .tier .pr{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--core)}
-.buy .tier .pr .was{font-size:13px;color:var(--faint);font-weight:400;text-decoration:line-through;margin-left:6px;letter-spacing:0}
-.buy .tier .desc{font-size:12px;color:var(--dove);margin-top:6px;line-height:1.4}
-.buy .tier.recommended{border-color:var(--core);background:#fff;box-shadow:0 4px 20px -10px rgba(31,111,242,.25)}
-.buy .tier.recommended .lb{color:var(--core)}
-.buy .dl{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--mist)}
-.buy .dl .lab{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--dove);font-weight:700;margin-right:4px;align-self:center}
-.buy .dl a{padding:9px 18px;border-radius:99px;font-size:13px;font-weight:500;border:1px solid var(--line);
-  background:#fff;color:var(--ink);transition:all .18s;text-decoration:none}
-.buy .dl a:hover{border-color:var(--core);color:var(--core);transform:translateY(-1px)}
-.buy .fine{color:var(--dove);font-size:11.5px;margin-top:14px}
+/* gallery mosaic — real renders that the app organises ---------------- */
+.mosaic{max-width:1180px;margin:0 auto 88px;padding:0 28px;display:grid;
+  grid-template-columns:2fr 1fr 1fr;grid-template-rows:200px 200px;gap:12px;
+  position:relative}
+.mosaic figure{margin:0;overflow:hidden;border-radius:14px;background:var(--silver);position:relative;transition:transform .3s}
+.mosaic figure:first-child{grid-row:1/3;border-radius:18px}
+.mosaic figure:hover{transform:translateY(-2px)}
+.mosaic img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.mosaic figure:hover img{transform:scale(1.03)}
+.mosaic .cap{position:absolute;bottom:14px;left:16px;color:#fff;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;font-weight:600;text-shadow:0 2px 12px rgba(0,0,0,.6);opacity:.85}
+.mosaic-hint{text-align:center;margin:-56px 0 88px;color:var(--dove);font-size:13.5px;font-style:italic}
+.mosaic-hint em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 
-.notify{max-width:520px;margin:24px auto 0;background:transparent;border:1px dashed var(--line);border-radius:16px;
-  padding:16px 22px;text-align:center}
-.notify .k{color:var(--dove);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
-.notify h4{font-size:14px;font-weight:600;letter-spacing:-.01em;margin:0 0 10px;color:var(--ink)}
-.notify form{display:flex;gap:6px;flex-wrap:wrap}
-.notify input{flex:1;min-width:0;padding:10px 14px;border-radius:99px;border:1px solid var(--line);
-  font-family:inherit;font-size:13px;background:#fff;color:var(--ink);outline:none;transition:border-color .2s}
-.notify input:focus{border-color:var(--core)}
-.notify button{padding:10px 18px;border-radius:99px;border:none;background:var(--ink);color:#fff;
-  font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:background .2s,transform .18s}
-.notify button:hover{background:var(--core);transform:translateY(-1px)}
-.notify .thanks{color:var(--core);font-weight:600;font-size:13px;margin-top:6px}
-.notify .err{color:#b02a2a;font-size:12.5px;margin-top:6px}
+/* buy — the elevated pricing spread ---------------------------------- */
+.buysec{background:linear-gradient(180deg,var(--paper) 0,#fff 20%,#fff 80%,var(--paper) 100%);
+  padding:20px 0 96px;position:relative}
+.buysec::before{content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.buyhead{text-align:center;margin:0 auto 40px}
+.buyhead .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;background:var(--core-soft);
+  color:var(--core);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;
+  border-radius:99px;margin-bottom:22px}
+.buyhead .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--core);
+  box-shadow:0 0 0 3px rgba(31,111,242,.18)}
+.buyhead h2{font-size:48px;letter-spacing:-.025em;margin:0 0 14px;font-weight:600}
+.buyhead p{color:var(--dove);font-size:17px;max-width:600px;margin:0 auto;line-height:1.5}
 
-.chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:40px 0 0}
-.chip{border:1px solid var(--line);padding:8px 16px;border-radius:99px;font-size:11.5px;
-  color:var(--dove);letter-spacing:.02em;background:#fff}
+.tiers{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:0 28px}
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:20px;padding:36px 30px 30px;
+  text-align:left;transition:transform .22s,box-shadow .22s,border-color .22s;cursor:pointer;font-family:inherit;color:inherit;
+  display:flex;flex-direction:column}
+.card:hover{transform:translateY(-3px);box-shadow:0 24px 60px -32px rgba(29,29,31,.18);border-color:rgba(31,111,242,.35)}
+.card.featured{border-color:var(--core);box-shadow:0 20px 60px -30px rgba(31,111,242,.35);transform:scale(1.02)}
+.card.featured:hover{transform:scale(1.02) translateY(-3px);box-shadow:0 30px 80px -30px rgba(31,111,242,.45)}
+.card .ribbon{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;
+  font-size:10px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;padding:6px 14px;border-radius:99px;
+  white-space:nowrap}
+.card.featured .ribbon{background:var(--core)}
+.card .tag{color:var(--dove);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.card.featured .tag{color:var(--core)}
+.card .n{font-family:'Instrument',serif;font-size:32px;font-style:italic;color:var(--ink);letter-spacing:-.01em;margin:0 0 4px;line-height:1.05}
+.card .sub{color:var(--dove);font-size:13.5px;margin:0 0 22px;line-height:1.5}
+.card .price{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.card .price .cur{font-size:20px;color:var(--core);font-weight:400;letter-spacing:0}
+.card .price .amt{font-size:52px;font-weight:600;letter-spacing:-.03em;color:var(--core);line-height:1}
+.card .price .was{font-size:14px;color:var(--faint);text-decoration:line-through;font-weight:400;letter-spacing:0;margin-left:auto}
+.card .permo{font-size:12px;color:var(--dove);margin:0 0 22px}
+.card .permo b{color:var(--ink);font-weight:600}
+.card ul{list-style:none;padding:0;margin:0 0 24px;flex:1}
+.card ul li{position:relative;padding:6px 0 6px 24px;font-size:13.5px;color:var(--ink)}
+.card ul li::before{content:"";position:absolute;left:0;top:12px;width:14px;height:14px;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%231f6ff2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12l6 6 10-12'/%3E%3C/svg%3E") center no-repeat}
+.card .cta{padding:14px 22px;border-radius:99px;background:var(--silver);color:var(--ink);
+  font-weight:600;font-size:14px;text-align:center;transition:background .2s,transform .18s;
+  border:1px solid transparent;font-family:inherit;cursor:pointer;letter-spacing:.005em;display:block;width:100%}
+.card:hover .cta{background:var(--ink);color:#fff}
+.card.featured .cta{background:var(--core);color:#fff}
+.card.featured:hover .cta{background:var(--core-deep)}
+.card .fine{font-size:11px;color:var(--dove);text-align:center;margin:10px 0 0}
 
-.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:88px 0 0}
+.trust{max-width:1080px;margin:52px auto 0;padding:24px 28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  display:flex;justify-content:center;flex-wrap:wrap;gap:32px}
+.trust .badge{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dove);letter-spacing:.02em}
+.trust .badge svg{color:var(--core);flex-shrink:0}
+.trust .badge b{color:var(--ink);font-weight:600}
+
+/* try section -------------------------------------------------------- */
+.try{padding:96px 0 40px;text-align:center}
+.try h2{font-size:36px;letter-spacing:-.02em;margin:0 0 12px;font-weight:600}
+.try p.lead{color:var(--dove);font-size:16px;max-width:560px;margin:0 auto 32px}
+.try .dl{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 20px}
+.try .dl a{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;background:#fff;
+  border:1px solid var(--line);border-radius:99px;font-size:14px;font-weight:600;letter-spacing:.005em;
+  color:var(--ink);transition:all .18s;box-shadow:0 8px 20px -14px rgba(29,29,31,.15)}
+.try .dl a:hover{border-color:var(--core);color:var(--core);transform:translateY(-2px);box-shadow:0 12px 30px -14px rgba(31,111,242,.35)}
+.try .dl svg{color:var(--dove)}
+.try .dl a:hover svg{color:var(--core)}
+.try .mac{display:inline-flex;align-items:center;gap:10px;padding:11px 20px;background:transparent;
+  border:1px dashed var(--line);border-radius:99px;font-size:12.5px;color:var(--dove);letter-spacing:.02em}
+.try .mac form{display:inline-flex;gap:6px}
+.try .mac input{background:none;border:none;outline:none;color:var(--ink);font-family:inherit;font-size:12.5px;padding:0;min-width:150px}
+.try .mac input::placeholder{color:var(--faint)}
+.try .mac button{border:none;background:var(--core);color:#fff;font-family:inherit;font-weight:600;font-size:11.5px;
+  letter-spacing:.05em;padding:6px 12px;border-radius:99px;cursor:pointer;transition:background .18s}
+.try .mac button:hover{background:var(--core-deep)}
+.try .mac .thanks{color:var(--core);font-weight:600;font-size:12.5px}
+.try .fine{color:var(--dove);font-size:11.5px;margin:16px 0 0;letter-spacing:.02em}
+.try .fine code{background:var(--silver);padding:2px 8px;border-radius:5px;font-size:11px;color:var(--ink)}
+
+/* features tri ------------------------------------------------------- */
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:56px 0 0}
 .tile{background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px;transition:transform .22s,box-shadow .22s}
 .tile:hover{transform:translateY(-2px);box-shadow:0 24px 60px -30px rgba(29,29,31,.15)}
 .tile h3{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:0 0 10px}
 .tile p{color:var(--dove);margin:0;font-size:14.5px}
 .tile .n{color:var(--core);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;margin-bottom:8px;display:block}
 
+/* build wave --------------------------------------------------------- */
 .build{margin:56px auto 0;max-width:900px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px 36px}
 .build h3{font-size:22px;font-weight:600;letter-spacing:-.015em;margin:0 0 22px}
 .wave{display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--mist)}
@@ -105,22 +158,52 @@ h1 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 .wave .txt b{font-weight:600}
 
 h2{font-size:44px;letter-spacing:-.025em;text-align:center;margin:96px 0 20px;font-weight:600}
-h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 .lead{color:var(--dove);font-size:16px;text-align:center;max-width:640px;margin:0 auto 40px}
 .lead b{color:var(--ink);font-weight:600}
 
+/* permanence card ---------------------------------------------------- */
+.permanence{max-width:900px;margin:96px auto 0;background:var(--silver);border:1px solid var(--line);border-radius:20px;
+  padding:44px 48px;position:relative;overflow:hidden}
+.permanence::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--core),transparent)}
+.permanence .tag{color:var(--core);font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+.permanence h3{font-size:30px;letter-spacing:-.02em;margin:0 0 16px;font-weight:600}
+.permanence h3 em{font-family:'Instrument',serif;font-style:italic;color:var(--core)}
+.permanence p{color:var(--ink);font-size:15px;line-height:1.6;margin:0 0 14px}
+.permanence p b{font-weight:600}
+.permanence a.more{display:inline-flex;align-items:center;gap:6px;color:var(--core);font-weight:600;font-size:13.5px;
+  margin-top:8px;letter-spacing:.005em}
+.permanence a.more:hover{color:var(--core-deep)}
+.permanence a.more::after{content:"→";transition:transform .2s}
+.permanence a.more:hover::after{transform:translateX(2px)}
+
+/* footer ------------------------------------------------------------- */
 .foot{border-top:1px solid var(--line);margin-top:96px;padding:32px 0;color:var(--dove);
   font-size:12.5px;text-align:center;background:var(--silver)}
 .foot a{color:var(--dove)}
 .foot a:hover{color:var(--core)}
 
-@media (max-width:760px){
+/* responsive --------------------------------------------------------- */
+@media (max-width:900px){
+  .tiers{grid-template-columns:1fr;gap:14px}
+  .card.featured{transform:none}
+  .card.featured:hover{transform:translateY(-3px) scale(1)}
+  .mosaic{grid-template-columns:1fr 1fr;grid-template-rows:180px 180px}
+  .mosaic figure:first-child{grid-row:auto;grid-column:1/-1}
+  .mosaic figure:nth-child(5), .mosaic figure:nth-child(6), .mosaic figure:nth-child(7) {display:none}
+}
+@media (max-width:600px){
   h1{font-size:44px}
   .tri{grid-template-columns:1fr}
   .hero{padding:60px 0 20px}
   h2{font-size:32px;margin:60px 0 16px}
+  .buyhead h2{font-size:32px}
   .wave{flex-direction:column;gap:6px}
   .wave .badge{width:auto}
+  .permanence{padding:32px 28px}
+  .permanence h3{font-size:24px}
+  .trust{gap:16px 20px;padding:20px}
+  .trust .badge{font-size:11.5px}
 }
 </style>
 </head>
@@ -137,66 +220,151 @@ h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
   </div>
 </nav>
 
-<div class="wrap">
-
-  <section class="hero">
+<section class="hero">
+  <div class="wrap">
     <div class="eb">P·20 · Media · R·02a live</div>
     <h1>Every photo, every video,<br><em>one library.</em></h1>
     <p class="sub">
       SnapIT looks at every drive you own — phone, laptop, PC, NAS, backups — finds every photo and every video,
       and files the whole thing into one place. On your storage. Read by no one else.
     </p>
+  </div>
+</section>
 
-    <div class="buy">
-      <div class="k">Founding release · One-off perpetual licence</div>
-      <h3>Pick a tier — instant download after payment.</h3>
-      <p class="lede">No subscription. No expiry. Never phones home to check validity. Founding pricing runs until the launch window closes.</p>
+<!-- Real gallery renders shipped with the app.
+     Twelve actual heroes SnapIT catalogs, arranged as a spread. -->
+<div class="mosaic">
+  <figure><img src="/assets/gallery/valletta-morning.png" alt="Valletta at first light"><span class="cap">Valletta, morning</span></figure>
+  <figure><img src="/assets/gallery/gozo-salt-pans.png" alt="Gozo salt pans"><span class="cap">Gozo · salt pans</span></figure>
+  <figure><img src="/assets/gallery/harbour-boats.png" alt="Fishing boats"><span class="cap">Harbour boats</span></figure>
+  <figure><img src="/assets/gallery/kids-fountain.png" alt="Kids at the fountain"><span class="cap">Kids · fountain</span></figure>
+  <figure><img src="/assets/gallery/baker-hands.png" alt="Baker's hands"><span class="cap">Baker · hands</span></figure>
+</div>
+<p class="mosaic-hint">Your library — every drive, every year, one place — <em>built for the pile.</em></p>
 
-      <div class="row" id="tierRow">
-        <button type="button" class="tier" data-tier="personal_founding">
-          <div class="lb">Personal · Founding</div>
-          <div class="nm">One owner</div>
-          <div class="pr">€59<span class="was">€89</span></div>
-          <div class="desc">Unlimited devices you own · lifetime updates</div>
-        </button>
-        <button type="button" class="tier recommended" data-tier="family_founding">
-          <div class="lb">Family · Founding</div>
-          <div class="nm">Household pack</div>
-          <div class="pr">€99<span class="was">€149</span></div>
-          <div class="desc">Up to 5 profiles under one roof</div>
-        </button>
-        <button type="button" class="tier" data-tier="pro_founding">
-          <div class="lb">Pro · Founding</div>
-          <div class="nm">Studio &amp; commercial</div>
-          <div class="pr">€199<span class="was">€249</span></div>
-          <div class="desc">Extended commercial licence · plugin API</div>
-        </button>
+<!-- The elevated buy spread -->
+<section class="buysec" id="buy">
+  <div class="buyhead">
+    <span class="pill">Founding release · save up to 33%</span>
+    <h2>Own it once. <em>Keep it forever.</em></h2>
+    <p>One-off perpetual licence. No subscription. Never expires. Never phones home. Works even if VF Empire disappears — read the <a href="/permanence" style="color:var(--core)">Permanence Guarantee</a>.</p>
+  </div>
+
+  <div class="tiers" id="tierRow">
+
+    <button type="button" class="card" data-tier="personal_founding">
+      <span class="tag">Personal · Founding</span>
+      <h3 class="n">One owner.</h3>
+      <p class="sub">The single-user tier. Unlimited devices you personally own.</p>
+      <div class="price">
+        <span class="cur">€</span><span class="amt">59</span>
+        <span class="was">€89</span>
       </div>
+      <p class="permo"><b>One-off</b> · perpetual licence · lifetime updates</p>
+      <ul>
+        <li>One profile · unlimited devices</li>
+        <li>Local + NAS scan</li>
+        <li>Ed25519-signed licence</li>
+        <li>Lifetime R·02 + R·03 updates</li>
+      </ul>
+      <span class="cta">Buy Personal · €59</span>
+    </button>
 
-      <div class="dl">
-        <span class="lab">Try it first</span>
-        <a href="/downloads/snapit-latest_amd64.deb">Linux .deb</a>
-        <a href="/downloads/snapit-latest_x64-setup.exe">Windows .exe</a>
+    <button type="button" class="card featured" data-tier="family_founding">
+      <span class="ribbon">Most popular</span>
+      <span class="tag">Family · Founding</span>
+      <h3 class="n">Household pack.</h3>
+      <p class="sub">Up to five profiles under one roof. Kid-safe mode + PIN gating.</p>
+      <div class="price">
+        <span class="cur">€</span><span class="amt">99</span>
+        <span class="was">€149</span>
       </div>
-      <p class="fine">Downloads are the full app in demo mode. Import a licence file after purchase to unlock the paid tier features.</p>
+      <p class="permo"><b>One-off</b> · covers everyone in the household</p>
+      <ul>
+        <li>Up to 5 profiles</li>
+        <li>Kid-safe mode · Argon2id PIN gating</li>
+        <li>Local + NAS scan</li>
+        <li>Ed25519-signed licence</li>
+        <li>Lifetime R·02 + R·03 updates</li>
+      </ul>
+      <span class="cta">Buy Family · €99</span>
+    </button>
+
+    <button type="button" class="card" data-tier="pro_founding">
+      <span class="tag">Pro · Founding</span>
+      <h3 class="n">Studio.</h3>
+      <p class="sub">Freelance photographers, small studios, commercial work.</p>
+      <div class="price">
+        <span class="cur">€</span><span class="amt">199</span>
+        <span class="was">€249</span>
+      </div>
+      <p class="permo"><b>One-off</b> · extended commercial licence · plugin API</p>
+      <ul>
+        <li>Extended commercial use</li>
+        <li>Plugin API (R·02b)</li>
+        <li>RAW dev · upscale · denoise (R·03)</li>
+        <li>Priority support channel</li>
+        <li>Lifetime R·02 + R·03 updates</li>
+      </ul>
+      <span class="cta">Buy Pro · €199</span>
+    </button>
+
+  </div>
+
+  <div class="trust">
+    <div class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      <span><b>Ed25519</b> signed licence</span>
+    </div>
+    <div class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6 10-12"/></svg>
+      <span>Verified <b>offline</b></span>
+    </div>
+    <div class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span>Read every line · <b>FSL-1.1</b> licensed</span>
+    </div>
+    <div class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17v.01"/></svg>
+      <span><b>Zero</b> telemetry</span>
+    </div>
+    <div class="badge">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M12 11v5"/></svg>
+      <span><b>Reproducible</b> build</span>
+    </div>
+  </div>
+</section>
+
+<!-- Try before you buy — dedicated download section --------------------->
+<section class="try">
+  <div class="wrap">
+    <h2>Try SnapIT free — <em>no card, no email.</em></h2>
+    <p class="lead">Download the full app for Linux or Windows. Every feature works in demo mode. Import a licence file after purchase to unlock the paid tier.</p>
+
+    <div class="dl">
+      <a href="/downloads/snapit-latest_amd64.deb">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Linux · .deb <span style="color:var(--faint);font-weight:400">·  4.7 MB</span>
+      </a>
+      <a href="/downloads/snapit-latest_x64-setup.exe">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Windows · .exe <span style="color:var(--faint);font-weight:400">·  3.7 MB</span>
+      </a>
     </div>
 
-    <form class="notify" id="waitform">
-      <div class="k">macOS · notify me</div>
-      <h4>The Mac build ships with R·02b — get an email when it lands.</h4>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <p class="fine">SHA-256 sidecar for every artefact · <a href="/downloads/snapit-latest_amd64.deb.sha256" style="color:var(--core)">verify Linux</a> · <a href="/downloads/snapit-latest_x64-setup.exe.sha256" style="color:var(--core)">verify Windows</a> · reproducible from source</p>
+
+    <div class="mac" style="margin-top:20px">
+      <form id="waitform">
+        <span style="color:var(--dove);font-weight:600">macOS · notify me:</span>
         <input id="email" type="email" required placeholder="you@wherever.com">
-        <button type="submit">Notify me</button>
-      </div>
-    </form>
-
-    <div class="chips">
-      <span class="chip">Linux + Windows shipping · macOS with R·02b</span>
-      <span class="chip">One-off licence · No subscription</span>
-      <span class="chip">No cloud · No telemetry</span>
-      <span class="chip">Portable library format</span>
+        <button type="submit">Notify</button>
+      </form>
     </div>
-  </section>
+  </div>
+</section>
+
+<div class="wrap">
 
   <section>
     <h2>What SnapIT does <em>differently.</em></h2>
@@ -255,10 +423,18 @@ h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
     <h2>What SnapIT <em>does not</em> do.</h2>
     <div class="tri">
       <div class="tile"><h3>No cloud storage.</h3><p>We do not run a photo cloud. That is the exact model we exist to refuse.</p></div>
-      <div class="tile"><h3>No telemetry.</h3><p>No analytics. No crash reports. No "usage reporting" toggle.</p></div>
-      <div class="tile"><h3>No training.</h3><p>Your library is never used to train any model — ours or anyone else's. Read the <a href="/permanence">permanence guarantee</a>.</p></div>
+      <div class="tile"><h3>No telemetry.</h3><p>No analytics. No crash reports. No "usage reporting" toggle. Every network request the app makes is listed in the docs, and none of them are about you.</p></div>
+      <div class="tile"><h3>No training.</h3><p>Your library is never used to train any model — ours or anyone else's. Read the <a href="/permanence" style="color:var(--core)">Permanence Guarantee</a>.</p></div>
     </div>
   </section>
+
+  <aside class="permanence">
+    <div class="tag">Permanence Guarantee</div>
+    <h3>If VF Empire ever disappears, <em>SnapIT keeps working.</em></h3>
+    <p>Within 90 days of any end-of-life event, the source is opened publicly under a permissive licence, the sealed library format is documented in a public spec, the Ed25519 licence public key stays valid forever, and the last-shipped installer is mirrored to a transparency log so anyone can independently reproduce a byte-identical build.</p>
+    <p><b>No online activation. No expiring licences. No "call home" beacon exists in the code to break.</b> If you can install it today, you can install it in ten years.</p>
+    <a class="more" href="/permanence">Read the full guarantee</a>
+  </aside>
 
 </div>
 
@@ -272,15 +448,17 @@ h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 </div>
 
 <script>
-// Tier picker → Stripe Checkout. On click, request a live checkout session
-// for the picked tier, then bounce the user to Stripe's hosted page.
-document.querySelectorAll('#tierRow .tier').forEach(btn => {
+// Tier picker → Stripe Checkout. Buttons POST to /checkout, get a live
+// session id, then browser-navigate to Stripe's hosted page.
+document.querySelectorAll('#tierRow .card').forEach(btn => {
   btn.addEventListener('click', async () => {
     const tier = btn.dataset.tier;
-    const prevHTML = btn.innerHTML;
-    btn.disabled = true;
-    btn.style.opacity = '.6';
-    btn.innerHTML = prevHTML.replace(/<div class="nm">.*?<\/div>/, '<div class="nm">Opening checkout…</div>');
+    if (!tier) return;
+    const cta = btn.querySelector('.cta');
+    const prev = cta ? cta.textContent : '';
+    btn.style.pointerEvents = 'none';
+    btn.style.opacity = '.7';
+    if (cta) cta.textContent = 'Opening checkout…';
     try {
       const r = await fetch('/checkout', {
         method: 'POST',
@@ -288,19 +466,19 @@ document.querySelectorAll('#tierRow .tier').forEach(btn => {
         body: JSON.stringify({ tier }),
       });
       if (!r.ok) throw new Error('checkout ' + r.status);
-      const { url } = await r.json();
-      if (!url) throw new Error('no checkout url');
-      window.location.href = url;
+      const j = await r.json();
+      if (!j.url) throw new Error('no checkout url');
+      window.location.href = j.url;
     } catch (e) {
-      btn.innerHTML = prevHTML;
-      btn.disabled = false;
-      btn.style.opacity = '1';
+      btn.style.pointerEvents = '';
+      btn.style.opacity = '';
+      if (cta) cta.textContent = prev;
       alert('Could not open checkout — please try again or email support@vfempire.com. (' + (e.message || e) + ')');
     }
   });
 });
 
-// macOS notify waitlist (unchanged pipeline, small form)
+// macOS notify waitlist
 document.getElementById('waitform').addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const btn = ev.target.querySelector('button');
@@ -316,14 +494,11 @@ document.getElementById('waitform').addEventListener('submit', async (ev) => {
       body: JSON.stringify({ email, product: 'snapit', channel: 'macos' }),
     });
     if (!r.ok) throw new Error('signup failed');
-    ev.target.innerHTML = '<div class="k">macOS · notify me</div><div class="thanks">You\'re on the list. We\'ll email you the moment the Mac build ships.</div>';
+    ev.target.innerHTML = '<span class="thanks">You\'re on the list — we\'ll email you when macOS lands.</span>';
   } catch (e) {
     btn.disabled = false;
     btn.textContent = orig;
-    const div = document.createElement('div');
-    div.className = 'err';
-    div.textContent = 'Could not save just now. Email support@vfempire.com and we\'ll add you by hand.';
-    ev.target.appendChild(div);
+    alert('Could not save your email — try again or write to support@vfempire.com.');
   }
 });
 </script>
