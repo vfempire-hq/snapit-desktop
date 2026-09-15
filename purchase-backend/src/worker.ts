@@ -36,7 +36,10 @@ type Env = {
     LICENCE_ISSUER: string;
 };
 
-type Tier = 'personal' | 'family' | 'pro' | 'personal_founding' | 'family_founding' | 'pro_founding';
+type Tier =
+    | 'personal' | 'family' | 'pro'
+    | 'personal_founding' | 'family_founding' | 'pro_founding'
+    | 'beta_lifetime';
 const TIER_PRICES: Record<Tier, { amount_cents: number; label: string }> = {
     // Standard tiers — active from launch day onward.
     personal:          { amount_cents:  8900, label: 'SnapIT Personal — one owner, unlimited devices they own, perpetual licence'                          },
@@ -46,6 +49,9 @@ const TIER_PRICES: Record<Tier, { amount_cents: number; label: string }> = {
     personal_founding: { amount_cents:  5900, label: 'SnapIT Personal · Founding customer — one owner, unlimited devices, perpetual licence'                },
     family_founding:   { amount_cents:  9900, label: 'SnapIT Family Pack · Founding customer — 5 profiles per household, perpetual licence'                 },
     pro_founding:      { amount_cents: 19900, label: 'SnapIT Pro / Studio · Founding customer — extended commercial licence, perpetual'                     },
+    // Beta program — 10 hand-issued single-use codes. Redeemed via /beta,
+    // never sold through /checkout. Full-pack (Pro-equivalent) lifetime.
+    beta_lifetime:     { amount_cents:     0, label: 'SnapIT Beta · Lifetime · Full pack — thank you for helping us find bugs before launch'                },
 };
 
 const CORS: Record<string, string> = {
@@ -74,6 +80,9 @@ export default {
             }
             if (url.pathname === '/reissue' && req.method === 'POST') {
                 return await handleReissue(req, env);
+            }
+            if (url.pathname === '/beta/redeem' && req.method === 'POST') {
+                return await handleBetaRedeem(req, env);
             }
             if (url.pathname === '/reviews' && req.method === 'GET') {
                 return await handleReviewsGet(req, env);
@@ -254,6 +263,100 @@ async function handleReissue(req: Request, env: Env): Promise<Response> {
             issued_at: licence.issued_at,
             licence_json: parsed.licence_json,
             signature_b64: parsed.signature_b64,
+        },
+    });
+}
+
+// -------------------------------------------------------------------------
+// /beta — single-use redemption for the 10 hand-issued beta codes.
+// Body: { code: string, email: string }
+//
+// Codes live in KV under `beta:code:<CODE>` with value shape:
+//   { status: 'unused' | 'redeemed', tier: 'beta_lifetime', redeemed_at?, email? }
+//
+// On success:
+//   - Marks the code redeemed (single-use, no take-backs)
+//   - Mints an Ed25519 licence at the beta_lifetime tier
+//   - Stores under `session:beta-<CODE>` so /reissue works the same way
+//     it does for paid customers — beta testers get a real /thanks flow
+// -------------------------------------------------------------------------
+
+async function handleBetaRedeem(req: Request, env: Env): Promise<Response> {
+    const body = await req.json<{ code?: string; email?: string }>().catch(() => ({}));
+    const codeRaw = (body.code || '').trim().toUpperCase();
+    const email = (body.email || '').trim().toLowerCase();
+
+    if (!codeRaw || !email) return json({ error: 'code_and_email_required' }, 400);
+    if (!/^SNAP-BETA-[A-Z0-9]{8}$/.test(codeRaw)) return json({ error: 'malformed_code' }, 400);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'malformed_email' }, 400);
+
+    const kvKey = `beta:code:${codeRaw}`;
+    const rec = await env.LICENCES.get(kvKey);
+    if (!rec) return json({ error: 'unknown_code' }, 404);
+
+    const entry = JSON.parse(rec) as { status: string; tier: Tier; redeemed_at?: number; email?: string };
+    if (entry.status === 'redeemed') {
+        // Idempotent: if the same email tries again, return their existing licence.
+        if (entry.email === email) {
+            const paidRec = await env.LICENCES.get(`session:beta-${codeRaw}`);
+            if (paidRec) {
+                const parsed = JSON.parse(paidRec);
+                return json({
+                    ok: true,
+                    already_redeemed: true,
+                    licence: {
+                        email,
+                        tier: entry.tier,
+                        licence_json: parsed.licence_json,
+                        signature_b64: parsed.signature_b64,
+                    },
+                });
+            }
+        }
+        return json({ error: 'code_already_redeemed' }, 409);
+    }
+
+    // Mint the licence — same shape the webhook produces for paid buyers.
+    const licence = {
+        email,
+        tier: entry.tier,
+        issued_at: Math.floor(Date.now() / 1000),
+        product: 'snapit',
+        major_version: 1,
+    };
+    const licence_json = JSON.stringify(licence);
+    const signature_b64 = await signLicence(licence_json, env.LICENCE_SIGNING_KEY);
+
+    // Persist under the same session:<id> key shape /reissue expects,
+    // using `beta-<CODE>` as the pseudo-session-id.
+    const pseudoSessionId = `beta-${codeRaw}`;
+    await env.LICENCES.put(
+        `session:${pseudoSessionId}`,
+        JSON.stringify({ licence_json, signature_b64, stripe_session_id: pseudoSessionId }),
+        { metadata: { email, tier: entry.tier } },
+    );
+    await env.LICENCES.put(
+        `email:${email}:${entry.tier}`,
+        JSON.stringify({ licence_json, signature_b64, stripe_session_id: pseudoSessionId }),
+    );
+
+    // Flip the code to redeemed
+    await env.LICENCES.put(kvKey, JSON.stringify({
+        status: 'redeemed',
+        tier: entry.tier,
+        redeemed_at: licence.issued_at,
+        email,
+    }));
+
+    return json({
+        ok: true,
+        already_redeemed: false,
+        licence: {
+            email,
+            tier: entry.tier,
+            issued_at: licence.issued_at,
+            licence_json,
+            signature_b64,
         },
     });
 }
@@ -450,7 +553,19 @@ function json(body: any, status = 200): Response {
 async function signLicence(licence_json: string, seed_hex: string): Promise<string> {
     const seed = hexToBytes(seed_hex);
     if (seed.length !== 32) throw new Error('LICENCE_SIGNING_KEY must be 32-byte hex');
-    const key = await crypto.subtle.importKey('raw', seed, { name: 'Ed25519' }, false, ['sign']);
+    // Web Crypto Ed25519 requires the private key wrapped in PKCS8 DER —
+    // raw-32-byte imports resolve to the public half only. The wrapping
+    // is a fixed 16-byte ASN.1 prefix + the seed.
+    // Structure:
+    //   30 2e                                    SEQUENCE (46 bytes)
+    //     02 01 00                               INTEGER 0 (version)
+    //     30 05 06 03 2b 65 70                   SEQUENCE { OID 1.3.101.112 (Ed25519) }
+    //     04 22                                  OCTET STRING (34 bytes)
+    //       04 20 <32-byte seed>                 OCTET STRING (32 bytes)
+    const pkcs8 = new Uint8Array(48);
+    pkcs8.set([0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x04, 0x22, 0x04, 0x20], 0);
+    pkcs8.set(seed, 16);
+    const key = await crypto.subtle.importKey('pkcs8', pkcs8, { name: 'Ed25519' }, false, ['sign']);
     const sig = new Uint8Array(await crypto.subtle.sign('Ed25519', key, new TextEncoder().encode(licence_json)));
     return btoa(String.fromCharCode(...sig));
 }

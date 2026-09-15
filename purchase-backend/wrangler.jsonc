@@ -25,6 +25,7 @@
       "/waitlist",
       "/checkout",
       "/reissue",
+      "/beta/redeem",
       "/webhook/*",
       "/updates/*",
       "/downloads/*"
