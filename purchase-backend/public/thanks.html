@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Thanks — your SnapIT licence · VF Empire</title>
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+:root{
+  --bg:#f6f6f7;
+  --panel:#fff;
+  --ink:#1d1d1f;
+  --dim:#6b6b70;
+  --core:#1f6ff2;
+  --core-deep:#0b47b8;
+  --line:rgba(0,0,0,.08);
+  --ok:#0f8f4d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink)}
+body{
+  font-family:'Hanken Grotesk','Inter',-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  font-feature-settings:"ss01","cv11","kern";
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 20px;
+}
+.wrap{
+  width:100%;
+  max-width:640px;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:36px 40px;
+  box-shadow:0 40px 80px -50px rgba(0,0,0,.15), 0 4px 20px -8px rgba(0,0,0,.04);
+}
+.brand{
+  font-family:'Instrument Serif','Times New Roman',serif;
+  font-size:22px;
+  letter-spacing:.005em;
+  color:var(--ink);
+  margin:0 0 26px;
+}
+.brand small{
+  font-family:'Hanken Grotesk','Inter',sans-serif;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--dim);
+  margin-left:14px;
+  border-left:1px solid var(--line);
+  padding-left:14px;
+  vertical-align:2px;
+}
+h1{
+  font-size:30px;
+  line-height:1.15;
+  letter-spacing:-.015em;
+  margin:0 0 12px;
+  font-weight:600;
+}
+.lede{
+  color:var(--dim);
+  font-size:15.5px;
+  line-height:1.5;
+  margin:0 0 28px;
+}
+.step{
+  display:flex;
+  gap:16px;
+  padding:16px 18px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fafafb;
+  margin:0 0 12px;
+}
+.step .n{
+  flex:0 0 24px;
+  height:24px;
+  border-radius:50%;
+  background:var(--core);
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.step .b{
+  flex:1;
+  font-size:14.5px;
+  line-height:1.5;
+  color:var(--ink);
+}
+.step .b b{color:var(--ink);font-weight:600}
+.step .b em{font-style:normal;color:var(--dim)}
+
+.pills{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:20px 0 6px;
+}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 18px;
+  border-radius:99px;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:.005em;
+  text-decoration:none;
+  transition:all .18s;
+  border:1px solid transparent;
+  cursor:pointer;
+}
+.pill.pri{background:var(--core);color:#fff}
+.pill.pri:hover{background:var(--core-deep);transform:translateY(-1px);box-shadow:0 8px 20px -6px rgba(31,111,242,.35)}
+.pill.sec{background:#fff;color:var(--ink);border-color:var(--line)}
+.pill.sec:hover{border-color:rgba(0,0,0,.16);transform:translateY(-1px)}
+.pill:disabled{opacity:.45;cursor:not-allowed}
+
+.status{
+  margin:22px 0 0;
+  padding:14px 16px;
+  border-radius:10px;
+  font-size:13.5px;
+  line-height:1.45;
+  background:rgba(31,111,242,.06);
+  border:1px solid rgba(31,111,242,.14);
+  color:var(--core-deep);
+}
+.status.ok{background:rgba(15,143,77,.06);border-color:rgba(15,143,77,.16);color:var(--ok)}
+.status.err{background:rgba(200,50,50,.06);border-color:rgba(200,50,50,.16);color:#a02020}
+.status svg{display:inline-block;vertical-align:-3px;margin-right:6px}
+
+.details{
+  margin:22px 0 0;
+  border-top:1px solid var(--line);
+  padding-top:20px;
+  font-size:13.5px;
+  color:var(--dim);
+  line-height:1.55;
+}
+.details b{color:var(--ink)}
+
+footer{
+  margin:26px 0 0;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  font-size:12px;
+  color:var(--dim);
+  text-align:center;
+}
+footer a{color:var(--dim);text-decoration:underline;text-decoration-color:rgba(0,0,0,.14)}
+footer a:hover{color:var(--ink)}
+
+@media (max-width:520px){
+  .card{padding:28px 22px;border-radius:14px}
+  h1{font-size:24px}
+  .step{padding:14px 14px;gap:12px}
+  .pills{flex-direction:column}
+  .pill{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="card">
+    <div class="brand">SnapIT<small>Order confirmation</small></div>
+    <h1>Thanks — your licence is ready.</h1>
+    <p class="lede">Payment cleared. Your Ed25519-signed licence file is generated and stored against your Stripe session. Download both files below and drop them into SnapIT's <b>Licence</b> screen.</p>
+
+    <div class="step">
+      <div class="n">1</div>
+      <div class="b">
+        <b>Install SnapIT</b> if you haven't already.
+        <em>&nbsp;·&nbsp; <a href="/downloads/snapit-latest_amd64.deb">Linux .deb</a> &nbsp;·&nbsp; <a href="/downloads/snapit-latest_x64-setup.exe">Windows .exe</a> &nbsp;·&nbsp; macOS coming R·02b</em>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="n">2</div>
+      <div class="b">
+        <b>Download your licence pair.</b> Two files: the licence blob (JSON) and the signature. SnapIT verifies both against the Ed25519 public key baked into every install — offline, no network call.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="n">3</div>
+      <div class="b">
+        In SnapIT, open <b>Settings → Licence → Import</b> and pick the two files. Done. Perpetual, no expiry, no re-purchase.
+      </div>
+    </div>
+
+    <div class="pills">
+      <button class="pill pri" id="dlLicence" disabled>Download licence.json</button>
+      <button class="pill sec" id="dlSig" disabled>Download signature</button>
+    </div>
+
+    <div class="status" id="status">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M12 11v5"/></svg>
+      Fetching your licence…
+    </div>
+
+    <div class="details" id="details" hidden></div>
+
+    <footer>
+      Trouble? Email <a href="mailto:support@vfempire.com">support@vfempire.com</a> with this page URL — support can re-issue against your Stripe session at any time.<br>
+      &copy; 2026 VF Empire Corp Ltd · Malta C 94160 · <a href="/permanence">Permanence Guarantee</a>
+    </footer>
+  </section>
+</main>
+
+<script>
+(async () => {
+    const status = document.getElementById('status');
+    const details = document.getElementById('details');
+    const dlLicence = document.getElementById('dlLicence');
+    const dlSig = document.getElementById('dlSig');
+
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get('session_id') || params.get('session');
+
+    if (!sessionId) {
+        status.className = 'status err';
+        status.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17v.01"/></svg> Missing session id in URL. If you just paid, refresh from the Stripe success page. Otherwise contact support.';
+        return;
+    }
+
+    // Poll /reissue until the webhook has landed. Fresh purchases can take a
+    // few seconds between Stripe's success redirect and our webhook firing.
+    let record = null;
+    const started = Date.now();
+    const timeoutMs = 20000;
+    while (!record && Date.now() - started < timeoutMs) {
+        try {
+            const res = await fetch('/reissue', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ stripe_session_id: sessionId }),
+            });
+            if (res.ok) {
+                const body = await res.json();
+                if (body.licence && body.licence.licence_json) {
+                    record = body.licence;
+                    break;
+                }
+            } else if (res.status !== 404) {
+                const err = await res.text();
+                throw new Error(err || 'server error');
+            }
+        } catch (e) {
+            console.warn('licence fetch retry:', e.message);
+        }
+        await new Promise(r => setTimeout(r, 1200));
+    }
+
+    if (!record) {
+        status.className = 'status err';
+        status.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17v.01"/></svg> Licence not ready yet — Stripe\'s webhook is still landing. Refresh in ~10 seconds, or email <a href="mailto:support@vfempire.com">support@vfempire.com</a> if it doesn\'t appear.';
+        return;
+    }
+
+    // Build download blobs
+    function downloadText(name, text, type) {
+        const blob = new Blob([text], { type: type || 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    dlLicence.disabled = false;
+    dlSig.disabled = false;
+    dlLicence.addEventListener('click', () => downloadText('snapit.licence.json', record.licence_json, 'application/json'));
+    dlSig.addEventListener('click', () => downloadText('snapit.licence.sig', record.signature_b64, 'text/plain'));
+
+    status.className = 'status ok';
+    status.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12l6 6 10-12"/></svg> Licence ready. Click both buttons above to save the files.';
+
+    const issued = new Date(record.issued_at * 1000).toISOString().replace('T', ' ').replace(/\.\d+Z/, ' UTC');
+    details.hidden = false;
+    details.innerHTML = `
+      <b>Registered to:</b> ${record.email}<br>
+      <b>Tier:</b> ${record.tier}<br>
+      <b>Issued:</b> ${issued}<br>
+      <b>Stripe session:</b> <span style="font-family:'SF Mono','Menlo',monospace;font-size:12px">${sessionId}</span>
+    `;
+})();
+</script>
+</body>
+</html>

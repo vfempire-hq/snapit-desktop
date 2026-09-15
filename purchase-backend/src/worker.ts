@@ -233,16 +233,29 @@ async function handleReissue(req: Request, env: Env): Promise<Response> {
         record = await env.LICENCES.get(`session:${body.stripe_session_id}`);
     }
     if (!record && body.email) {
-        const tier = body.tier ?? 'personal';
+        const tier: Tier = (body.tier as Tier) ?? 'personal';
         record = await env.LICENCES.get(`email:${body.email.toLowerCase()}:${tier}`);
     }
     if (!record) return json({ error: 'not_found' }, 404);
 
     const parsed = JSON.parse(record);
     const licence = JSON.parse(parsed.licence_json);
-    // Re-deliver
+    // Also re-deliver by email once VF Mail SMTP is wired; today that's a no-op.
     await deliverLicenceEmail(env, licence.email, licence, parsed.licence_json, parsed.signature_b64);
-    return json({ ok: true, delivered_to: licence.email });
+    // Return the licence blob so /thanks (or a support flow) can offer direct
+    // download without waiting on the email pipe. The session id acts as the
+    // auth token — anyone who paid has it, and it's unguessable in bulk.
+    return json({
+        ok: true,
+        delivered_to: licence.email,
+        licence: {
+            email: licence.email,
+            tier: licence.tier,
+            issued_at: licence.issued_at,
+            licence_json: parsed.licence_json,
+            signature_b64: parsed.signature_b64,
+        },
+    });
 }
 
 // -------------------------------------------------------------------------
