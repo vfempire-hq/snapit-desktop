@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SnapIT — every photo, every video, one library. · VF Empire</title>
-<meta name="description" content="SnapIT scans your whole life — phone, laptop, drives — and files every photo and video into one Netflix-style library on your own storage. Coming soon.">
+<meta name="description" content="SnapIT is the local-first photo library — one place for every photo and every video across every drive you own. On-device AI, portable format, one-off licence. Linux + Windows shipping today. €59 Founding.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f5f5f7'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='30' fill='%231d1d1f' text-anchor='middle'%3EVF%3C/text%3E%3C/svg%3E">
 <style>
 @font-face{font-family:'Hanken';src:url('/fonts/hanken.woff2') format('woff2');font-weight:100 900;font-display:swap}
@@ -45,23 +45,42 @@ h1{font-size:78px;line-height:1.02;letter-spacing:-.028em;margin:0 0 22px;font-w
 h1 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 .sub{color:var(--dove);font-size:20px;max-width:700px;margin:0 auto 40px}
 
-.waitlist{max-width:520px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:20px;
+.buy{max-width:640px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:20px;
   padding:30px 34px;box-shadow:0 20px 60px -40px rgba(29,29,31,.2)}
-.waitlist .k{color:var(--core);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
-.waitlist h3{font-size:22px;letter-spacing:-.015em;margin:0 0 12px;font-weight:600}
-.waitlist p{color:var(--dove);font-size:14px;margin:0 0 20px}
-.waitlist form{display:flex;gap:8px;flex-wrap:wrap}
-.waitlist input{flex:1;min-width:0;padding:14px 18px;border-radius:99px;border:1px solid var(--line);
-  font-family:inherit;font-size:14px;background:var(--silver);color:var(--ink);outline:none;
-  transition:border-color .2s,background .2s}
-.waitlist input:focus{border-color:var(--core);background:#fff}
-.waitlist button{padding:14px 26px;border-radius:99px;border:none;background:var(--ink);color:#fff;
-  font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;transition:background .2s,transform .18s}
-.waitlist button:hover{background:var(--core);transform:translateY(-1px)}
-.waitlist button:disabled{opacity:.5;cursor:default;transform:none}
-.waitlist .thanks{color:var(--core);font-weight:600;font-size:14px;margin-top:6px}
-.waitlist .err{color:#b02a2a;font-size:13px;margin-top:6px}
-.waitlist .fine{color:var(--dove);font-size:11.5px;margin-top:14px}
+.buy .k{color:var(--core);font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.buy h3{font-size:22px;letter-spacing:-.015em;margin:0 0 8px;font-weight:600}
+.buy p.lede{color:var(--dove);font-size:14px;margin:0 0 22px}
+.buy .row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 14px}
+.buy .tier{border:1px solid var(--line);border-radius:14px;padding:16px 14px;text-align:left;background:var(--silver);
+  cursor:pointer;transition:all .18s;font-family:inherit;color:var(--ink)}
+.buy .tier:hover{border-color:var(--core);background:#fff;transform:translateY(-1px);box-shadow:0 12px 30px -18px rgba(31,111,242,.35)}
+.buy .tier .lb{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;color:var(--dove);margin-bottom:4px}
+.buy .tier .nm{font-size:15px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+.buy .tier .pr{font-size:22px;font-weight:600;letter-spacing:-.02em;color:var(--core)}
+.buy .tier .pr .was{font-size:13px;color:var(--faint);font-weight:400;text-decoration:line-through;margin-left:6px;letter-spacing:0}
+.buy .tier .desc{font-size:12px;color:var(--dove);margin-top:6px;line-height:1.4}
+.buy .tier.recommended{border-color:var(--core);background:#fff;box-shadow:0 4px 20px -10px rgba(31,111,242,.25)}
+.buy .tier.recommended .lb{color:var(--core)}
+.buy .dl{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--mist)}
+.buy .dl .lab{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--dove);font-weight:700;margin-right:4px;align-self:center}
+.buy .dl a{padding:9px 18px;border-radius:99px;font-size:13px;font-weight:500;border:1px solid var(--line);
+  background:#fff;color:var(--ink);transition:all .18s;text-decoration:none}
+.buy .dl a:hover{border-color:var(--core);color:var(--core);transform:translateY(-1px)}
+.buy .fine{color:var(--dove);font-size:11.5px;margin-top:14px}
+
+.notify{max-width:520px;margin:24px auto 0;background:transparent;border:1px dashed var(--line);border-radius:16px;
+  padding:16px 22px;text-align:center}
+.notify .k{color:var(--dove);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.notify h4{font-size:14px;font-weight:600;letter-spacing:-.01em;margin:0 0 10px;color:var(--ink)}
+.notify form{display:flex;gap:6px;flex-wrap:wrap}
+.notify input{flex:1;min-width:0;padding:10px 14px;border-radius:99px;border:1px solid var(--line);
+  font-family:inherit;font-size:13px;background:#fff;color:var(--ink);outline:none;transition:border-color .2s}
+.notify input:focus{border-color:var(--core)}
+.notify button{padding:10px 18px;border-radius:99px;border:none;background:var(--ink);color:#fff;
+  font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:background .2s,transform .18s}
+.notify button:hover{background:var(--core);transform:translateY(-1px)}
+.notify .thanks{color:var(--core);font-weight:600;font-size:13px;margin-top:6px}
+.notify .err{color:#b02a2a;font-size:12.5px;margin-top:6px}
 
 .chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:40px 0 0}
 .chip{border:1px solid var(--line);padding:8px 16px;border-radius:99px;font-size:11.5px;
@@ -79,8 +98,9 @@ h1 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 .wave{display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--mist)}
 .wave:first-of-type{border-top:none;padding-top:2px}
 .wave .badge{flex-shrink:0;width:120px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--dove)}
-.wave .badge.now{color:var(--core)}
-.wave .badge.next{color:var(--ink)}
+.wave .badge.shipped{color:var(--core)}
+.wave .badge.now{color:var(--ink);font-weight:700}
+.wave .badge.next{color:var(--dove)}
 .wave .txt{flex:1;font-size:14.5px;color:var(--ink)}
 .wave .txt b{font-weight:600}
 
@@ -113,34 +133,66 @@ h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
       VF EMPIRE
     </a>
     <a class="parent" href="https://vfempire.com/systems/snapit">P·20 · SnapIT</a>
-    <span class="status">In build</span>
+    <span class="status">R·02a live</span>
   </div>
 </nav>
 
 <div class="wrap">
 
   <section class="hero">
-    <div class="eb">P·20 · Media · In build</div>
+    <div class="eb">P·20 · Media · R·02a live</div>
     <h1>Every photo, every video,<br><em>one library.</em></h1>
     <p class="sub">
       SnapIT looks at every drive you own — phone, laptop, PC, NAS, backups — finds every photo and every video,
-      and files the whole thing into one place. Netflix-style rows by year, event and person. On your storage. Read by no one else.
+      and files the whole thing into one place. On your storage. Read by no one else.
     </p>
 
-    <form class="waitlist" id="waitform">
-      <div class="k">Early access</div>
-      <h3>Get an invite when we open the beta.</h3>
-      <p>We're finishing the full-system scan, video support, event clustering and the Netflix-style browser. When it's ready, you'll be first in the door.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="email" type="email" required placeholder="you@wherever.com">
-        <button type="submit">Join the list</button>
+    <div class="buy">
+      <div class="k">Founding release · One-off perpetual licence</div>
+      <h3>Pick a tier — instant download after payment.</h3>
+      <p class="lede">No subscription. No expiry. Never phones home to check validity. Founding pricing runs until the launch window closes.</p>
+
+      <div class="row" id="tierRow">
+        <button type="button" class="tier" data-tier="personal_founding">
+          <div class="lb">Personal · Founding</div>
+          <div class="nm">One owner</div>
+          <div class="pr">€59<span class="was">€89</span></div>
+          <div class="desc">Unlimited devices you own · lifetime updates</div>
+        </button>
+        <button type="button" class="tier recommended" data-tier="family_founding">
+          <div class="lb">Family · Founding</div>
+          <div class="nm">Household pack</div>
+          <div class="pr">€99<span class="was">€149</span></div>
+          <div class="desc">Up to 5 profiles under one roof</div>
+        </button>
+        <button type="button" class="tier" data-tier="pro_founding">
+          <div class="lb">Pro · Founding</div>
+          <div class="nm">Studio &amp; commercial</div>
+          <div class="pr">€199<span class="was">€249</span></div>
+          <div class="desc">Extended commercial licence · plugin API</div>
+        </button>
       </div>
-      <p class="fine">One email, no marketing junk. You'll hear from us the day the private beta opens. Unsubscribe with one click.</p>
+
+      <div class="dl">
+        <span class="lab">Try it first</span>
+        <a href="/downloads/snapit-latest_amd64.deb">Linux .deb</a>
+        <a href="/downloads/snapit-latest_x64-setup.exe">Windows .exe</a>
+      </div>
+      <p class="fine">Downloads are the full app in demo mode. Import a licence file after purchase to unlock the paid tier features.</p>
+    </div>
+
+    <form class="notify" id="waitform">
+      <div class="k">macOS · notify me</div>
+      <h4>The Mac build ships with R·02b — get an email when it lands.</h4>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input id="email" type="email" required placeholder="you@wherever.com">
+        <button type="submit">Notify me</button>
+      </div>
     </form>
 
     <div class="chips">
-      <span class="chip">macOS · Windows · Linux</span>
-      <span class="chip">Founding price €59 · One-off · No subscription</span>
+      <span class="chip">Linux + Windows shipping · macOS with R·02b</span>
+      <span class="chip">One-off licence · No subscription</span>
       <span class="chip">No cloud · No telemetry</span>
       <span class="chip">Portable library format</span>
     </div>
@@ -168,30 +220,34 @@ h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
   </section>
 
   <section class="build">
-    <h3>What we're building right now.</h3>
+    <h3>What's shipped · what's next.</h3>
     <div class="wave">
-      <span class="badge now">Now</span>
-      <span class="txt"><b>Whole-system source graph.</b> Reading every drive, phone backup and cloud-takeout dump you point at, resolving the same file across all of them so nothing gets duplicated when it's actually the same photo on three devices.</span>
+      <span class="badge shipped">R·02a shipped</span>
+      <span class="txt"><b>Local-first catalog scan.</b> Point SnapIT at folders on any drive or NAS mount — the Rust indexer reads every image and video in place, writes a SQLite catalog next to the originals, generates thumbnails, and never touches your files.</span>
     </div>
     <div class="wave">
-      <span class="badge now">Now</span>
-      <span class="txt"><b>Video support.</b> Every format phones and cameras write, thumbnails from the first real frame, filed side-by-side with photos in the same library. Playback in the app, no external player required.</span>
+      <span class="badge shipped">R·02a shipped</span>
+      <span class="txt"><b>Household profiles + PIN.</b> Up to 5 profiles in a Family Pack, each with its own view of the library. PINs hash with Argon2id (OWASP-current parameters). Nothing about a profile leaves the machine.</span>
     </div>
     <div class="wave">
-      <span class="badge now">Now</span>
-      <span class="txt"><b>Metadata repair.</b> WhatsApp and most messengers strip the story out of every photo they send. SnapIT reads the filename patterns, folder context and temporal neighbours to put the date, place and event back — and always says when a field was inferred vs. read.</span>
+      <span class="badge shipped">R·02a shipped</span>
+      <span class="txt"><b>Signed licence file.</b> Ed25519-signed licence pair verified offline against the pubkey baked into every install. Runs even if our purchase server disappears. Never phones home to check validity.</span>
     </div>
     <div class="wave">
-      <span class="badge next">Next</span>
+      <span class="badge now">R·02b · in build</span>
+      <span class="txt"><b>Signed macOS build.</b> Universal binary (Apple silicon + Intel) with Developer ID notarisation. Same code, same catalog, same licence. Shipping alongside the auto-updater as one wave.</span>
+    </div>
+    <div class="wave">
+      <span class="badge now">R·02b · in build</span>
       <span class="txt"><b>Event clustering.</b> Break the timeline into the events a human would remember — the trip, the birthday, the site visit — using time, place, camera and burst structure. Every event gets its own row in the browser.</span>
     </div>
     <div class="wave">
-      <span class="badge next">Next</span>
-      <span class="txt"><b>Netflix-style browser.</b> The R·01 grid becomes rows: Year, People, Places, Events, Recent, Highlights. Every row scrolls independently, big posters, keyboard-only navigable, same visual language as our video studio.</span>
+      <span class="badge next">R·03 · next</span>
+      <span class="txt"><b>On-device face grouping.</b> Face embeddings computed on your CPU/GPU, clustering the same person across a decade of photos. Nothing leaves the machine. Off by default, one toggle to enable, one to erase the whole face index.</span>
     </div>
     <div class="wave">
-      <span class="badge next">Next</span>
-      <span class="txt"><b>Face grouping.</b> On-device face embeddings, cluster the same person across a decade of photos. Nothing leaves the machine. Fully opt-in — off by default, one toggle to enable, one to erase the whole face index.</span>
+      <span class="badge next">R·03 · next</span>
+      <span class="txt"><b>Semantic search &amp; RAW dev.</b> "beach at sunset in italy" runs against embeddings computed locally. Non-destructive RAW edits stored in XMP sidecars. Upscale and denoise powered by on-device models.</span>
     </div>
   </section>
 
@@ -216,6 +272,35 @@ h2 em{color:var(--core);font-style:italic;font-family:'Instrument',serif}
 </div>
 
 <script>
+// Tier picker → Stripe Checkout. On click, request a live checkout session
+// for the picked tier, then bounce the user to Stripe's hosted page.
+document.querySelectorAll('#tierRow .tier').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const tier = btn.dataset.tier;
+    const prevHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.style.opacity = '.6';
+    btn.innerHTML = prevHTML.replace(/<div class="nm">.*?<\/div>/, '<div class="nm">Opening checkout…</div>');
+    try {
+      const r = await fetch('/checkout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ tier }),
+      });
+      if (!r.ok) throw new Error('checkout ' + r.status);
+      const { url } = await r.json();
+      if (!url) throw new Error('no checkout url');
+      window.location.href = url;
+    } catch (e) {
+      btn.innerHTML = prevHTML;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      alert('Could not open checkout — please try again or email support@vfempire.com. (' + (e.message || e) + ')');
+    }
+  });
+});
+
+// macOS notify waitlist (unchanged pipeline, small form)
 document.getElementById('waitform').addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const btn = ev.target.querySelector('button');
@@ -228,10 +313,10 @@ document.getElementById('waitform').addEventListener('submit', async (ev) => {
     const r = await fetch('/waitlist', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ email, product: 'snapit' }),
+      body: JSON.stringify({ email, product: 'snapit', channel: 'macos' }),
     });
     if (!r.ok) throw new Error('signup failed');
-    ev.target.innerHTML = '<div class="k">Early access</div><div class="thanks">You\'re on the list. We\'ll email you the moment the private beta opens.</div>';
+    ev.target.innerHTML = '<div class="k">macOS · notify me</div><div class="thanks">You\'re on the list. We\'ll email you the moment the Mac build ships.</div>';
   } catch (e) {
     btn.disabled = false;
     btn.textContent = orig;
