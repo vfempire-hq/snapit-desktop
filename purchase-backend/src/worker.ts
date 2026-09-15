@@ -86,20 +86,11 @@ export default {
                 // still receive future patches. Existing customers > website noise.
                 return await handleUpdateCheck(req, env, url);
             }
-            if (url.pathname.startsWith('/downloads/')) {
-                // Downloads paused until R·02 is complete. Redirect to the
-                // waitlist landing so anyone hitting a bookmarked link lands
-                // somewhere useful instead of a dead URL.
-                return new Response(null, {
-                    status: 302,
-                    headers: {
-                        location: 'https://snapit.vfempire.com/#waitform',
-                        'cache-control': 'no-store',
-                        ...CORS,
-                    },
-                });
-            }
-            // Fall through to static assets (product landing page for snapit.vfempire.com)
+            // Downloads live via the assets binding. purchase-backend/public/
+            // downloads/ holds the signed .deb / .exe files R·02a ships.
+            // Wrangler serves them directly under /downloads/<file>, with
+            // both versioned filenames (SnapIT_0.1.7_amd64.deb) and "latest"
+            // shortcuts (snapit-latest_amd64.deb) resolving to the same bytes.
             return env.ASSETS.fetch(req);
         } catch (e: any) {
             console.error('worker error:', e?.message || e);
