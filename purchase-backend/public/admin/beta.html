@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Beta admin · SnapIT</title>
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+:root{
+  --paper:#fbfbfd;
+  --silver:#f5f5f7;
+  --panel:#fff;
+  --ink:#1d1d1f;
+  --dove:#6e6e73;
+  --faint:#a1a1a6;
+  --line:#e4e6ea;
+  --core:#1f6ff2;
+  --core-deep:#0b47b8;
+  --core-soft:rgba(31,111,242,.08);
+  --ok:#0f8f4d;
+  --ok-soft:rgba(15,143,77,.08);
+  --danger:#a02020;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
+body{
+  font-family:'Hanken Grotesk','Inter',-apple-system,'SF Pro Text',system-ui,sans-serif;
+  font-feature-settings:"ss01","cv11","kern";
+  padding:32px 20px;
+}
+.wrap{max-width:960px;margin:0 auto}
+
+header{display:flex;align-items:center;justify-content:space-between;margin:0 0 24px}
+.brand{
+  font-family:'Instrument Serif','Times New Roman',serif;
+  font-size:22px;
+  letter-spacing:.005em;
+  color:var(--ink);
+}
+.brand small{
+  font-family:'Hanken Grotesk','Inter',sans-serif;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--core);
+  margin-left:14px;
+  border-left:1px solid var(--line);
+  padding-left:14px;
+  vertical-align:2px;
+  font-weight:600;
+}
+header .actions{display:flex;gap:8px}
+header button{
+  background:var(--silver);border:1px solid var(--line);color:var(--ink);
+  font-family:inherit;font-size:12px;font-weight:600;padding:8px 14px;
+  border-radius:99px;cursor:pointer;transition:all .18s;letter-spacing:.02em;
+}
+header button:hover{background:#fff;border-color:var(--core);color:var(--core)}
+
+.summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin:0 0 24px;
+}
+.stat{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:20px 22px;
+}
+.stat .k{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dove);font-weight:700;margin-bottom:6px}
+.stat .v{font-size:36px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.stat.total .v{color:var(--ink)}
+.stat.unused .v{color:var(--core)}
+.stat.redeemed .v{color:var(--ok)}
+
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:14px 18px;text-align:left;font-size:14px;border-bottom:1px solid var(--line)}
+th{background:var(--silver);color:var(--dove);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--silver)}
+.section-h{font-size:14px;font-weight:600;letter-spacing:.01em;margin:32px 0 12px;color:var(--ink)}
+.section-h:first-of-type{margin-top:16px}
+table + h3{margin-top:32px}
+td.code{font-family:'SF Mono','Menlo',monospace;font-size:13px;letter-spacing:.04em;color:var(--ink)}
+td.code button{
+  background:none;border:none;color:var(--faint);cursor:pointer;font-family:inherit;
+  padding:2px 6px;border-radius:5px;transition:color .18s,background .18s;font-size:11px;
+  margin-left:6px;letter-spacing:.02em;
+}
+td.code button:hover{color:var(--core);background:var(--core-soft)}
+td.code button.copied{color:var(--ok);background:var(--ok-soft)}
+
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:10.5px;
+  font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.pill.unused{background:var(--core-soft);color:var(--core)}
+.pill.redeemed{background:var(--ok-soft);color:var(--ok)}
+.pill.other{background:var(--silver);color:var(--dove)}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%}
+.pill.unused::before{background:var(--core)}
+.pill.redeemed::before{background:var(--ok)}
+.pill.other::before{background:var(--faint)}
+
+.dim{color:var(--dove);font-size:13px}
+.mono{font-family:'SF Mono','Menlo',monospace;font-size:12px}
+
+/* Login screen */
+.login{
+  max-width:420px;
+  margin:80px auto 0;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:32px 34px;
+  box-shadow:0 40px 80px -50px rgba(0,0,0,.15);
+}
+.login h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0 0 8px}
+.login p{color:var(--dove);font-size:13.5px;margin:0 0 20px;line-height:1.5}
+.login form{display:flex;flex-direction:column;gap:12px}
+.login input{
+  padding:12px 16px;border-radius:10px;border:1px solid var(--line);
+  font-family:'SF Mono','Menlo',monospace;font-size:13px;letter-spacing:.02em;
+  background:var(--silver);color:var(--ink);outline:none;transition:all .18s;
+}
+.login input:focus{border-color:var(--core);background:#fff;box-shadow:0 0 0 4px rgba(31,111,242,.10)}
+.login button{
+  padding:12px 22px;border-radius:99px;border:none;background:var(--core);color:#fff;
+  font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;transition:background .2s,transform .18s;
+}
+.login button:hover{background:var(--core-deep);transform:translateY(-1px)}
+.login .err{color:var(--danger);font-size:12.5px;margin-top:2px}
+
+.foot{margin:40px 0 0;text-align:center;color:var(--dove);font-size:12px}
+.foot a{color:var(--dove);text-decoration:underline;text-decoration-color:rgba(0,0,0,.14)}
+.foot a:hover{color:var(--ink)}
+
+@media (max-width:640px){
+  .summary{grid-template-columns:1fr;gap:8px}
+  .stat{padding:14px 18px}
+  .stat .v{font-size:28px}
+  table{font-size:12px}
+  th,td{padding:10px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- Login (hidden if token is known & valid) -->
+<div class="login" id="login" hidden>
+  <h2>Admin token required.</h2>
+  <p>Paste the token you set with <span class="mono">wrangler secret put ADMIN_TOKEN</span>. Once logged in, the page bookmark keeps you signed in on this browser.</p>
+  <form id="loginForm">
+    <input id="tokenIn" type="password" required autocomplete="off" spellcheck="false" placeholder="admin token">
+    <button type="submit">Sign in</button>
+    <div class="err" id="loginErr" hidden></div>
+  </form>
+</div>
+
+<!-- Dashboard (populated on load) -->
+<div class="wrap" id="dashboard" hidden>
+  <header>
+    <div class="brand">SnapIT<small>Beta admin</small></div>
+    <div class="actions">
+      <button id="refreshBtn">Refresh</button>
+      <button id="logoutBtn">Sign out</button>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div class="stat total"><div class="k">Total codes</div><div class="v" id="statTotal">—</div></div>
+    <div class="stat unused"><div class="k">Unused</div><div class="v" id="statUnused">—</div></div>
+    <div class="stat redeemed"><div class="k">Redeemed</div><div class="v" id="statRedeemed">—</div></div>
+  </div>
+
+  <h3 class="section-h">Hand-issued · <span style="color:var(--dove);font-weight:400">lifetime full-pack</span></h3>
+  <table id="rowsLifetime">
+    <thead>
+      <tr>
+        <th style="width:34%">Code</th>
+        <th style="width:14%">Status</th>
+        <th>Redeemed by</th>
+        <th style="width:22%">When</th>
+      </tr>
+    </thead>
+    <tbody id="rowsBodyLifetime">
+      <tr><td colspan="4" class="dim" style="padding:24px;text-align:center">Loading…</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="section-h">Public beta requests · <span style="color:var(--dove);font-weight:400">90-day trial, auto-generated</span></h3>
+  <table id="rowsTrial">
+    <thead>
+      <tr>
+        <th style="width:34%">Code</th>
+        <th style="width:14%">Status</th>
+        <th>Requested by</th>
+        <th style="width:22%">When</th>
+      </tr>
+    </thead>
+    <tbody id="rowsBodyTrial">
+      <tr><td colspan="4" class="dim" style="padding:24px;text-align:center">—</td></tr>
+    </tbody>
+  </table>
+
+  <p class="foot">
+    Redemptions are single-use per code · re-redemption with the same email returns the same licence · new email on a used code = 409.<br>
+    Codes live in KV under <span class="mono">beta:code:*</span> · licences stored under <span class="mono">session:beta-*</span>.
+  </p>
+</div>
+
+<script>
+(() => {
+    const STORAGE_KEY = 'snapit_admin_token_v1';
+
+    // On load, try URL param → sessionStorage → localStorage in that order.
+    // URL param immediately migrates into localStorage so a bookmark stays live.
+    let token = null;
+    const url = new URL(location.href);
+    if (url.searchParams.get('token')) {
+        token = url.searchParams.get('token');
+        localStorage.setItem(STORAGE_KEY, token);
+        url.searchParams.delete('token');
+        history.replaceState(null, '', url.toString());
+    } else {
+        token = localStorage.getItem(STORAGE_KEY);
+    }
+
+    const login = document.getElementById('login');
+    const dashboard = document.getElementById('dashboard');
+    const loginForm = document.getElementById('loginForm');
+    const loginErr = document.getElementById('loginErr');
+    const rowsBodyLifetime = document.getElementById('rowsBodyLifetime');
+    const rowsBodyTrial = document.getElementById('rowsBodyTrial');
+    const statTotal = document.getElementById('statTotal');
+    const statUnused = document.getElementById('statUnused');
+    const statRedeemed = document.getElementById('statRedeemed');
+
+    function showLogin(err) {
+        login.hidden = false;
+        dashboard.hidden = true;
+        if (err) {
+            loginErr.textContent = err;
+            loginErr.hidden = false;
+        } else {
+            loginErr.hidden = true;
+        }
+    }
+    function showDashboard() {
+        login.hidden = true;
+        dashboard.hidden = false;
+    }
+
+    async function fetchData() {
+        if (!token) return showLogin();
+        try {
+            const r = await fetch('/admin/beta/data', {
+                headers: { 'authorization': 'Bearer ' + token },
+            });
+            if (r.status === 401) {
+                localStorage.removeItem(STORAGE_KEY);
+                token = null;
+                return showLogin('That token was rejected.');
+            }
+            if (!r.ok) {
+                return showLogin('Server error: ' + r.status);
+            }
+            const body = await r.json();
+            render(body);
+            showDashboard();
+        } catch (e) {
+            showLogin('Network error: ' + (e.message || e));
+        }
+    }
+
+    function render(body) {
+        statTotal.textContent = body.summary.total;
+        statUnused.textContent = body.summary.unused;
+        statRedeemed.textContent = body.summary.redeemed;
+
+        // Split by tier — beta_lifetime = Vincent's hand-issued, beta_trial = auto-requested.
+        const lifetime = body.codes.filter(c => c.tier === 'beta_lifetime' || c.code && !c.code.includes('REQ-') && c.tier !== 'beta_trial');
+        const trial = body.codes.filter(c => c.tier === 'beta_trial' || (c.code && c.code.includes('REQ-')));
+
+        renderTable(rowsBodyLifetime, lifetime, 'Vincent has ten codes in the vault — none uploaded yet, or something\'s wrong with KV.');
+        renderTable(rowsBodyTrial, trial, 'No public beta requests yet — the /beta/request form hasn\'t been used.');
+    }
+
+    function renderTable(tbody, rows, emptyMsg) {
+        if (!rows.length) {
+            tbody.innerHTML = `<tr><td colspan="4" class="dim" style="padding:24px;text-align:center">${emptyMsg}</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = rows.map(c => {
+            const pillClass = c.status === 'unused' ? 'unused' :
+                              c.status === 'redeemed' ? 'redeemed' : 'other';
+            const pillLabel = c.status === 'unused' ? 'Unused' :
+                              c.status === 'redeemed' ? 'Redeemed' : c.status;
+            const when = c.redeemed_at
+                ? new Date(c.redeemed_at * 1000).toISOString().replace('T', ' ').replace(/\.\d+Z/, ' UTC')
+                : '';
+            return `
+              <tr>
+                <td class="code">
+                  <span>${escapeHtml(c.code)}</span>
+                  <button data-copy="${escapeHtml(c.code)}">copy</button>
+                </td>
+                <td><span class="pill ${pillClass}">${pillLabel}</span></td>
+                <td>${c.email ? escapeHtml(c.email) : '<span class="dim">—</span>'}</td>
+                <td class="dim mono">${when || '—'}</td>
+              </tr>
+            `;
+        }).join('');
+        tbody.querySelectorAll('button[data-copy]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(btn.dataset.copy);
+                    const orig = btn.textContent;
+                    btn.textContent = 'copied';
+                    btn.classList.add('copied');
+                    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1200);
+                } catch { /* clipboard denied */ }
+            });
+        });
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+    }
+
+    loginForm.addEventListener('submit', ev => {
+        ev.preventDefault();
+        const v = document.getElementById('tokenIn').value.trim();
+        if (!v) return;
+        token = v;
+        localStorage.setItem(STORAGE_KEY, token);
+        fetchData();
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', fetchData);
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEY);
+        token = null;
+        showLogin();
+    });
+
+    // Auto-refresh every 30s while dashboard visible
+    setInterval(() => {
+        if (!dashboard.hidden) fetchData();
+    }, 30000);
+
+    fetchData();
+})();
+</script>
+</body>
+</html>

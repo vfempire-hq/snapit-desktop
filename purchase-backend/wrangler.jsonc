@@ -26,6 +26,8 @@
       "/checkout",
       "/reissue",
       "/beta/redeem",
+      "/beta/request",
+      "/admin/*",
       "/webhook/*",
       "/updates/*",
       "/downloads/*"

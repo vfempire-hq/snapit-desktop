@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Request beta access — SnapIT · VF Empire</title>
+<meta name="description" content="Join the SnapIT public beta. Free full-pack access during beta; upgrade to a paid tier once beta closes.">
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<style>
+:root{
+  --paper:#fbfbfd;
+  --silver:#f5f5f7;
+  --panel:#fff;
+  --ink:#1d1d1f;
+  --dove:#6e6e73;
+  --faint:#a1a1a6;
+  --line:#e4e6ea;
+  --core:#1f6ff2;
+  --core-deep:#0b47b8;
+  --core-soft:rgba(31,111,242,.08);
+  --ok:#0f8f4d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--paper);color:var(--ink)}
+body{
+  font-family:'Hanken Grotesk','Inter',-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  font-feature-settings:"ss01","cv11","kern";
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:32px 20px;
+}
+.wrap{width:100%;max-width:640px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:40px 44px;
+  box-shadow:0 40px 80px -50px rgba(0,0,0,.15),0 4px 20px -8px rgba(0,0,0,.04);
+}
+.brand{
+  font-family:'Instrument Serif','Times New Roman',serif;
+  font-size:22px;
+  letter-spacing:.005em;
+}
+.brand small{
+  font-family:'Hanken Grotesk','Inter',sans-serif;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--core);
+  margin-left:14px;border-left:1px solid var(--line);padding-left:14px;
+  vertical-align:2px;font-weight:600;
+}
+h1{font-size:38px;line-height:1.1;letter-spacing:-.02em;margin:22px 0 12px;font-weight:600}
+h1 em{font-family:'Instrument Serif',serif;font-style:italic;color:var(--core);font-weight:400}
+.lede{color:var(--dove);font-size:15.5px;line-height:1.55;margin:0 0 28px}
+
+.deal{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:0 0 28px;
+}
+.deal .box{
+  background:var(--core-soft);
+  border:1px solid rgba(31,111,242,.16);
+  border-radius:12px;
+  padding:16px 18px;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--ink);
+}
+.deal .box .k{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--core);font-weight:700;margin-bottom:6px}
+.deal .box b{color:var(--core-deep);font-weight:600}
+
+form{display:flex;flex-direction:column;gap:14px}
+label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--ink);margin-bottom:-8px}
+input,textarea{
+  padding:14px 18px;border-radius:12px;border:1px solid var(--line);
+  font-family:inherit;font-size:15px;background:var(--silver);color:var(--ink);
+  outline:none;transition:all .18s;letter-spacing:.005em;
+  resize:vertical;
+}
+input:focus,textarea:focus{border-color:var(--core);background:#fff;box-shadow:0 0 0 4px rgba(31,111,242,.10)}
+input::placeholder,textarea::placeholder{color:var(--faint)}
+textarea{min-height:80px;font-family:inherit;line-height:1.5}
+button{
+  padding:15px 24px;border-radius:99px;border:none;background:var(--core);color:#fff;
+  font-family:inherit;font-weight:600;font-size:15px;letter-spacing:.005em;cursor:pointer;
+  transition:background .2s,transform .18s,box-shadow .2s;margin-top:6px;
+}
+button:hover{background:var(--core-deep);transform:translateY(-1px);box-shadow:0 12px 30px -12px rgba(31,111,242,.35)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+
+.status{margin:20px 0 0;padding:14px 16px;border-radius:10px;font-size:13.5px;line-height:1.5;
+  display:flex;gap:10px;align-items:flex-start}
+.status.ok{background:rgba(15,143,77,.06);border:1px solid rgba(15,143,77,.16);color:var(--ok)}
+.status.err{background:rgba(200,50,50,.06);border:1px solid rgba(200,50,50,.16);color:#a02020}
+.status svg{flex-shrink:0;margin-top:2px}
+
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 6px}
+.pills button{margin:0;flex:1}
+.pills button.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.pills button.sec:hover{border-color:var(--core);color:var(--core);background:#fff;box-shadow:none}
+
+.details{margin:22px 0 0;border-top:1px solid var(--line);padding-top:20px;
+  font-size:13px;color:var(--dove);line-height:1.6}
+.details b{color:var(--ink);font-weight:600}
+.details code{font-family:'SF Mono','Menlo',monospace;font-size:12px;background:var(--silver);
+  padding:2px 6px;border-radius:5px;color:var(--ink)}
+
+footer{margin:28px 0 0;padding-top:22px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--dove);text-align:center;line-height:1.5}
+footer a{color:var(--dove);text-decoration:underline;text-decoration-color:rgba(0,0,0,.14)}
+footer a:hover{color:var(--ink)}
+
+@media (max-width:540px){
+  .card{padding:28px 24px;border-radius:14px}
+  h1{font-size:28px}
+  .deal{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="card">
+    <div class="brand">SnapIT<small>Public beta · sign up</small></div>
+    <h1>Test SnapIT — <em>on the house.</em></h1>
+    <p class="lede">The whole app, unlocked, free during the beta window. We ask one thing: file the bugs you find. When beta closes, you upgrade to a paid tier — no auto-charge, no expiry trickery, we tell you weeks ahead.</p>
+
+    <div class="deal">
+      <div class="box">
+        <div class="k">During beta</div>
+        <div><b>Full-pack access</b>, no card, no expiry inside the beta window. All R·02 features as they land.</div>
+      </div>
+      <div class="box">
+        <div class="k">When beta closes</div>
+        <div>Upgrade to a <b>paid tier</b> to keep using SnapIT. Beta testers get a <b>discount</b> for the first release week.</div>
+      </div>
+    </div>
+
+    <form id="reqForm">
+      <label for="email">Your email · where we send updates + release notes</label>
+      <input id="email" type="email" required autocomplete="email" placeholder="you@wherever.com" autofocus>
+
+      <label for="name">Your name · optional</label>
+      <input id="name" type="text" autocomplete="name" placeholder="Alex Chen">
+
+      <label for="note">What are you hoping SnapIT solves for you? · optional</label>
+      <textarea id="note" placeholder="A quick sentence about your setup helps us pick features. Example: '15 years of iPhone photos plus a NAS full of DSLR RAWs. Duplicates everywhere.'"></textarea>
+
+      <button type="submit" id="submitBtn">Sign me up · get my licence</button>
+    </form>
+
+    <div class="status" id="status" hidden></div>
+
+    <div class="pills" id="dlPills" hidden>
+      <button type="button" class="sec" id="dlLicence">Download licence.json</button>
+      <button type="button" class="sec" id="dlSig">Download signature</button>
+    </div>
+
+    <div class="details" id="details" hidden></div>
+
+    <footer>
+      Already got a hand-issued lifetime code from us? Redeem it at <a href="/beta">/beta</a> instead.<br>
+      Trouble? Email <a href="mailto:support@vfempire.com">support@vfempire.com</a>.<br>
+      &copy; 2026 VF Empire Corp Ltd · Malta C 94160 · <a href="/permanence">Permanence Guarantee</a>
+    </footer>
+  </section>
+</main>
+
+<script>
+(() => {
+    const form = document.getElementById('reqForm');
+    const emailIn = document.getElementById('email');
+    const nameIn = document.getElementById('name');
+    const noteIn = document.getElementById('note');
+    const btn = document.getElementById('submitBtn');
+    const status = document.getElementById('status');
+    const dlPills = document.getElementById('dlPills');
+    const dlLicence = document.getElementById('dlLicence');
+    const dlSig = document.getElementById('dlSig');
+    const details = document.getElementById('details');
+
+    function showStatus(kind, html) {
+        const icon = kind === 'ok'
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12l6 6 10-12"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17v.01"/></svg>';
+        status.className = 'status ' + kind;
+        status.hidden = false;
+        status.innerHTML = icon + '<div>' + html + '</div>';
+    }
+
+    function downloadText(name, text, type) {
+        const blob = new Blob([text], { type: type || 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    form.addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const email = emailIn.value.trim().toLowerCase();
+        const name = nameIn.value.trim();
+        const note = noteIn.value.trim();
+        if (!email) return;
+        btn.disabled = true;
+        const orig = btn.textContent;
+        btn.textContent = 'Minting your licence…';
+        status.hidden = true;
+        dlPills.hidden = true;
+        details.hidden = true;
+
+        try {
+            const r = await fetch('/beta/request', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ email, name, note }),
+            });
+            const body = await r.json().catch(() => ({}));
+            if (!r.ok) {
+                const msg = {
+                    email_required: 'We need an email address.',
+                    malformed_email: 'That doesn\'t look like a valid email.',
+                }[body.error] || ('Something went wrong (' + (body.error || r.status) + ').');
+                showStatus('err', msg);
+                btn.disabled = false;
+                btn.textContent = orig;
+                return;
+            }
+
+            const lic = body.licence;
+            btn.textContent = 'Ready';
+            btn.style.background = 'var(--ok)';
+            dlPills.hidden = false;
+            showStatus('ok', '<b>You\'re in.</b> Download both files below and drop them into SnapIT: <b>Settings → Licence → Import</b>. Report any bug you find — the whole point of this round.');
+
+            dlLicence.onclick = () => downloadText('snapit.licence.json', lic.licence_json, 'application/json');
+            dlSig.onclick = () => downloadText('snapit.licence.sig', lic.signature_b64, 'text/plain');
+
+            const issued = lic.issued_at
+                ? new Date(lic.issued_at * 1000).toISOString().replace('T', ' ').replace(/\.\d+Z/, ' UTC')
+                : 'now';
+            details.hidden = false;
+            details.innerHTML = `
+              <b>Registered to:</b> ${lic.email}<br>
+              <b>Tier:</b> <code>${lic.tier}</code> · beta trial, full pack<br>
+              <b>Issued:</b> ${issued}<br>
+              <b>Trial window:</b> ${lic.trial_days_remaining || 90} days from now
+            `;
+        } catch (e) {
+            showStatus('err', 'Network error — check your connection and try again. Error: ' + (e.message || e));
+            btn.disabled = false;
+            btn.textContent = orig;
+        }
+    });
+})();
+</script>
+</body>
+</html>

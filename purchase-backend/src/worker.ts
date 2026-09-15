@@ -29,6 +29,7 @@ type Env = {
     STRIPE_WEBHOOK_SECRET: string;
     LICENCE_SIGNING_KEY: string;  // hex-encoded 32-byte Ed25519 seed
     VFMAIL_SMTP_TOKEN?: string;   // for licence delivery via VF Mail
+    ADMIN_TOKEN?: string;         // bearer token guarding /admin/*
 
     // Vars
     PRODUCT_NAME: string;
@@ -39,7 +40,7 @@ type Env = {
 type Tier =
     | 'personal' | 'family' | 'pro'
     | 'personal_founding' | 'family_founding' | 'pro_founding'
-    | 'beta_lifetime';
+    | 'beta_lifetime' | 'beta_trial';
 const TIER_PRICES: Record<Tier, { amount_cents: number; label: string }> = {
     // Standard tiers — active from launch day onward.
     personal:          { amount_cents:  8900, label: 'SnapIT Personal — one owner, unlimited devices they own, perpetual licence'                          },
@@ -52,7 +53,17 @@ const TIER_PRICES: Record<Tier, { amount_cents: number; label: string }> = {
     // Beta program — 10 hand-issued single-use codes. Redeemed via /beta,
     // never sold through /checkout. Full-pack (Pro-equivalent) lifetime.
     beta_lifetime:     { amount_cents:     0, label: 'SnapIT Beta · Lifetime · Full pack — thank you for helping us find bugs before launch'                },
+    // Public-request beta — anyone can sign up via /beta/request. Free
+    // during the beta window; users must upgrade to a paid tier once beta
+    // ends. Licence carries trial_days_remaining so the Rust side can
+    // enforce a soft cut-off when we're ready.
+    beta_trial:        { amount_cents:     0, label: 'SnapIT Beta · Trial · Full pack during beta — upgrade to a paid tier once beta closes'                },
 };
+
+// How many days a beta_trial licence is valid for at issue time. Extended
+// by re-running the auto-request path (idempotent per email = renews the
+// countdown from today).
+const BETA_TRIAL_DAYS = 90;
 
 const CORS: Record<string, string> = {
     'access-control-allow-origin': '*',
@@ -83,6 +94,29 @@ export default {
             }
             if (url.pathname === '/beta/redeem' && req.method === 'POST') {
                 return await handleBetaRedeem(req, env);
+            }
+            if (url.pathname === '/beta/request' && req.method === 'POST') {
+                return await handleBetaRequest(req, env);
+            }
+            if (url.pathname === '/beta/request' && req.method === 'GET') {
+                // Same trick as /admin/beta — worker owns /beta/* so the
+                // pretty URL can't fall through to the .html file naturally.
+                return env.ASSETS.fetch(new Request(
+                    new URL('/beta/request.html', url.origin).toString(),
+                    req,
+                ));
+            }
+            if (url.pathname === '/admin/beta/data' && req.method === 'GET') {
+                return await handleAdminBetaData(req, env);
+            }
+            if (url.pathname === '/admin/beta' && req.method === 'GET') {
+                // Assets binding redirects .html→pretty URL but the reverse
+                // path is blocked because run_worker_first: /admin/* owns
+                // this request. Explicitly proxy through to the HTML file.
+                return env.ASSETS.fetch(new Request(
+                    new URL('/admin/beta.html', url.origin).toString(),
+                    req,
+                ));
             }
             if (url.pathname === '/reviews' && req.method === 'GET') {
                 return await handleReviewsGet(req, env);
@@ -359,6 +393,152 @@ async function handleBetaRedeem(req: Request, env: Env): Promise<Response> {
             signature_b64,
         },
     });
+}
+
+// -------------------------------------------------------------------------
+// /beta/request — public beta sign-up. Auto-generates a fresh code +
+// mints a beta_trial licence in one round trip.
+// Body: { email: string, name?: string, note?: string }
+//
+// Idempotent per email — repeat calls with the same email extend the
+// trial from today (renews `issued_at`) rather than creating another
+// code. This lets returning testers keep a fresh 90-day window.
+// -------------------------------------------------------------------------
+
+async function handleBetaRequest(req: Request, env: Env): Promise<Response> {
+    const body = await req.json<{ email?: string; name?: string; note?: string }>().catch(() => ({}));
+    const email = (body.email || '').trim().toLowerCase();
+    const name = (body.name || '').trim().slice(0, 120);
+    const note = (body.note || '').trim().slice(0, 500);
+
+    if (!email) return json({ error: 'email_required' }, 400);
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: 'malformed_email' }, 400);
+
+    // Idempotency: same email → same slot, refresh the trial window.
+    const emailKey = `email:${email}:beta_trial`;
+    const existingRaw = await env.LICENCES.get(emailKey);
+    let code: string;
+    if (existingRaw) {
+        // Preserve original code if we can, so admin can trace continuity.
+        try {
+            const parsed = JSON.parse(existingRaw);
+            const sid = parsed.stripe_session_id || '';
+            code = sid.startsWith('beta-') ? sid.slice('beta-'.length) : autoRequestCode();
+        } catch {
+            code = autoRequestCode();
+        }
+    } else {
+        code = autoRequestCode();
+    }
+
+    // Mint fresh licence (updates issued_at → renews trial window from now)
+    const licence = {
+        email,
+        tier: 'beta_trial' as Tier,
+        issued_at: Math.floor(Date.now() / 1000),
+        product: 'snapit',
+        major_version: 1,
+        trial_days_remaining: BETA_TRIAL_DAYS,
+    };
+    const licence_json = JSON.stringify(licence);
+    const signature_b64 = await signLicence(licence_json, env.LICENCE_SIGNING_KEY);
+
+    // Persist under the same schema as paid/beta-lifetime, so /reissue and
+    // /admin/beta/data pick these up automatically.
+    const pseudoSessionId = `beta-${code}`;
+    await env.LICENCES.put(
+        `session:${pseudoSessionId}`,
+        JSON.stringify({ licence_json, signature_b64, stripe_session_id: pseudoSessionId }),
+        { metadata: { email, tier: 'beta_trial' } },
+    );
+    await env.LICENCES.put(
+        emailKey,
+        JSON.stringify({ licence_json, signature_b64, stripe_session_id: pseudoSessionId }),
+    );
+    await env.LICENCES.put(`beta:code:${code}`, JSON.stringify({
+        status: 'redeemed',
+        tier: 'beta_trial',
+        redeemed_at: licence.issued_at,
+        email,
+        name,
+        note,
+    }));
+
+    return json({
+        ok: true,
+        code,
+        licence: {
+            email,
+            tier: licence.tier,
+            issued_at: licence.issued_at,
+            trial_days_remaining: licence.trial_days_remaining,
+            licence_json,
+            signature_b64,
+        },
+    });
+}
+
+// Auto-request codes prefix with SNAP-BETA-REQ- so admin can visually
+// separate them from Vincent's ten hand-issued SNAP-BETA-XXXXXXXX codes.
+function autoRequestCode(): string {
+    const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no O/0, I/1, L confusables
+    let s = '';
+    const bytes = crypto.getRandomValues(new Uint8Array(6));
+    for (let i = 0; i < 6; i++) s += alphabet[bytes[i] % alphabet.length];
+    return 'SNAP-BETA-REQ-' + s;
+}
+
+// -------------------------------------------------------------------------
+// /admin/beta/data — dashboard data feed. Bearer-token guarded.
+//
+// Returns every `beta:code:*` KV entry with its current status + who
+// redeemed it. Called by /admin/beta.html on load.
+// -------------------------------------------------------------------------
+
+async function handleAdminBetaData(req: Request, env: Env): Promise<Response> {
+    if (!env.ADMIN_TOKEN) return json({ error: 'admin_not_configured' }, 500);
+    const auth = req.headers.get('authorization') || '';
+    const supplied = auth.replace(/^Bearer\s+/i, '').trim();
+    if (!supplied || !constantTimeEquals(supplied, env.ADMIN_TOKEN)) {
+        return json({ error: 'unauthorised' }, 401);
+    }
+
+    const listed = await env.LICENCES.list({ prefix: 'beta:code:' });
+    const rows = await Promise.all(listed.keys.map(async (k) => {
+        const raw = await env.LICENCES.get(k.name);
+        const code = k.name.replace(/^beta:code:/, '');
+        if (!raw) return { code, status: 'missing' as const };
+        try {
+            const v = JSON.parse(raw) as {
+                status: string; tier: string; redeemed_at?: number; email?: string;
+            };
+            return {
+                code,
+                status: v.status,
+                tier: v.tier,
+                redeemed_at: v.redeemed_at ?? null,
+                email: v.email ?? null,
+            };
+        } catch {
+            return { code, status: 'corrupt' as const };
+        }
+    }));
+
+    rows.sort((a, b) => a.code.localeCompare(b.code));
+    const summary = {
+        total: rows.length,
+        unused: rows.filter((r) => r.status === 'unused').length,
+        redeemed: rows.filter((r) => r.status === 'redeemed').length,
+    };
+    return json({ ok: true, summary, codes: rows });
+}
+
+// Timing-safe string compare — same length required for constant-time.
+function constantTimeEquals(a: string, b: string): boolean {
+    if (a.length !== b.length) return false;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return diff === 0;
 }
 
 // -------------------------------------------------------------------------
